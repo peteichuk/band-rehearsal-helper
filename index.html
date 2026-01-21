@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Songs App</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = {
+			darkMode: 'class',
+		}
+	</script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+	<div class="flex flex-col h-screen overflow-hidden">
+		<!-- Header -->
+		<header class="bg-blue-600 dark:bg-blue-800 text-white px-4 py-3 shadow-lg">
+			<div class="flex items-center justify-between gap-4">
+				<div class="flex items-center gap-2">
+					<button id="sidebarToggle" class="md:hidden p-2 hover:bg-blue-700 dark:hover:bg-blue-900 rounded">
+						<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+						</svg>
+					</button>
+					<h1 class="text-xl font-bold">Songs App</h1>
+				</div>
+				<div class="flex items-center gap-2 flex-1 max-w-md">
+					<input
+						type="text"
+						id="sheetsIdInput"
+						placeholder="Google Sheets ID"
+						value="1Vr1RU5w4GxQ4YNyOl8NOlWDo5tXuN45yqCha0SGlNUk"
+						class="flex-1 px-3 py-2 rounded text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+					/>
+					<button
+						id="loadSongsBtn"
+						class="px-4 py-2 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 rounded font-medium transition-colors"
+					>
+						Load
+					</button>
+				</div>
+			</div>
+		</header>
+
+		<div class="flex flex-1 overflow-hidden">
+			<!-- Sidebar -->
+			<aside
+				id="sidebar"
+				class="hidden md:flex flex-col w-80 border-r border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 transition-transform"
+			>
+				<div class="p-4 border-b border-gray-300 dark:border-gray-700">
+					<input
+						type="text"
+						id="searchInput"
+						placeholder="Search songs..."
+						disabled
+						class="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
+					/>
+				</div>
+				<div id="songsList" class="flex-1 overflow-y-auto p-2">
+					<p class="text-gray-500 dark:text-gray-400 text-center py-8">No songs loaded</p>
+				</div>
+			</aside>
+
+			<!-- Mobile Sidebar Overlay -->
+			<div
+				id="sidebarOverlay"
+				class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+			></div>
+
+			<!-- Mobile Sidebar -->
+			<aside
+				id="mobileSidebar"
+				class="hidden fixed left-0 top-0 h-full w-80 z-50 flex-col border-r border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 transform -translate-x-full transition-transform"
+			>
+				<div class="p-4 border-b border-gray-300 dark:border-gray-700">
+					<div class="flex items-center justify-between mb-4">
+						<h2 class="font-semibold">Songs</h2>
+						<button id="mobileSidebarClose" class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded">
+							<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+							</svg>
+						</button>
+					</div>
+					<input
+						type="text"
+						id="mobileSearchInput"
+						placeholder="Search songs..."
+						disabled
+						class="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
+					/>
+				</div>
+				<div id="mobileSongsList" class="flex-1 overflow-y-auto p-2">
+					<p class="text-gray-500 dark:text-gray-400 text-center py-8">No songs loaded</p>
+				</div>
+			</aside>
+
+			<!-- Main Content -->
+			<main class="flex-1 overflow-y-auto p-6">
+				<div id="mainContent">
+					<div class="text-center py-12">
+						<h2 class="text-2xl font-semibold mb-2">No song selected</h2>
+						<p class="text-gray-500 dark:text-gray-400">Select a song from the sidebar to view details</p>
+					</div>
+				</div>
+			</main>
+		</div>
+	</div>
+
+	<script src="script.js"></script>
+</body>
+</html>
