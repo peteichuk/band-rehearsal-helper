@@ -140,9 +140,9 @@ function filterSongs(query) {
 function renderSongsList() {
   if (filteredSongs.length === 0) {
     songsList.innerHTML =
-      '<p class="text-gray-500 dark:text-gray-400 text-center py-8">No songs found</p>';
+      '<p class="text-gray-500 dark:text-gray-400 text-center py-4">No songs found</p>';
     mobileSongsList.innerHTML =
-      '<p class="text-gray-500 dark:text-gray-400 text-center py-8">No songs found</p>';
+      '<p class="text-gray-500 dark:text-gray-400 text-center py-4">No songs found</p>';
     return;
   }
 
@@ -151,7 +151,7 @@ function renderSongsList() {
     return `
 			<button
 				data-song-index="${index}"
-				class="w-full text-left px-3 py-2 mb-1 rounded bg-blue-100 hover:bg-blue-300 dark:bg-gray-900 dark:hover:bg-gray-700 transition-colors ${
+				class="w-full text-left px-2 py-1 mb-1 rounded bg-blue-100 hover:bg-blue-300 dark:bg-gray-900 dark:hover:bg-gray-700 transition-colors ${
           isSelected ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100' : ''
         }"
 			>
@@ -160,7 +160,7 @@ function renderSongsList() {
 					<p class="flex gap-2">
 						${song.Language ? `<span class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(song.Language)}</span>` : ''}
 					</p>
-					<p class="flex gap-2">
+					<p class="flex items-center gap-2">
 						${song.GroupBy ? `<span class="text-sm px-2 py-1 bg-purple-300 dark:bg-purple-900 rounded-lg">${escapeHtml(song.GroupBy)}</span>` : ''}
 						${song.Favorites === true ? `<span class="text-sm w-[16px] h-[16px] text-yellow-500 dark:text-yellow-400 mt-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor"><path fill="currentColor" d="M309.5-18.9c-4.1-8-12.4-13.1-21.4-13.1s-17.3 5.1-21.4 13.1L193.1 125.3 33.2 150.7c-8.9 1.4-16.3 7.7-19.1 16.3s-.5 18 5.8 24.4l114.4 114.5-25.2 159.9c-1.4 8.9 2.3 17.9 9.6 23.2s16.9 6.1 25 2L288.1 417.6 432.4 491c8 4.1 17.7 3.3 25-2s11-14.2 9.6-23.2L441.7 305.9 556.1 191.4c6.4-6.4 8.6-15.8 5.8-24.4s-10.1-14.9-19.1-16.3L383 125.3 309.5-18.9z"/></svg></span>` : ''}
 					</p>
@@ -333,7 +333,7 @@ async function parseHolychords(url, tonality) {
   if (holychordsContentEl) {
     holychordsContentEl.innerHTML = `
 			<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700">
-				<div class="flex items-center justify-center py-8">
+				<div class="flex items-center justify-center py-4">
 					<svg class="animate-spin w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24">
 						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -532,7 +532,7 @@ function displayHolychordsContent(formattedContent, tonality, url, originalTonal
 						</select>
 						<button 
 							id="applyTonalityBtn"
-							class="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white rounded font-medium transition-colors text-sm"
+							class="px-2 py-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white rounded font-medium transition-colors text-sm"
 						>
 							Apply
 						</button>
@@ -595,11 +595,11 @@ function renderMainContent() {
   const text = selectedSong.Text || '';
 
   mainContent.innerHTML = `
-		<div class="py-8">
-			<h2 class="text-3xl font-bold mb-6">${escapeHtml(selectedSong.Name || 'Untitled')}</h2>
-			${selectedSong.Tonality ? `<p class="text-lg text-gray-600 dark:text-gray-300 mb-6">Tonality: <span class="font-semibold">${escapeHtml(selectedSong.Tonality)}</span></p>` : ''}
+		<div class="py-4">
+			<h2 class="text-3xl font-bold mb-2">${escapeHtml(selectedSong.Name || 'Untitled')} ${selectedSong.Tonality ? `<span class="text-lg text-gray-600 dark:text-gray-300 mb-2">Tonality: <span class="font-semibold">${escapeHtml(selectedSong.Tonality)}</span></span>` : ''}</h2>
 			
-			<div class="flex flex-wrap gap-3 mb-8">
+			
+			<div class="flex flex-wrap gap-3 mb-4">
 				${
           youtubeUrl
             ? `
@@ -607,7 +607,7 @@ function renderMainContent() {
 						href="${escapeHtml(youtubeUrl)}" 
 						target="_blank" 
 						rel="noopener noreferrer"
-						class="px-6 py-3 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+						class="px-2 py-1 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
 					>
 						<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
 							<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
@@ -624,7 +624,7 @@ function renderMainContent() {
 						href="${escapeHtml(chordifyUrl)}" 
 						target="_blank" 
 						rel="noopener noreferrer"
-						class="px-6 py-3 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+						class="px-2 py-1 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
 					>
 						<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
 							<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -641,7 +641,7 @@ function renderMainContent() {
 						href="${escapeHtml(holychordsUrl)}" 
 						target="_blank" 
 						rel="noopener noreferrer"
-						class="px-6 py-3 bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+						class="px-2 py-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
 					>
 						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -650,7 +650,7 @@ function renderMainContent() {
 					</a>
 					<button 
 						id="parseHolychordsBtn"
-						class="px-6 py-3 bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+						class="px-2 py-1 bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
 					>
 						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -662,7 +662,7 @@ function renderMainContent() {
         }
 			</div>
 
-			<div id="holychordsContent" class="mt-8"></div>
+			<div id="holychordsContent" class="mt-8 text-xs"></div>
 		</div>
 	`;
 
@@ -682,6 +682,46 @@ function renderMainContent() {
       parseBtn.addEventListener('click', () => parseHolychords(baseUrl, selectedSong.Tonality));
     }
   }
+
+  // Add zoom buttons to the Holychords content section
+  function addZoomButtons() {
+    const holychordsContent = document.getElementById('holychordsContent');
+    if (!holychordsContent) return;
+
+    const zoomControls = document.createElement('div');
+    zoomControls.className = 'flex gap-2 mb-4';
+
+    zoomControls.innerHTML = `
+    <button id="zoomInBtn" class="px-2 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded font-medium transition-colors">
+      Zoom In
+    </button>
+    <button id="zoomOutBtn" class="px-2 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded font-medium transition-colors">
+      Zoom Out
+    </button>
+  `;
+
+    holychordsContent.insertAdjacentElement('beforebegin', zoomControls);
+
+    // Default font size
+    let fontSize = 14;
+
+    // Zoom in functionality
+    document.getElementById('zoomInBtn').addEventListener('click', () => {
+      fontSize += 2;
+      holychordsContent.style.fontSize = `${fontSize}px`;
+      holychordsContent.style.lineHeight = 'normal';
+    });
+
+    // Zoom out functionality
+    document.getElementById('zoomOutBtn').addEventListener('click', () => {
+      fontSize = Math.max(10, fontSize - 2); // Prevent font size from going below 10px
+      holychordsContent.style.fontSize = `${fontSize}px`;
+      holychordsContent.style.lineHeight = 'normal';
+    });
+  }
+
+  // Call the function after rendering Holychords content
+  addZoomButtons();
 }
 
 // Escape HTML to prevent XSS
