@@ -16,17 +16,17 @@ A lightweight, **no-build** web utility designed for musical bands to manage rep
 
 To ensure the application works correctly, your Google Sheet should include the following columns:
 
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| **Name** | `string` | The song title (searchable). |
-| **Favorites** | `boolean` | Mark as TRUE to highlight or star the song. |
-| **Language** | `string` | The language of the lyrics. |
-| **Tonality** | `string` | The original key of the song. |
-| **Text** | `string` | Lyrics with chords (use spaces between chords for proper parsing). |
-| **Holychords** | `url` | Link to the song on Holychords. |
-| **YouTube** | `url` | Link to a reference video or backing track. |
-| **Chordify** | `url` | Link to the Chordify page. |
-| **GroupBy** | `any` | Used for filtering (e.g., "Acoustic Set", "Sunday Service"). |
+| Column         | Type      | Description                                                        |
+| :------------- | :-------- | :----------------------------------------------------------------- |
+| **Name**       | `string`  | The song title (searchable).                                       |
+| **Favorites**  | `boolean` | Mark as TRUE to highlight or star the song.                        |
+| **Language**   | `string`  | The language of the lyrics.                                        |
+| **Tonality**   | `string`  | The original key of the song.                                      |
+| **Text**       | `string`  | Lyrics with chords (use spaces between chords for proper parsing). |
+| **Holychords** | `url`     | Link to the song on Holychords.                                    |
+| **YouTube**    | `url`     | Link to a reference video or backing track.                        |
+| **Chordify**   | `url`     | Link to the Chordify page.                                         |
+| **GroupBy**    | `any`     | Used for filtering (e.g., "Acoustic Set", "Sunday Service").       |
 
 > **Note:** For the chord transposition engine to work, ensure there are clear spaces between chord symbols in the `Text` field.
 
@@ -47,9 +47,16 @@ Contributions are welcome! If you have ideas for new features or improvements:
 4. Push to the Branch (`git push origin feature/AmazingFeature`).
 5. Open a Pull Request.
 
+## Available Scripts
+
+### `npm run dev`
+
+Starts a lightweight development server using `http-server`. This serves the current directory (`./`) with caching disabled and automatically opens the browser. Useful for quickly previewing the project during development.
+
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
+
 Created by **Michael Peteichuk** — [michael.peteichuk@gmail.com](mailto:michael.peteichuk@gmail.com)

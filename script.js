@@ -22,126 +22,138 @@ const mobileSidebar = document.getElementById('mobileSidebar');
 
 // Initialize dark mode based on system preference
 function initDarkMode() {
-	const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-	if (prefersDark) {
-		document.documentElement.classList.add('dark');
-	} else {
-		document.documentElement.classList.remove('dark');
-	}
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (prefersDark) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
 
-	// Listen for system theme changes
-	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-		if (e.matches) {
-			document.documentElement.classList.add('dark');
-		} else {
-			document.documentElement.classList.remove('dark');
-		}
-	});
+  // Listen for system theme changes
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if (e.matches) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  });
 }
 
 // Load songs from Google Sheets
 async function loadSongs() {
-	const sheetsId = sheetsIdInput.value.trim();
-	if (!sheetsId) {
-		alert('Please enter a Google Sheets ID');
-		return;
-	}
+  const sheetsId = sheetsIdInput.value.trim();
+  if (!sheetsId) {
+    alert('Please enter a Google Sheets ID');
+    return;
+  }
 
-	const url =
-		`https://docs.google.com/spreadsheets/d/${sheetsId}/gviz/tq` +
-		`?tqx=out:json&headers=1&tq=${encodeURIComponent('select *')}`;
+  const url =
+    `https://docs.google.com/spreadsheets/d/${sheetsId}/gviz/tq` +
+    `?tqx=out:json&headers=1&tq=${encodeURIComponent('select *')}`;
 
-	try {
-		loadSongsBtn.disabled = true;
-		loadSongsBtn.textContent = 'Loading...';
+  try {
+    loadSongsBtn.disabled = true;
+    loadSongsBtn.textContent = 'Loading...';
 
-		const response = await fetch(url);
-		const text = await response.text();
-		const data = parseGvizResponse(text);
-		songs = normalizeRows(data.table);
+    const response = await fetch(url);
+    const text = await response.text();
+    const data = parseGvizResponse(text);
+    songs = normalizeRows(data.table);
 
-		// Filter out rows where Name is empty or null
-		songs = songs.filter((song) => song.Name).sort((a, b) => {
-			let x = a.Name.toLowerCase();
-			let y = b.Name.toLowerCase();
-			if (x < y) {return -1;}
-			if (x > y) {return 1;}
-			return 0;
-		});
+    // Filter out rows where Name is empty or null
+    songs = songs
+      .filter(song => song.Name)
+      .sort((a, b) => {
+        let x = a.Name.toLowerCase();
+        let y = b.Name.toLowerCase();
+        if (x < y) {
+          return -1;
+        }
+        if (x > y) {
+          return 1;
+        }
+        return 0;
+      });
 
-		filteredSongs = [...songs];
-		renderSongsList();
-		enableSearch();
-	} catch (error) {
-		console.error('Error loading songs:', error);
-		alert('Failed to load songs. Please check the Google Sheets ID.');
-	} finally {
-		loadSongsBtn.disabled = false;
-		loadSongsBtn.textContent = 'Load';
-	}
+    filteredSongs = [...songs];
+    renderSongsList();
+    enableSearch();
+  } catch (error) {
+    console.error('Error loading songs:', error);
+    alert('Failed to load songs. Please check the Google Sheets ID.');
+  } finally {
+    loadSongsBtn.disabled = false;
+    loadSongsBtn.textContent = 'Load';
+  }
 }
 
 // Parse Google Visualization API response
 function parseGvizResponse(text) {
-	const jsonText = text
-		.replace(/^[^(]*\(/, '') // remove everything before (
-		.replace(/\);?$/, ''); // remove ); at the end
-	return JSON.parse(jsonText);
+  const jsonText = text
+    .replace(/^[^(]*\(/, '') // remove everything before (
+    .replace(/\);?$/, ''); // remove ); at the end
+  return JSON.parse(jsonText);
 }
 
 // Normalize table rows to objects
 function normalizeRows(table) {
-	const headers = table.cols.map((c) => c.label).filter((label) => label);
-	return table.rows.map((r) => {
-		const obj = {};
-		r.c.forEach((cell, i) => {
-			if (cell?.v) {
-				obj[headers[i]] = cell?.v ?? null;
-			}
-		});
-		return obj;
-	});
+  const headers = table.cols.map(c => c.label).filter(label => label);
+  return table.rows.map(r => {
+    const obj = {};
+    r.c.forEach((cell, i) => {
+      if (cell?.v) {
+        obj[headers[i]] = cell?.v ?? null;
+      }
+    });
+    return obj;
+  });
 }
 
 // Enable search inputs
 function enableSearch() {
-	const hasSongs = songs.length > 0;
-	searchInput.disabled = !hasSongs;
-	mobileSearchInput.disabled = !hasSongs;
+  const hasSongs = songs.length > 0;
+  searchInput.disabled = !hasSongs;
+  mobileSearchInput.disabled = !hasSongs;
 }
 
 // Filter songs by search query
 function filterSongs(query) {
-	const searchTerm = query.toLowerCase().trim();
-	if (!searchTerm) {
-		filteredSongs = [...songs];
-	} else {
-		filteredSongs = songs.filter((song) => {
-			const songName = (song.Name || '').toLowerCase();
-			const songLanguage = (song.Language || '').toLowerCase();
-			const songGroupBy = (song.GroupBy || '').toLowerCase();
-			return songName.includes(searchTerm) || songLanguage.includes(searchTerm) || songGroupBy.includes(searchTerm);
-		});
-	}
-	renderSongsList();
+  const searchTerm = query.toLowerCase().trim();
+  if (!searchTerm) {
+    filteredSongs = [...songs];
+  } else {
+    filteredSongs = songs.filter(song => {
+      const songName = (song.Name || '').toLowerCase();
+      const songLanguage = (song.Language || '').toLowerCase();
+      const songGroupBy = (song.GroupBy || '').toLowerCase();
+      return (
+        songName.includes(searchTerm) ||
+        songLanguage.includes(searchTerm) ||
+        songGroupBy.includes(searchTerm)
+      );
+    });
+  }
+  renderSongsList();
 }
 
 // Render songs list
 function renderSongsList() {
-	if (filteredSongs.length === 0) {
-		songsList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">No songs found</p>';
-		mobileSongsList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">No songs found</p>';
-		return;
-	}
+  if (filteredSongs.length === 0) {
+    songsList.innerHTML =
+      '<p class="text-gray-500 dark:text-gray-400 text-center py-8">No songs found</p>';
+    mobileSongsList.innerHTML =
+      '<p class="text-gray-500 dark:text-gray-400 text-center py-8">No songs found</p>';
+    return;
+  }
 
-	const listItems = filteredSongs.map((song, index) => {
-		const isSelected = selectedSong === song;
-		return `
+  const listItems = filteredSongs.map((song, index) => {
+    const isSelected = selectedSong === song;
+    return `
 			<button
 				data-song-index="${index}"
 				class="w-full text-left px-3 py-2 mb-1 rounded bg-blue-100 hover:bg-blue-300 dark:bg-gray-900 dark:hover:bg-gray-700 transition-colors ${
-					isSelected ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100' : ''
-				}"
+          isSelected ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100' : ''
+        }"
 			>
 				<div class="font-medium flex w-full gap-2 items-center"><span>${escapeHtml(song.Name || 'Untitled')}</span> <span class="text-sm text-gray-500 dark:text-gray-400">${song.Tonality ? escapeHtml(song.Tonality) : ''}</span></div>
 				<div class="flex gap-2 justify-between mt-1 w-full">
@@ -155,132 +167,171 @@ function renderSongsList() {
 				</div>
 			</button>
 		`;
-	});
+  });
 
-	songsList.innerHTML = listItems.join('');
-	mobileSongsList.innerHTML = listItems.join('');
+  songsList.innerHTML = listItems.join('');
+  mobileSongsList.innerHTML = listItems.join('');
 
-	// Add click handlers
-	document.querySelectorAll('#songsList button, #mobileSongsList button').forEach((btn) => {
-		btn.addEventListener('click', () => {
-			const index = parseInt(btn.getAttribute('data-song-index'));
-			selectSong(filteredSongs[index]);
-		});
-	});
+  // Add click handlers
+  document.querySelectorAll('#songsList button, #mobileSongsList button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const index = parseInt(btn.getAttribute('data-song-index'));
+      selectSong(filteredSongs[index]);
+    });
+  });
 }
 
 // Select a song
 function selectSong(song) {
-	selectedSong = song;
-	renderSongsList();
-	renderMainContent();
-	closeMobileSidebar();
+  selectedSong = song;
+  renderSongsList();
+  renderMainContent();
+  closeMobileSidebar();
 }
 
 // Chord transposition mapping
 const chordTranspositions = {
-	'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3, 'E': 4, 'F': 5,
-	'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8, 'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11, 'H': 11
+  C: 0,
+  'C#': 1,
+  Db: 1,
+  D: 2,
+  'D#': 3,
+  Eb: 3,
+  E: 4,
+  F: 5,
+  'F#': 6,
+  Gb: 6,
+  G: 7,
+  'G#': 8,
+  Ab: 8,
+  A: 9,
+  'A#': 10,
+  Bb: 10,
+  B: 11,
+  H: 11,
 };
 
-const noteNames = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B', 'H'];
+const noteNames = [
+  'C',
+  'C#',
+  'Db',
+  'D',
+  'D#',
+  'Eb',
+  'E',
+  'F',
+  'F#',
+  'Gb',
+  'G',
+  'G#',
+  'Ab',
+  'A',
+  'A#',
+  'Bb',
+  'B',
+  'H',
+];
 
 // Transpose a single chord
 function transposeChord(chord, semitones) {
-	if (!chord || !chord.trim()) return chord;
-	
-	const chordMatch = chord.match(/^([A-G][#b]?)(.*)$/);
-	if (!chordMatch) return chord;
-	
-	const rootNote = chordMatch[1];
-	const suffix = chordMatch[2];
-	
-	const fromIndex = chordTranspositions[rootNote];
-	if (fromIndex === undefined) return chord;
-	
-	const toIndex = (fromIndex + semitones + 12) % 12;
-	
-	// Find the note name at the target index (prefer sharps for ascending, flats for descending)
-	const targetNotes = noteNames.filter(n => chordTranspositions[n] === toIndex);
-	const targetNote = targetNotes.length > 0 ? targetNotes[0] : rootNote;
-	
-	return targetNote + suffix;
+  if (!chord || !chord.trim()) return chord;
+
+  const chordMatch = chord.match(/^([A-G][#b]?)(.*)$/);
+  if (!chordMatch) return chord;
+
+  const rootNote = chordMatch[1];
+  const suffix = chordMatch[2];
+
+  const fromIndex = chordTranspositions[rootNote];
+  if (fromIndex === undefined) return chord;
+
+  const toIndex = (fromIndex + semitones + 12) % 12;
+
+  // Find the note name at the target index (prefer sharps for ascending, flats for descending)
+  const targetNotes = noteNames.filter(n => chordTranspositions[n] === toIndex);
+  const targetNote = targetNotes.length > 0 ? targetNotes[0] : rootNote;
+
+  return targetNote + suffix;
 }
 
 // Transpose all chords in song text
 function transposeSongContent(content, fromTonality, toTonality) {
-	if (!fromTonality || !toTonality || fromTonality === toTonality) {
-		return content;
-	}
-	
-	const fromIndex = chordTranspositions[fromTonality];
-	const toIndex = chordTranspositions[toTonality];
-	
-	if (fromIndex === undefined || toIndex === undefined) {
-		return content;
-	}
-	
-	const semitones = (toIndex - fromIndex + 12) % 12;
-	
-	// Match chord patterns - chords typically appear at start of line or after whitespace
-	// Pattern: Note (A-G with optional #/b) + chord quality (m, 7, sus4, etc.) + optional slash chord
-	const chordPattern = /(^|[ \t]+)([A-G][#b]?[^/\s]*(?:\/[A-G][#b]?[^/\s]*)?)/gm;
-	
-	return content.replace(chordPattern, (match, prefix, chord) => {
-		// Handle slash chords (e.g., D/F#)
-		if (chord.includes('/')) {
-			const parts = chord.split('/');
-			const transposedChord = transposeChord(parts[0], semitones);
-			const transposedBass = transposeChord(parts[1], semitones);
-			return prefix + transposedChord + '/' + transposedBass;
-		}
-		
-		// Regular chord
-		return prefix + transposeChord(chord, semitones);
-	});
+  if (!fromTonality || !toTonality || fromTonality === toTonality) {
+    return content;
+  }
+
+  const fromIndex = chordTranspositions[fromTonality];
+  const toIndex = chordTranspositions[toTonality];
+
+  if (fromIndex === undefined || toIndex === undefined) {
+    return content;
+  }
+
+  const semitones = (toIndex - fromIndex + 12) % 12;
+
+  // Match chord patterns - chords typically appear at start of line or after whitespace
+  // Pattern: Note (A-G with optional #/b) + chord quality (m, 7, sus4, etc.) + optional slash chord
+  const chordPattern = /(^|[ \t]+)([A-G][#b]?[^/\s]*(?:\/[A-G][#b]?[^/\s]*)?)/gm;
+
+  return content.replace(chordPattern, (match, prefix, chord) => {
+    // Handle slash chords (e.g., D/F#)
+    if (chord.includes('/')) {
+      const parts = chord.split('/');
+      const transposedChord = transposeChord(parts[0], semitones);
+      const transposedBass = transposeChord(parts[1], semitones);
+      return prefix + transposedChord + '/' + transposedBass;
+    }
+
+    // Regular chord
+    return prefix + transposeChord(chord, semitones);
+  });
 }
 
 // Parse song from Holychords URL
 async function parseHolychords(url, tonality) {
-	const holychordsContent = document.getElementById('holychordsContent');
-	
-	if (!url || !url.includes('holychords.pro')) {
-		alert('Invalid Holychords URL');
-		return;
-	}
+  const holychordsContent = document.getElementById('holychordsContent');
 
-	// Always use base URL (no tonality hash) - tonality is handled client-side
-	const baseUrl = url.split('#')[0];
-	
-	// Cache key is just the base URL (no tonality)
-	const cacheKey = baseUrl;
+  if (!url || !url.includes('holychords.pro')) {
+    alert('Invalid Holychords URL');
+    return;
+  }
 
-	// Check cache first
-	if (holychordsCache[cacheKey]) {
-		const cachedData = holychordsCache[cacheKey];
-		// Reset button state if it exists (for cached responses)
-		const parseBtn = document.getElementById('parseHolychordsBtn');
-		if (parseBtn) {
-			parseBtn.disabled = true;
-			parseBtn.innerHTML = `
+  // Always use base URL (no tonality hash) - tonality is handled client-side
+  const baseUrl = url.split('#')[0];
+
+  // Cache key is just the base URL (no tonality)
+  const cacheKey = baseUrl;
+
+  // Check cache first
+  if (holychordsCache[cacheKey]) {
+    const cachedData = holychordsCache[cacheKey];
+    // Reset button state if it exists (for cached responses)
+    const parseBtn = document.getElementById('parseHolychordsBtn');
+    if (parseBtn) {
+      parseBtn.disabled = true;
+      parseBtn.innerHTML = `
 				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
 				</svg>
 				Parse Song
 			`;
-		}
-		const originalTonality = selectedSong ? selectedSong.Tonality : '';
-		// Transpose chords if tonality is different from original
-		const contentToDisplay = transposeSongContent(cachedData.formattedContent, cachedData.originalTonality || originalTonality, tonality || cachedData.originalTonality || originalTonality);
-		displayHolychordsContent(contentToDisplay, tonality, url, originalTonality);
-		return;
-	}
+    }
+    const originalTonality = selectedSong ? selectedSong.Tonality : '';
+    // Transpose chords if tonality is different from original
+    const contentToDisplay = transposeSongContent(
+      cachedData.formattedContent,
+      cachedData.originalTonality || originalTonality,
+      tonality || cachedData.originalTonality || originalTonality
+    );
+    displayHolychordsContent(contentToDisplay, tonality, url, originalTonality);
+    return;
+  }
 
-	// Set parsing state and show loading indicator
-	isParsingHolychords = true;
-	const holychordsContentEl = document.getElementById('holychordsContent');
-	if (holychordsContentEl) {
-		holychordsContentEl.innerHTML = `
+  // Set parsing state and show loading indicator
+  isParsingHolychords = true;
+  const holychordsContentEl = document.getElementById('holychordsContent');
+  if (holychordsContentEl) {
+    holychordsContentEl.innerHTML = `
 			<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700">
 				<div class="flex items-center justify-center py-8">
 					<svg class="animate-spin w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24">
@@ -291,151 +342,175 @@ async function parseHolychords(url, tonality) {
 				</div>
 			</div>
 		`;
-	}
+  }
 
-	const parseBtn = document.getElementById('parseHolychordsBtn');
-	if (parseBtn) {
-		parseBtn.disabled = true;
-		parseBtn.innerHTML = `
+  const parseBtn = document.getElementById('parseHolychordsBtn');
+  if (parseBtn) {
+    parseBtn.disabled = true;
+    parseBtn.innerHTML = `
 			<svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
 				<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 				<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
 			</svg>
 			Parsing...
 		`;
-	}
+  }
 
-	try {
-		// Always use base URL (without tonality hash) - tonality is handled client-side
-		// Use CORS proxy to bypass CORS restrictions
-		const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(baseUrl)}`;
-		
-		const response = await fetch(proxyUrl);
-		const html = await response.text();
+  try {
+    // Always use base URL (without tonality hash) - tonality is handled client-side
+    // Use CORS proxy to bypass CORS restrictions
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(baseUrl)}`;
 
-		// Parse HTML to extract song content
-		const parser = new DOMParser();
-		const doc = parser.parseFromString(html, 'text/html');
+    const response = await fetch(proxyUrl);
+    const html = await response.text();
 
-		// Holychords uses pre#music_text for the song content with chords
-		let songContent = '';
+    // Parse HTML to extract song content
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
 
-		// First, try the specific Holychords selector
-		const musicTextElement = doc.querySelector('pre#music_text');
-		if (musicTextElement) {
-			songContent = musicTextElement.textContent.trim();
-		}
+    // Holychords uses pre#music_text for the song content with chords
+    let songContent = '';
 
-		// If not found, try alternative selectors
-		if (!songContent) {
-			const contentSelectors = [
-				'pre.music_text',
-				'pre[class*="music"]',
-				'[class*="song-content"]',
-				'[class*="chords-text"]',
-				'[class*="lyrics"]',
-				'pre[class*="chord"]',
-				'pre',
-			];
+    // First, try the specific Holychords selector
+    const musicTextElement = doc.querySelector('pre#music_text');
+    if (musicTextElement) {
+      songContent = musicTextElement.textContent.trim();
+    }
 
-			for (const selector of contentSelectors) {
-				const element = doc.querySelector(selector);
-				if (element) {
-					const text = element.textContent.trim();
-					// Check if content looks like song with chords
-					if (text && (text.length > 100 || text.match(/[A-G][#b]?[m]?/))) {
-						songContent = text;
-						break;
-					}
-				}
-			}
-		}
+    // If not found, try alternative selectors
+    if (!songContent) {
+      const contentSelectors = [
+        'pre.music_text',
+        'pre[class*="music"]',
+        '[class*="song-content"]',
+        '[class*="chords-text"]',
+        '[class*="lyrics"]',
+        'pre[class*="chord"]',
+        'pre',
+      ];
 
-		// If no specific container found, try to get main content from body
-		if (!songContent && doc.body) {
-			// Clone body to avoid modifying original
-			const bodyClone = doc.body.cloneNode(true);
-			
-			// Remove non-content elements
-			const toRemove = bodyClone.querySelectorAll('script, style, nav, header, footer, aside, .header, .footer, .navbar, .menu, .sidebar');
-			toRemove.forEach(el => el.remove());
-			
-			const bodyText = bodyClone.textContent.trim();
-			if (bodyText) {
-				songContent = bodyText;
-			}
-		}
+      for (const selector of contentSelectors) {
+        const element = doc.querySelector(selector);
+        if (element) {
+          const text = element.textContent.trim();
+          // Check if content looks like song with chords
+          if (text && (text.length > 100 || text.match(/[A-G][#b]?[m]?/))) {
+            songContent = text;
+            break;
+          }
+        }
+      }
+    }
 
-		// Preserve original formatting with newlines
-		// Only remove excessive trailing spaces but keep all newlines
-		const formattedContent = songContent
-			.split('\n')
-			.map(line => line.trimEnd()) // Remove trailing spaces but keep leading ones
-			.join('\n'); // Preserve all newlines including empty lines for spacing between sections
+    // If no specific container found, try to get main content from body
+    if (!songContent && doc.body) {
+      // Clone body to avoid modifying original
+      const bodyClone = doc.body.cloneNode(true);
 
-		// Get original tonality from song data
-		const originalTonality = selectedSong ? selectedSong.Tonality : '';
-		
-		// Store in cache with original tonality (base URL only, no tonality in cache key)
-		holychordsCache[cacheKey] = {
-			formattedContent: formattedContent,
-			originalTonality: originalTonality
-		};
+      // Remove non-content elements
+      const toRemove = bodyClone.querySelectorAll(
+        'script, style, nav, header, footer, aside, .header, .footer, .navbar, .menu, .sidebar'
+      );
+      toRemove.forEach(el => el.remove());
 
-		// Transpose chords if tonality is different from original
-		const contentToDisplay = transposeSongContent(formattedContent, originalTonality, tonality || originalTonality);
+      const bodyText = bodyClone.textContent.trim();
+      if (bodyText) {
+        songContent = bodyText;
+      }
+    }
 
-		// Display the parsed content
-		isParsingHolychords = false;
-		displayHolychordsContent(contentToDisplay, tonality || originalTonality, url, originalTonality);
+    // Preserve original formatting with newlines
+    // Only remove excessive trailing spaces but keep all newlines
+    const formattedContent = songContent
+      .split('\n')
+      .map(line => line.trimEnd()) // Remove trailing spaces but keep leading ones
+      .join('\n'); // Preserve all newlines including empty lines for spacing between sections
 
-	} catch (error) {
-		isParsingHolychords = false;
-		console.error('Error parsing Holychords:', error);
-		const holychordsContentEl = document.getElementById('holychordsContent');
-		if (holychordsContentEl) {
-			holychordsContentEl.innerHTML = `
+    // Get original tonality from song data
+    const originalTonality = selectedSong ? selectedSong.Tonality : '';
+
+    // Store in cache with original tonality (base URL only, no tonality in cache key)
+    holychordsCache[cacheKey] = {
+      formattedContent: formattedContent,
+      originalTonality: originalTonality,
+    };
+
+    // Transpose chords if tonality is different from original
+    const contentToDisplay = transposeSongContent(
+      formattedContent,
+      originalTonality,
+      tonality || originalTonality
+    );
+
+    // Display the parsed content
+    isParsingHolychords = false;
+    displayHolychordsContent(contentToDisplay, tonality || originalTonality, url, originalTonality);
+  } catch (error) {
+    isParsingHolychords = false;
+    console.error('Error parsing Holychords:', error);
+    const holychordsContentEl = document.getElementById('holychordsContent');
+    if (holychordsContentEl) {
+      holychordsContentEl.innerHTML = `
 				<div class="bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg p-4">
 					<p class="text-red-800 dark:text-red-200">Failed to parse song from Holychords. Please check the URL and try again.</p>
 					<p class="text-red-600 dark:text-red-300 text-sm mt-2">Error: ${escapeHtml(error.message)}</p>
 				</div>
 			`;
-		}
-	} finally {
-		// Reset button state after parsing completes (keep it disabled)
-		const parseBtn = document.getElementById('parseHolychordsBtn');
-		if (parseBtn && parseBtn.disabled) {
-			parseBtn.innerHTML = `
+    }
+  } finally {
+    // Reset button state after parsing completes (keep it disabled)
+    const parseBtn = document.getElementById('parseHolychordsBtn');
+    if (parseBtn && parseBtn.disabled) {
+      parseBtn.innerHTML = `
 				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
 				</svg>
 				Parse Song
 			`;
-		}
-	}
+    }
+  }
 }
 
 // Display Holychords content with tonality selector
 function displayHolychordsContent(formattedContent, tonality, url, originalTonality) {
-	const holychordsContent = document.getElementById('holychordsContent');
+  const holychordsContent = document.getElementById('holychordsContent');
 
-	// Clear any existing content first - force complete replacement
-	if (holychordsContent) {
-		holychordsContent.innerHTML = '';
-		// Force a reflow to ensure old content is cleared
-		holychordsContent.offsetHeight;
-	}
+  // Clear any existing content first - force complete replacement
+  if (holychordsContent) {
+    holychordsContent.innerHTML = '';
+    // Force a reflow to ensure old content is cleared
+    holychordsContent.offsetHeight;
+  }
 
-	// Tonality options matching Holychords format
-	const tonalities = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'H'];
+  // Tonality options matching Holychords format
+  const tonalities = [
+    'C',
+    'C#',
+    'Db',
+    'D',
+    'D#',
+    'Eb',
+    'E',
+    'F',
+    'F#',
+    'Gb',
+    'G',
+    'G#',
+    'Ab',
+    'A',
+    'A#',
+    'Bb',
+    'H',
+  ];
 
-	// Use original tonality from song data for "(Original)" label
-	const originalTonalityValue = originalTonality || (selectedSong ? selectedSong.Tonality : '') || '';
-	// Use current tonality for selected option in dropdown
-	const currentTonality = tonality || '';
+  // Use original tonality from song data for "(Original)" label
+  const originalTonalityValue =
+    originalTonality || (selectedSong ? selectedSong.Tonality : '') || '';
+  // Use current tonality for selected option in dropdown
+  const currentTonality = tonality || '';
 
-	// Display the parsed content with tonality selector
-	holychordsContent.innerHTML = `
+  // Display the parsed content with tonality selector
+  holychordsContent.innerHTML = `
 			<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700">
 				<div class="flex items-center justify-between mb-4 flex-wrap gap-3">
 					<h3 class="text-xl font-semibold">Song Text with Chords</h3>
@@ -446,12 +521,14 @@ function displayHolychordsContent(formattedContent, tonality, url, originalTonal
 							class="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
 						>
 							<option value="">Default</option>
-							${tonalities.map(t => {
-								const isOriginal = originalTonalityValue === t;
-								const isSelected = currentTonality === t;
-								const label = isOriginal ? `${t} (Original)` : t;
-								return `<option value="${escapeHtml(t)}" ${isSelected ? 'selected' : ''}>${escapeHtml(label)}</option>`;
-							}).join('')}
+							${tonalities
+                .map(t => {
+                  const isOriginal = originalTonalityValue === t;
+                  const isSelected = currentTonality === t;
+                  const label = isOriginal ? `${t} (Original)` : t;
+                  return `<option value="${escapeHtml(t)}" ${isSelected ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+                })
+                .join('')}
 						</select>
 						<button 
 							id="applyTonalityBtn"
@@ -465,60 +542,66 @@ function displayHolychordsContent(formattedContent, tonality, url, originalTonal
 			</div>
 		`;
 
-		// Add event listener for tonality change
-		const applyTonalityBtn = document.getElementById('applyTonalityBtn');
-		const tonalitySelect = document.getElementById('tonalitySelect');
-		
-		if (applyTonalityBtn && tonalitySelect && url) {
-			// Store base URL (without hash) for reuse
-			const baseUrl = url.split('#')[0];
-			
-			const applyTonality = () => {
-				const newTonality = tonalitySelect.value || originalTonalityValue;
-				// Just re-display with transposed chords (no new request needed)
-				const cacheKey = baseUrl.split('#')[0];
-				if (holychordsCache[cacheKey]) {
-					const cachedData = holychordsCache[cacheKey];
-					const transposedContent = transposeSongContent(cachedData.formattedContent, cachedData.originalTonality || originalTonalityValue, newTonality);
-					displayHolychordsContent(transposedContent, newTonality, baseUrl, originalTonalityValue);
-				} else {
-					// If not cached, parse it
-					parseHolychords(baseUrl, newTonality);
-				}
-			};
-			
-			applyTonalityBtn.addEventListener('click', applyTonality);
-			tonalitySelect.addEventListener('keypress', (e) => {
-				if (e.key === 'Enter') {
-					applyTonality();
-				}
-			});
-		}
+  // Add event listener for tonality change
+  const applyTonalityBtn = document.getElementById('applyTonalityBtn');
+  const tonalitySelect = document.getElementById('tonalitySelect');
+
+  if (applyTonalityBtn && tonalitySelect && url) {
+    // Store base URL (without hash) for reuse
+    const baseUrl = url.split('#')[0];
+
+    const applyTonality = () => {
+      const newTonality = tonalitySelect.value || originalTonalityValue;
+      // Just re-display with transposed chords (no new request needed)
+      const cacheKey = baseUrl.split('#')[0];
+      if (holychordsCache[cacheKey]) {
+        const cachedData = holychordsCache[cacheKey];
+        const transposedContent = transposeSongContent(
+          cachedData.formattedContent,
+          cachedData.originalTonality || originalTonalityValue,
+          newTonality
+        );
+        displayHolychordsContent(transposedContent, newTonality, baseUrl, originalTonalityValue);
+      } else {
+        // If not cached, parse it
+        parseHolychords(baseUrl, newTonality);
+      }
+    };
+
+    applyTonalityBtn.addEventListener('click', applyTonality);
+    tonalitySelect.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        applyTonality();
+      }
+    });
+  }
 }
 
 // Render main content
 function renderMainContent() {
-	if (!selectedSong) {
-		mainContent.innerHTML = `
+  if (!selectedSong) {
+    mainContent.innerHTML = `
 			<div class="text-center py-12">
 				<h2 class="text-2xl font-semibold mb-2">No song selected</h2>
 				<p class="text-gray-500 dark:text-gray-400">Select a song from the sidebar to view details</p>
 			</div>
 		`;
-		return;
-	}
+    return;
+  }
 
-	const youtubeUrl = selectedSong.YouTube || '';
-	const chordifyUrl = selectedSong.Chordify || '';
-	const holychordsUrl = selectedSong.Holychords || '';
+  const youtubeUrl = selectedSong.YouTube || '';
+  const chordifyUrl = selectedSong.Chordify || '';
+  const holychordsUrl = selectedSong.Holychords || '';
 
-	mainContent.innerHTML = `
+  mainContent.innerHTML = `
 		<div class="py-8">
 			<h2 class="text-3xl font-bold mb-6">${escapeHtml(selectedSong.Name || 'Untitled')}</h2>
 			${selectedSong.Tonality ? `<p class="text-lg text-gray-600 dark:text-gray-300 mb-6">Tonality: <span class="font-semibold">${escapeHtml(selectedSong.Tonality)}</span></p>` : ''}
 			
 			<div class="flex flex-wrap gap-3 mb-8">
-				${youtubeUrl ? `
+				${
+          youtubeUrl
+            ? `
 					<a 
 						href="${escapeHtml(youtubeUrl)}" 
 						target="_blank" 
@@ -530,8 +613,12 @@ function renderMainContent() {
 						</svg>
 						YouTube
 					</a>
-				` : ''}
-				${chordifyUrl ? `
+				`
+            : ''
+        }
+				${
+          chordifyUrl
+            ? `
 					<a 
 						href="${escapeHtml(chordifyUrl)}" 
 						target="_blank" 
@@ -543,8 +630,12 @@ function renderMainContent() {
 						</svg>
 						Chordify
 					</a>
-				` : ''}
-				${holychordsUrl ? `
+				`
+            : ''
+        }
+				${
+          holychordsUrl
+            ? `
 					<a 
 						href="${escapeHtml(holychordsUrl)}" 
 						target="_blank" 
@@ -565,65 +656,67 @@ function renderMainContent() {
 						</svg>
 						Parse Song
 					</button>
-				` : ''}
+				`
+            : ''
+        }
 			</div>
 
 			<div id="holychordsContent" class="mt-8"></div>
 		</div>
 	`;
 
-	// Clear Holychords content when selecting a new song
-	const holychordsContent = document.getElementById('holychordsContent');
-	if (holychordsContent) {
-		holychordsContent.innerHTML = '';
-	}
+  // Clear Holychords content when selecting a new song
+  const holychordsContent = document.getElementById('holychordsContent');
+  if (holychordsContent) {
+    holychordsContent.innerHTML = '';
+  }
 
-	// Add event listener for parse button
-	if (holychordsUrl) {
-		const parseBtn = document.getElementById('parseHolychordsBtn');
-		if (parseBtn) {
-			// Use base URL (remove any existing hash) so we can properly add tonality
-			const baseUrl = holychordsUrl.split('#')[0];
-			parseBtn.addEventListener('click', () => parseHolychords(baseUrl, selectedSong.Tonality));
-		}
-	}
+  // Add event listener for parse button
+  if (holychordsUrl) {
+    const parseBtn = document.getElementById('parseHolychordsBtn');
+    if (parseBtn) {
+      // Use base URL (remove any existing hash) so we can properly add tonality
+      const baseUrl = holychordsUrl.split('#')[0];
+      parseBtn.addEventListener('click', () => parseHolychords(baseUrl, selectedSong.Tonality));
+    }
+  }
 }
 
 // Escape HTML to prevent XSS
 function escapeHtml(text) {
-	const div = document.createElement('div');
-	div.textContent = text;
-	return div.innerHTML;
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 // Sidebar toggle for mobile
 function openMobileSidebar() {
-	mobileSidebar.classList.remove('-translate-x-full');
-	sidebarOverlay.classList.remove('hidden');
-	document.body.style.overflow = 'hidden';
+  mobileSidebar.classList.remove('-translate-x-full');
+  sidebarOverlay.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
 }
 
 function closeMobileSidebar() {
-	mobileSidebar.classList.add('-translate-x-full');
-	sidebarOverlay.classList.add('hidden');
-	document.body.style.overflow = '';
+  mobileSidebar.classList.add('-translate-x-full');
+  sidebarOverlay.classList.add('hidden');
+  document.body.style.overflow = '';
 }
 
 // Event listeners
 loadSongsBtn.addEventListener('click', loadSongs);
 
-sheetsIdInput.addEventListener('keypress', (e) => {
-	if (e.key === 'Enter') {
-		loadSongs();
-	}
+sheetsIdInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') {
+    loadSongs();
+  }
 });
 
-searchInput.addEventListener('input', (e) => {
-	filterSongs(e.target.value);
+searchInput.addEventListener('input', e => {
+  filterSongs(e.target.value);
 });
 
-mobileSearchInput.addEventListener('input', (e) => {
-	filterSongs(e.target.value);
+mobileSearchInput.addEventListener('input', e => {
+  filterSongs(e.target.value);
 });
 
 sidebarToggle.addEventListener('click', openMobileSidebar);
@@ -636,7 +729,7 @@ enableSearch();
 
 // Load songs on page load with default ID
 window.addEventListener('DOMContentLoaded', () => {
-	if (sheetsIdInput.value) {
-		loadSongs();
-	}
+  if (sheetsIdInput.value) {
+    loadSongs();
+  }
 });

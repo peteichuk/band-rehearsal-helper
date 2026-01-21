@@ -1,0 +1,43 @@
+{
+  "name": "band-rehearsal-helper",
+  "version": "1.0.0",
+  "description": "Band Rehearsal Helper",
+  "main": "script.js",
+  "scripts": {
+    "start": "http-server ./ -c-1 -o",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "prettier --write"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peteichuk/band-rehearsal-helper.git"
+  },
+  "keywords": [
+    "Band",
+    "Rehearsal",
+    "Helper",
+    "|",
+    "Music"
+  ],
+  "author": "Michael Peteichuk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/peteichuk/band-rehearsal-helper/issues"
+  },
+  "homepage": "https://github.com/peteichuk/band-rehearsal-helper#readme",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "husky": "^9.1.7",
+    "prettier": "^3.8.0"
+  },
+  "engines": {
+    "node": "^20.x"
+  }
+}
