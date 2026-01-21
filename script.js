@@ -691,7 +691,8 @@ function renderMainContent() {
 
   // Add zoom buttons to the Holychords content section
   function addZoomButtons() {
-    const holychordsContent = document.getElementById('zoomControls');
+    const holychordsContent = document.getElementById('holychordsContent');
+    const zoomControlsContent = document.getElementById('zoomControls');
     if (!holychordsContent) return;
 
     const zoomControls = document.createElement('div');
@@ -706,7 +707,7 @@ function renderMainContent() {
     </button>
   `;
 
-    holychordsContent.insertAdjacentElement('beforebegin', zoomControls);
+    zoomControlsContent.insertAdjacentElement('beforebegin', zoomControls);
 
     // Default font size
     let fontSize = 14;
