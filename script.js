@@ -73,6 +73,12 @@ async function loadSongs() {
           return 1;
         }
         return 0;
+      })
+      .sort((a, b) => {
+        // Sort favorites to the top
+        const aFav = a.Favorites === true ? 1 : 0;
+        const bFav = b.Favorites === true ? 1 : 0;
+        return bFav - aFav;
       });
 
     filteredSongs = [...songs];
@@ -513,7 +519,7 @@ function displayHolychordsContent(formattedContent, tonality, url, originalTonal
   holychordsContent.innerHTML = `
 			<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700">
 				<div class="flex items-center justify-between mb-4 flex-wrap gap-3">
-					<h3 class="text-xl font-semibold">Song Text with Chords</h3>
+					<h3 class="text-xl font-semibold">Song Text from Holychords</h3>
 					<div class="flex items-center gap-2">
 						<label for="tonalitySelect" class="text-sm font-medium">Tonality:</label>
 						<select 
@@ -598,7 +604,6 @@ function renderMainContent() {
 		<div class="py-4">
 			<h2 class="text-3xl font-bold mb-2">${escapeHtml(selectedSong.Name || 'Untitled')} ${selectedSong.Tonality ? `<span class="text-lg text-gray-600 dark:text-gray-300 mb-2">Tonality: <span class="font-semibold">${escapeHtml(selectedSong.Tonality)}</span></span>` : ''}</h2>
 			
-			
 			<div class="flex flex-wrap gap-3 mb-4">
 				${
           youtubeUrl
@@ -660,6 +665,7 @@ function renderMainContent() {
 				`
             : ''
         }
+				<div id="zoomControls"></div>
 			</div>
 
 			<div id="holychordsContent" class="mt-8 text-xs"></div>
@@ -685,7 +691,7 @@ function renderMainContent() {
 
   // Add zoom buttons to the Holychords content section
   function addZoomButtons() {
-    const holychordsContent = document.getElementById('holychordsContent');
+    const holychordsContent = document.getElementById('zoomControls');
     if (!holychordsContent) return;
 
     const zoomControls = document.createElement('div');

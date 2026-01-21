@@ -4,7 +4,7 @@
   "description": "Band Rehearsal Helper",
   "main": "script.js",
   "scripts": {
-    "start": "http-server ./ -c-1 -o",
+    "dev": "http-server ./ -c-1 -o",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky install",
