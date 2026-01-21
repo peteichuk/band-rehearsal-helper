@@ -592,6 +592,7 @@ function renderMainContent() {
   const youtubeUrl = selectedSong.YouTube || '';
   const chordifyUrl = selectedSong.Chordify || '';
   const holychordsUrl = selectedSong.Holychords || '';
+  const text = selectedSong.Text || '';
 
   mainContent.innerHTML = `
 		<div class="py-8">
@@ -669,6 +670,7 @@ function renderMainContent() {
   const holychordsContent = document.getElementById('holychordsContent');
   if (holychordsContent) {
     holychordsContent.innerHTML = '';
+    holychordsContent.innerHTML = `<pre>${text}</pre>` || '';
   }
 
   // Add event listener for parse button
