@@ -122,6 +122,9 @@ function filterSongs(query) {
     url.searchParams.set('search', searchTerm);
   } else {
     url.searchParams.delete('search');
+    url.hash = ''; // Clear the hash from the URL
+    selectedSong = null; // Clear the selected song when the filter is cleared
+    renderMainContent(); // Clear the main content
   }
   window.history.replaceState({}, '', url);
 
