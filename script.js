@@ -295,8 +295,6 @@ function transposeSongContent(content, fromTonality, toTonality) {
 
 // Parse song from Holychords URL
 async function parseHolychords(url, tonality) {
-  const holychordsContent = document.getElementById('holychordsContent');
-
   if (!url || !url.includes('holychords.pro')) {
     alert('Invalid Holychords URL');
     return;
@@ -509,56 +507,53 @@ function displayHolychordsContent(formattedContent, tonality, url, originalTonal
     'H',
   ];
 
-  // Use original tonality from song data for "(Original)" label
   const originalTonalityValue =
     originalTonality || (selectedSong ? selectedSong.Tonality : '') || '';
-  // Use current tonality for selected option in dropdown
   const currentTonality = tonality || '';
 
-  // Display the parsed content with tonality selector
   holychordsContent.innerHTML = `
-			<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700">
-				<div class="flex items-center justify-between mb-4 flex-wrap gap-3">
-					<h3 class="text-xl font-semibold">Song Text from Holychords</h3>
-					<div class="flex items-center gap-2">
-						<label for="tonalitySelect" class="text-sm font-medium">Tonality:</label>
-						<select 
-							id="tonalitySelect"
-							class="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
-						>
-							<option value="">Default</option>
-							${tonalities
-                .map(t => {
-                  const isOriginal = originalTonalityValue === t;
-                  const isSelected = currentTonality === t;
-                  const label = isOriginal ? `${t} (Original)` : t;
-                  return `<option value="${escapeHtml(t)}" ${isSelected ? 'selected' : ''}>${escapeHtml(label)}</option>`;
-                })
-                .join('')}
-						</select>
-						<button 
-							id="applyTonalityBtn"
-							class="px-2 py-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white rounded font-medium transition-colors text-sm"
-						>
-							Apply
-						</button>
-					</div>
-				</div>
-				<pre class="whitespace-pre-wrap font-mono text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 p-4 rounded border border-gray-300 dark:border-gray-600 overflow-x-auto">${escapeHtml(formattedContent)}</pre>
-			</div>
-		`;
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <h3 class="text-xl font-semibold">Song Text from Holychords</h3>
+        <div class="flex items-center gap-2">
+          <label for="tonalitySelect" class="text-sm font-medium">Tonality:</label>
+          <select
+            id="tonalitySelect"
+            class="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="">Default</option>
+            ${tonalities
+              .map(t => {
+                const isOriginal = originalTonalityValue === t;
+                const isSelected = currentTonality === t;
+                const label = isOriginal ? `${t} (Original)` : t;
+                return `<option value="${escapeHtml(t)}" ${isSelected ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+              })
+              .join('')}
+          </select>
+          <button
+            id="applyTonalityBtn"
+            class="px-2 py-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white rounded font-medium transition-colors text-sm"
+          >
+            Apply
+          </button>
+        </div>
+      </div>
+      <pre class="whitespace-pre-wrap font-sans text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 p-4 rounded border border-gray-300 dark:border-gray-600 overflow-x-auto">${escapeHtml(formattedContent)}</pre>
+    </div>
+  `;
+
+  colorizeChords();
 
   // Add event listener for tonality change
   const applyTonalityBtn = document.getElementById('applyTonalityBtn');
   const tonalitySelect = document.getElementById('tonalitySelect');
 
   if (applyTonalityBtn && tonalitySelect && url) {
-    // Store base URL (without hash) for reuse
     const baseUrl = url.split('#')[0];
 
     const applyTonality = () => {
       const newTonality = tonalitySelect.value || originalTonalityValue;
-      // Just re-display with transposed chords (no new request needed)
       const cacheKey = baseUrl.split('#')[0];
       if (holychordsCache[cacheKey]) {
         const cachedData = holychordsCache[cacheKey];
@@ -569,7 +564,6 @@ function displayHolychordsContent(formattedContent, tonality, url, originalTonal
         );
         displayHolychordsContent(transposedContent, newTonality, baseUrl, originalTonalityValue);
       } else {
-        // If not cached, parse it
         parseHolychords(baseUrl, newTonality);
       }
     };
@@ -676,7 +670,10 @@ function renderMainContent() {
   const holychordsContent = document.getElementById('holychordsContent');
   if (holychordsContent) {
     holychordsContent.innerHTML = '';
-    holychordsContent.innerHTML = `<pre>${text}</pre>` || '';
+    holychordsContent.innerHTML =
+      `<pre class="whitespace-pre-wrap font-sans text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 p-4 rounded border border-gray-300 dark:border-gray-600 overflow-x-auto">${text}</pre>` ||
+      '';
+    colorizeChords();
   }
 
   // Add event listener for parse button
@@ -782,3 +779,22 @@ window.addEventListener('DOMContentLoaded', () => {
     loadSongs();
   }
 });
+
+function colorizeChords() {
+  const preTag = document.querySelector('#holychordsContent pre');
+  if (!preTag) return;
+
+  // Регулярка, яка бачить H/D#, C#m7, Eb і не ламається на межах слів
+  // Використовуємо (?:^|\s) щоб переконатись, що акорд стоїть окремо
+  const chordPattern =
+    /(^|\s)([A-GH][#b]?(?:m|maj|dim|aug|sus\d?|[2456789]|11|13)*(?:\/[A-GH][#b]?(?:m|maj|dim|aug|sus\d?|[2456789]|11|13)*)*)(?=\s|$)/g;
+
+  // Використовуємо textContent, щоб уникнути проблем з існуючим HTML
+  const content = preTag.textContent;
+
+  preTag.innerHTML = content.replace(chordPattern, (match, p1, p2) => {
+    // p1 - це пробіл або початок рядка, який ми зберігаємо
+    // p2 - це сам акорд
+    return `${p1}<span class="chord text-blue-600 dark:text-blue-400" data-chord="${p2}">${p2}</span>`;
+  });
+}
