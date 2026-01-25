@@ -2,6 +2,14 @@
 
 A lightweight, **no-build** web utility designed for musical bands to manage repertoire, view chords, and rehearse efficiently. This tool uses a publicly accessible **Google Sheet** as a database, making it easy to update song lists without touching the code.
 
+### 🔗 Live Demo / Example
+
+Demo: [https://peteichuk.github.io/band-rehearsal-helper/?tableId=1v3vPgo1TT92YsecQx-cXwYsEqV-uAmItvrdmZLZqVTQ](https://peteichuk.github.io/band-rehearsal-helper/?tableId=1v3vPgo1TT92YsecQx-cXwYsEqV-uAmItvrdmZLZqVTQ)
+
+Website URL: [https://peteichuk.github.io/band-rehearsal-helper/](https://peteichuk.github.io/band-rehearsal-helper/)
+
+Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uAmItvrdmZLZqVTQ/edit](https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uAmItvrdmZLZqVTQ/edit?gid=0#gid=0)
+
 ## 🚀 Features
 
 - **No-Build & Serverless:** Pure HTML/JS/CSS. No complex build steps or backend servers required.
