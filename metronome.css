@@ -1,0 +1,12 @@
+#metronomeModal > div {
+  max-height: 100%;
+  overflow: auto;
+  height: auto;
+}
+
+#metronomeIframe {
+  width: auto;
+  height: 80vh;
+  border-style: none;
+  border-radius: 4px;
+}
