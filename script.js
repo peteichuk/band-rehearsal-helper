@@ -3,6 +3,10 @@ let songs = [];
 let filteredSongs = [];
 let selectedSong = null;
 
+// Global variables for tonality and tempo
+let globalTonality = null;
+let globalTempo = null;
+
 // DOM elements
 const sheetsIdInput = document.getElementById('sheetsIdInput');
 const loadSongsBtn = document.getElementById('loadSongsBtn');
@@ -164,7 +168,7 @@ function renderSongsList() {
       isSelected ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100' : ''
     }"
    >
-    <div class="font-medium flex w-full gap-2 items-center"><span class="flex flex-nowrap items-center gap-1">${escapeHtml(song.Name || 'Untitled')} ${song.Text ? '<span class="text-sm text-gray-500 dark:text-gray-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>' : ''}</span> <span class="text-sm text-gray-500 dark:text-gray-400">${song.Tonality ? escapeHtml(song.Tonality) : ''}</span></div>
+    <div class="font-medium flex w-full gap-2 items-center"><span class="flex flex-nowrap items-center gap-1">${escapeHtml(song.Name || 'Untitled')} ${song.Text ? '<span class="text-sm text-green-600 dark:text-green-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>' : ''}</span> ${song.Tonality ? `<span class="text-sm text-blue-600 dark:text-blue-400">${escapeHtml(song.Tonality)}</span>` : ''} ${song.BPM ? `<span class="text-sm text-orange-600">${song.BPM}</span>` : ''}</div>
     <div class="flex gap-2 justify-between mt-1 w-full">
      <p class="flex gap-2">
       ${song.Language ? `<span class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(song.Language)}</span>` : ''}
@@ -193,6 +197,9 @@ function renderSongsList() {
 // Select a song
 function selectSong(song) {
   selectedSong = song;
+  globalTonality = song.Tonality || null;
+  globalTempo = song.BPM || null;
+
   const url = new URL(window.location);
   url.hash = encodeURIComponent(song.Name || ''); // Save song name in fragment
   window.history.replaceState({}, '', url);
@@ -277,7 +284,7 @@ function renderMainContent() {
 
   mainContent.innerHTML = `
   <div class="py-4">
-   <h2 class="text-3xl font-bold mb-2">${escapeHtml(selectedSong.Name || 'Untitled')} ${selectedSong.Tonality ? `<span class="text-lg text-gray-600 dark:text-gray-300 mb-2">Tonality: <span class="font-semibold">${escapeHtml(selectedSong.Tonality)}</span></span>` : ''}</h2>
+   <h2 class="text-3xl font-bold mb-2">${escapeHtml(selectedSong.Name || 'Untitled')} <span class="text-lg text-blue-600 dark:text-blue-400 mb-2">Tonality: <span class="font-semibold">${escapeHtml(selectedSong.Tonality) || '-'}</span></span> <span class="text-lg text-orange-600 mb-2">BPM: <span class="font-semibold">${selectedSong.BPM || '-'}</span></span></h2>
 
    <div class="flex flex-wrap gap-3 mb-4">
     ${
@@ -346,6 +353,7 @@ function renderMainContent() {
 
 // Escape HTML to prevent XSS
 function escapeHtml(text) {
+  if (!text && typeof text !== 'string') return '';
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;

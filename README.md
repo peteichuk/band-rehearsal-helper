@@ -19,7 +19,7 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **External Resource Integration:** Quick links to **YouTube**, **Chordify**, and **Holychords**.
 - **Auto Dark Mode:** Built-in responsive design that respects your OS light/dark theme settings.
 - **Mobile Friendly:** Fully responsive UI, perfect for smartphones on a music stand.
-- **Metronome:** Integrated metronome to help keep time during practice.
+- **Metronome:** Integrated metronome to help keep time during practice. Preselect BPM from the song data.
 
 ## 📊 Data Structure (Google Sheets)
 
@@ -31,6 +31,7 @@ To ensure the application works correctly, your Google Sheet should include the 
 | **Favorites**  | `boolean` | Mark as TRUE to highlight or star the song.                        |
 | **Language**   | `string`  | The language of the lyrics.                                        |
 | **Tonality**   | `string`  | The original key of the song.                                      |
+| **BPM**        | `number`  | Temp BPM.                                                          |
 | **Text**       | `string`  | Lyrics with chords (use spaces between chords for proper parsing). |
 | **Holychords** | `url`     | Link to the song on Holychords.                                    |
 | **YouTube**    | `url`     | Link to a reference video or backing track.                        |
@@ -41,7 +42,7 @@ To ensure the application works correctly, your Google Sheet should include the 
 
 ## 🛠 Roadmap
 
-- [ ] Metronome enhancements (save local state for each song and apply BPM from selected song). 
+- [ ] Metronome enhancements (save local state for each song).
 - [ ] Implementation of advanced filtering and searching by the `GroupBy` field.
 - [ ] Multi-select support for groups (assigning a song to multiple sets/locations).
 - [ ] Integration of a separate "Groups" table for better setlist management.
