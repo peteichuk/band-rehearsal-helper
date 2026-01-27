@@ -19,6 +19,7 @@ const sidebarToggle = document.getElementById('sidebarToggle');
 const mobileSidebarClose = document.getElementById('mobileSidebarClose');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 const mobileSidebar = document.getElementById('mobileSidebar');
+const loadFromSheetsContainer = document.getElementById('loadFromSheetsContainer');
 
 // Initialize dark mode based on system preference
 function initDarkMode() {
@@ -282,6 +283,8 @@ function renderMainContent() {
       'No song selected',
       'Select a song from the sidebar to view details'
     );
+
+    loadFromSheetsContainer.classList.remove('hidden');
     return;
   }
 
@@ -289,6 +292,12 @@ function renderMainContent() {
   const chordifyUrl = selectedSong.Chordify || '';
   const holychordsUrl = selectedSong.Holychords || '';
   const text = selectedSong.Text || '';
+
+  if (text) {
+    loadFromSheetsContainer.classList.add('hidden');
+  } else {
+    loadFromSheetsContainer.classList.remove('hidden');
+  }
 
   mainContent.innerHTML = `
   <div class="py-4">

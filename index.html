@@ -48,7 +48,7 @@
             </button>
             <h1 class="text-xl font-bold">Songs App</h1>
           </div>
-          <div class="flex items-center gap-2 flex-1 max-w-md">
+          <div class="flex items-center gap-2 max-w-md">
             <button
               id="metronomeToggle"
               class="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded font-medium transition-colors"
@@ -80,19 +80,24 @@
                 </g>
               </svg>
             </button>
-            <input
-              type="text"
-              id="sheetsIdInput"
-              placeholder="Google Sheets ID or URL"
-              value=""
-              class="flex-1 px-3 py-2 rounded text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-[100px] w-full"
-            />
-            <button
-              id="loadSongsBtn"
-              class="px-4 py-2 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 rounded font-medium transition-colors"
+            <div
+              id="loadFromSheetsContainer"
+              class="flex items-center gap-2 max-w-md w-full hidden md:flex"
             >
-              Load
-            </button>
+              <input
+                type="text"
+                id="sheetsIdInput"
+                placeholder="Google Sheets ID or URL"
+                value=""
+                class="flex-1 px-3 py-2 rounded text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-[100px] w-full"
+              />
+              <button
+                id="loadSongsBtn"
+                class="px-4 py-2 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 rounded font-medium transition-colors"
+              >
+                Load
+              </button>
+            </div>
           </div>
         </div>
       </header>
