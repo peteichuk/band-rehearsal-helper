@@ -1,4 +1,4 @@
-#metronomeModal > div {
+#metronomeModal > .content {
   max-height: 100%;
   overflow: auto;
   height: auto;

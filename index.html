@@ -191,7 +191,11 @@
     </div>
 
     <div id="metronomeModal" class="p-4 fixed inset-0 flex items-center justify-center hidden">
-      <div class="rounded border border-1 shadow-lg relative">
+      <div
+        id="metronomeModalOverlay"
+        class="absolute w-full h-full t-0 l-0 bg-gray-500/60 dark:bg-gray-700/60 backdrop-blur-[2px]"
+      ></div>
+      <div class="content rounded border border-1 shadow-lg relative">
         <button
           id="closeMetronome"
           class="absolute top-0 right-0 p-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl"

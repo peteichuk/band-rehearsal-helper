@@ -1,6 +1,7 @@
 const metronomeIframeContainer = document.getElementById('metronomeIframeContainer');
 const metronomeToggle = document.getElementById('metronomeToggle');
 const metronomeModal = document.getElementById('metronomeModal');
+const metronomeModalOverlay = document.getElementById('metronomeModalOverlay');
 const closeMetronome = document.getElementById('closeMetronome');
 
 metronomeToggle.addEventListener('click', () => {
@@ -15,6 +16,10 @@ metronomeToggle.addEventListener('click', () => {
   }
 
   metronomeModal.classList.remove('hidden');
+});
+
+metronomeModalOverlay.addEventListener('click', () => {
+    metronomeModal.classList.add('hidden');
 });
 
 closeMetronome.addEventListener('click', () => {
