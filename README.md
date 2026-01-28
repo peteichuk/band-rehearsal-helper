@@ -21,6 +21,7 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **Mobile Friendly:** Fully responsive UI, perfect for smartphones on a music stand.
 - **Metronome:** Integrated metronome to help keep time during practice. Preselect BPM from the song data.
 - **As Mobile App:** Installable as a Native App on iOS and Android devices. Choose "Add to Home Screen" from your browser menu.
+- **Print:** Simple print styles for physical copies of lyrics and chords.
 
 ## 📊 Data Structure (Google Sheets)
 

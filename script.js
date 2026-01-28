@@ -16,6 +16,7 @@ const loadFromSheetsContainer = document.getElementById('loadFromSheetsContainer
 const backButton = document.getElementById('backButton');
 const mainSection = document.getElementById('mainSection');
 const filtersSection = document.getElementById('filtersSection');
+const printMainContent = document.getElementById('printMainContent');
 
 // Initialize dark mode based on system preference
 function initDarkMode() {
@@ -299,27 +300,27 @@ function renderMainContent() {
   if (text) {
     loadFromSheetsContainer.classList.add('hidden');
     filtersSection.classList.add('hidden');
+    printMainContent.classList.remove('hidden');
   } else {
     loadFromSheetsContainer.classList.remove('hidden');
   }
 
   mainContent.innerHTML = `
-  <div>
-   <h2 class="text-2xl font-bold mb-2">${escapeHtml(selectedSong.Name || 'Untitled')} <span class="text-lg text-blue-600 dark:text-blue-400 mb-2">Tonality: <span class="font-semibold">${escapeHtml(selectedSong.Tonality) || '-'}</span></span> <span class="text-lg text-orange-600 mb-2">BPM: <span class="font-semibold">${selectedSong.BPM || '-'}</span></span></h2>
+  <h2 class="text-2xl font-bold mb-2">${escapeHtml(selectedSong.Name || 'Untitled')} <span class="text-lg text-blue-600 dark:text-blue-400 mb-2">Tonality: <span class="font-semibold">${escapeHtml(selectedSong.Tonality) || '-'}</span></span> <span class="text-lg text-orange-600 mb-2">BPM: <span class="font-semibold">${selectedSong.BPM || '-'}</span></span></h2>
 
-   <div class="flex flex-wrap gap-3 mb-4">
+  <div class="flex flex-wrap gap-3 mb-4">
     ${
       youtubeUrl
         ? `
-     <a
+    <a
       href="${escapeHtml(youtubeUrl)}"
       target="_blank"
       rel="noopener noreferrer"
       title="Watch on YouTube"
       class="px-2 py-1 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
-     >
-       <img src="images/icons/youtube.svg" alt="YouTube" class="w-5 h-5"/>
-     </a>
+    >
+      <img src="images/icons/youtube.svg" alt="YouTube" class="w-5 h-5"/>
+    </a>
     `
         : ''
     }
@@ -327,15 +328,15 @@ function renderMainContent() {
     ${
       holychordsUrl
         ? `
-     <a
+    <a
       href="${escapeHtml(holychordsUrl)}"
       target="_blank"
       rel="noopener noreferrer"
       title="View on HolyChords"
       class="px-2 py-1 bg-[#26ad92] hover:bg-[#50bf5a] text-white rounded-lg font-medium transition-colors flex items-center gap-2"
-     >
-       <img src="images/icons/holychords.svg" alt="HolyChords" class="w-5 h-5"/>
-     </a>
+    >
+      <img src="images/icons/holychords.svg" alt="HolyChords" class="w-5 h-5"/>
+    </a>
     `
         : ''
     }
@@ -343,31 +344,30 @@ function renderMainContent() {
     ${
       chordifyUrl
         ? `
-     <a
+    <a
       href="${escapeHtml(chordifyUrl)}"
       target="_blank"
       rel="noopener noreferrer"
       title="View on Chordify"
       class="px-2 py-1 bg-[#0A8282] hover:bg-[#10bbbb] text-white rounded-lg font-medium transition-colors flex items-center gap-2"
      >
-       <img src="images/icons/chordify.svg" alt="Chordify" class="w-5 h-5"/>
-     </a>
+      <img src="images/icons/chordify.svg" alt="Chordify" class="w-5 h-5"/>
+    </a>
     `
         : ''
     }
 
     <div id="zoomControls" class="${text ? '' : 'hidden'}"></div>
-   </div>
-
-   ${
-     text
-       ? `<pre id="songContent" class="whitespace-pre-wrap font-sans text-sm leading-[1.5] text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 p-4 rounded border border-gray-300 dark:border-gray-600 overflow-x-auto">${text}</pre>`
-       : getContentMessage(
-           'Text not found for this song',
-           'The selected song does not have any text available.'
-         )
-   }
   </div>
+
+  ${
+    text
+      ? `<pre id="songContent" class="whitespace-pre-wrap font-sans text-sm leading-[1.5] text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 p-4 rounded border border-gray-300 dark:border-gray-600 overflow-x-auto">${text}</pre>`
+      : getContentMessage(
+          'Text not found for this song',
+          'The selected song does not have any text available.'
+        )
+  }
  `;
 
   addZoomControls();
@@ -463,6 +463,7 @@ backButton.addEventListener('click', () => {
   globalTempo = null;
   backButton.classList.add('hidden');
   filtersSection.classList.remove('hidden');
+  printMainContent.classList.add('hidden');
   renderSongsList();
   scrollToTop();
   // renderMainContent();
