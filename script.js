@@ -311,29 +311,15 @@ function renderMainContent() {
       href="${escapeHtml(youtubeUrl)}"
       target="_blank"
       rel="noopener noreferrer"
+      title="Watch on YouTube"
       class="px-2 py-1 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
      >
-     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg>
-      YouTube
+       <img src="images/icons/youtube.svg" alt="YouTube" class="w-5 h-5"/>
      </a>
     `
         : ''
     }
-    ${
-      chordifyUrl
-        ? `
-     <a
-      href="${escapeHtml(chordifyUrl)}"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="px-2 py-1 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
-     >
-     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg>
-      Chordify
-     </a>
-    `
-        : ''
-    }
+    
     ${
       holychordsUrl
         ? `
@@ -341,10 +327,26 @@ function renderMainContent() {
       href="${escapeHtml(holychordsUrl)}"
       target="_blank"
       rel="noopener noreferrer"
-      class="px-2 py-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+      title="View on HolyChords"
+      class="px-2 py-1 bg-[#26ad92] hover:bg-[#50bf5a] text-white rounded-lg font-medium transition-colors flex items-center gap-2"
      >
-     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-      Holychords
+       <img src="images/icons/holychords.svg" alt="HolyChords" class="w-5 h-5"/>
+     </a>
+    `
+        : ''
+    }
+    
+    ${
+      chordifyUrl
+        ? `
+     <a
+      href="${escapeHtml(chordifyUrl)}"
+      target="_blank"
+      rel="noopener noreferrer"
+      title="View on Chordify"
+      class="px-2 py-1 bg-[#0A8282] hover:bg-[#10bbbb] text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+     >
+       <img src="images/icons/chordify.svg" alt="Chordify" class="w-5 h-5"/>
      </a>
     `
         : ''
