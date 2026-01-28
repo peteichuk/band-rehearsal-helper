@@ -162,7 +162,7 @@ function renderSongsList() {
     class="w-full text-left px-2 py-1 mb-1 rounded  hover:bg-blue-300  dark:hover:bg-gray-700 transition-colors ${
       isSelected
         ? 'bg-blue-300 dark:bg-gray-700 text-blue-900 dark:text-blue-100'
-        : 'bg-blue-100 dark:bg-gray-900'
+        : 'bg-blue-100 dark:bg-gray-800'
     }"
     title="${!song.Text ? 'Text not available for this song' : ''}"
    >
