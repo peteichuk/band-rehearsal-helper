@@ -5,22 +5,45 @@ window.addEventListener('DOMContentLoaded', () => {
 
   printMainContent.addEventListener('click', () => {
     const mainContent = document.querySelector('#mainContent').cloneNode(true);
-    mainContent.querySelector('div').style.display = 'none';
+
+    const divToHide = mainContent.querySelector('div');
+    if (divToHide) {
+      divToHide.style.display = 'none';
+    }
+
     const mainContentInnerHTML = mainContent.innerHTML;
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
     <html lang="en">
       <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>BandHelper</title>
         <meta name="description" content="A simple songs app with metronome functionality." />
         <meta name="keywords" content="songs, metronome, music" />
         <meta name="author" content="Michael Peteichuk" />
+        <link rel="manifest" href="manifest.json" />
     
         <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
         <link
           href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
+        <meta name="theme-color" content="#2563eb" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#1e40af" media="(prefers-color-scheme: dark)" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="#2563eb"
+          media="(prefers-color-scheme: light)"
+        />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="#1e40af"
+          media="(prefers-color-scheme: dark)"
+        />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
+        
         <link rel="stylesheet" href="./style.css" />
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
@@ -42,6 +65,12 @@ window.addEventListener('DOMContentLoaded', () => {
     </html>
   `);
     printWindow.document.close();
-    printWindow.print();
+
+    printWindow.onload = () => {
+      printWindow.print();
+      printWindow.onafterprint = () => {
+        printWindow.close();
+      };
+    };
   });
 });
