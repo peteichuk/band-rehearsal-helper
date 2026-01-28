@@ -9,9 +9,15 @@
       "purpose": "any"
     },
     {
-      "src": "https://peteichuk.github.io/band-rehearsal-helper/images/favicon.svg",
-      "type": "image/svg+xml",
-      "sizes": "any",
+      "src": "https://peteichuk.github.io/band-rehearsal-helper/images/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "https://peteichuk.github.io/band-rehearsal-helper/images/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
       "purpose": "maskable"
     }
   ],
