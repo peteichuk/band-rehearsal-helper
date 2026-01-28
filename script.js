@@ -165,8 +165,10 @@ function renderSongsList() {
     return `
    <button
     data-song-index="${index}"
-    class="w-full text-left px-2 py-1 mb-1 rounded bg-blue-100 hover:bg-blue-300 dark:bg-gray-900 dark:hover:bg-gray-700 transition-colors ${
-      isSelected ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100' : ''
+    class="w-full text-left px-2 py-1 mb-1 rounded  hover:bg-blue-300  dark:hover:bg-gray-700 transition-colors ${
+      isSelected
+        ? 'bg-blue-300 dark:bg-gray-700 text-blue-900 dark:text-blue-100'
+        : 'bg-blue-100 dark:bg-gray-900'
     }"
    >
     <div class="font-medium flex w-full gap-2 items-center"><span class="flex flex-nowrap items-center gap-1">${escapeHtml(song.Name || 'Untitled')} ${song.Text ? '<span class="text-sm text-green-600 dark:text-green-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>' : ''}</span> ${song.Tonality ? `<span class="text-sm text-blue-600 dark:text-blue-400">${escapeHtml(song.Tonality)}</span>` : ''} ${song.BPM ? `<span class="text-sm text-orange-600">${song.BPM}</span>` : ''}</div>
