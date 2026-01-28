@@ -11,15 +11,11 @@ let globalTempo = null;
 const sheetsIdInput = document.getElementById('sheetsIdInput');
 const loadSongsBtn = document.getElementById('loadSongsBtn');
 const searchInput = document.getElementById('searchInput');
-const mobileSearchInput = document.getElementById('mobileSearchInput');
-const songsList = document.getElementById('songsList');
-const mobileSongsList = document.getElementById('mobileSongsList');
 const mainContent = document.getElementById('mainContent');
-const sidebarToggle = document.getElementById('sidebarToggle');
-const mobileSidebarClose = document.getElementById('mobileSidebarClose');
-const sidebarOverlay = document.getElementById('sidebarOverlay');
-const mobileSidebar = document.getElementById('mobileSidebar');
 const loadFromSheetsContainer = document.getElementById('loadFromSheetsContainer');
+const backButton = document.getElementById('backButton');
+const mainSection = document.getElementById('mainSection');
+const filtersSection = document.getElementById('filtersSection');
 
 // Initialize dark mode based on system preference
 function initDarkMode() {
@@ -116,7 +112,6 @@ function normalizeRows(table) {
 function enableSearch() {
   const hasSongs = songs.length > 0;
   searchInput.disabled = !hasSongs;
-  mobileSearchInput.disabled = !hasSongs;
 }
 
 // Filter songs by search query
@@ -153,10 +148,8 @@ function filterSongs(query) {
 // Render songs list
 function renderSongsList() {
   if (filteredSongs.length === 0) {
-    songsList.innerHTML =
-      '<p class="text-gray-500 dark:text-gray-400 text-center py-4">No songs found</p>';
-    mobileSongsList.innerHTML =
-      '<p class="text-gray-500 dark:text-gray-400 text-center py-4">No songs found</p>';
+    mainContent.innerHTML =
+      '<p class="text-gray-500 dark:text-gray-400 text-center py-2">No songs found</p>';
     return;
   }
 
@@ -172,8 +165,15 @@ function renderSongsList() {
     }"
     title="${!song.Text ? 'Text not available for this song' : ''}"
    >
-    <div class="font-medium flex w-full gap-2 items-center"><span class="flex flex-nowrap items-center gap-1 ${!song.Text ? 'text-red-900 dark:text-red-300 underline decoration-wavy' : ''}">${escapeHtml(song.Name || 'Untitled')} ${song.Text ? '<span class="text-sm text-green-600 dark:text-green-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>' : ''}</span> ${song.Tonality ? `<span class="text-sm text-blue-600 dark:text-blue-400">${escapeHtml(song.Tonality)}</span>` : ''} ${song.BPM ? `<span class="text-sm text-orange-600">${song.BPM}</span>` : ''}</div>
-    <div class="flex gap-2 justify-between mt-1 w-full">
+    <div class="font-medium flex w-full gap-2 items-center">
+      <span class="flex flex-nowrap items-center gap-1 ${!song.Text ? 'text-red-900 dark:text-red-300 underline decoration-wavy' : ''}">
+        ${escapeHtml(song.Name || 'Untitled')} 
+        ${song.Text ? '<span class="text-sm text-green-600 dark:text-green-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>' : ''}
+      </span> 
+      ${song.Tonality ? `<span class="text-sm text-blue-600 dark:text-blue-400">${escapeHtml(song.Tonality)}</span>` : ''}
+      ${song.BPM ? `<span class="text-sm text-orange-600">${song.BPM}</span>` : ''}
+    </div>
+    <div class="flex gap-2 justify-between w-full">
      <p class="flex gap-2">
       ${song.Language ? `<span class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(song.Language)}</span>` : ''}
      </p>
@@ -186,11 +186,10 @@ function renderSongsList() {
   `;
   });
 
-  songsList.innerHTML = listItems.join('');
-  mobileSongsList.innerHTML = listItems.join('');
+  mainContent.innerHTML = listItems.join('');
 
   // Add click handlers
-  document.querySelectorAll('#songsList button, #mobileSongsList button').forEach(btn => {
+  document.querySelectorAll('#mainContent button, #mobileSongsList button').forEach(btn => {
     btn.addEventListener('click', () => {
       const index = parseInt(btn.getAttribute('data-song-index'));
       selectSong(filteredSongs[index]);
@@ -210,7 +209,6 @@ function selectSong(song) {
 
   renderSongsList();
   renderMainContent();
-  closeMobileSidebar();
 }
 
 // Add zoom controls
@@ -295,16 +293,19 @@ function renderMainContent() {
   const chordifyUrl = selectedSong.Chordify || '';
   const holychordsUrl = selectedSong.Holychords || '';
   const text = selectedSong.Text || '';
+  backButton.classList.remove('hidden');
+  scrollToTop();
 
   if (text) {
     loadFromSheetsContainer.classList.add('hidden');
+    filtersSection.classList.add('hidden');
   } else {
     loadFromSheetsContainer.classList.remove('hidden');
   }
 
   mainContent.innerHTML = `
-  <div class="py-4">
-   <h2 class="text-3xl font-bold mb-2">${escapeHtml(selectedSong.Name || 'Untitled')} <span class="text-lg text-blue-600 dark:text-blue-400 mb-2">Tonality: <span class="font-semibold">${escapeHtml(selectedSong.Tonality) || '-'}</span></span> <span class="text-lg text-orange-600 mb-2">BPM: <span class="font-semibold">${selectedSong.BPM || '-'}</span></span></h2>
+  <div>
+   <h2 class="text-2xl font-bold mb-2">${escapeHtml(selectedSong.Name || 'Untitled')} <span class="text-lg text-blue-600 dark:text-blue-400 mb-2">Tonality: <span class="font-semibold">${escapeHtml(selectedSong.Tonality) || '-'}</span></span> <span class="text-lg text-orange-600 mb-2">BPM: <span class="font-semibold">${selectedSong.BPM || '-'}</span></span></h2>
 
    <div class="flex flex-wrap gap-3 mb-4">
     ${
@@ -396,17 +397,10 @@ function colorizeChords() {
   });
 }
 
-// Sidebar toggle for mobile
-function openMobileSidebar() {
-  mobileSidebar.classList.remove('-translate-x-full');
-  sidebarOverlay.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeMobileSidebar() {
-  mobileSidebar.classList.add('-translate-x-full');
-  sidebarOverlay.classList.add('hidden');
-  document.body.style.overflow = '';
+function scrollToTop() {
+  setTimeout(() => {
+    mainSection.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 200);
 }
 
 // Event listeners
@@ -421,14 +415,6 @@ sheetsIdInput.addEventListener('keypress', e => {
 searchInput.addEventListener('input', e => {
   filterSongs(e.target.value);
 });
-
-mobileSearchInput.addEventListener('input', e => {
-  filterSongs(e.target.value);
-});
-
-sidebarToggle.addEventListener('click', openMobileSidebar);
-mobileSidebarClose.addEventListener('click', closeMobileSidebar);
-sidebarOverlay.addEventListener('click', closeMobileSidebar);
 
 // Initialize
 initDarkMode();
@@ -471,8 +457,18 @@ document.getElementById('clearSearchInput').addEventListener('click', () => {
   filterSongs('');
 });
 
-// Clear mobile search input
-document.getElementById('clearMobileSearchInput').addEventListener('click', () => {
-  mobileSearchInput.value = '';
-  filterSongs('');
+backButton.addEventListener('click', () => {
+  selectedSong = null;
+  globalTonality = null;
+  globalTempo = null;
+  backButton.classList.add('hidden');
+  filtersSection.classList.remove('hidden');
+  renderSongsList();
+  scrollToTop();
+  // renderMainContent();
+
+  // Clear the hash from the URL
+  const url = new URL(window.location);
+  url.hash = '';
+  window.history.replaceState({}, '', url);
 });

@@ -4,11 +4,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Songs App</title>
+    <title>BandHelper</title>
+    <meta name="description" content="A simple songs app with metronome functionality." />
+    <meta name="keywords" content="songs, metronome, music" />
+    <meta name="author" content="Michael Peteichuk" />
+    <link rel="manifest" href="manifest.json" />
+
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="#2563eb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="stylesheet" href="./metronome.css" />
     <link rel="stylesheet" href="./style.css" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -30,23 +39,26 @@
   >
     <div class="flex flex-col h-screen overflow-hidden">
       <!-- Header -->
-      <header class="bg-blue-600 dark:bg-blue-800 text-white px-4 py-3 shadow-lg">
+      <header class="bg-blue-600 dark:bg-blue-800 text-white px-2 py-2 shadow-lg">
         <div class="flex items-center justify-between flex-wrap gap-4">
           <div class="flex items-center gap-2">
             <button
-              id="sidebarToggle"
-              class="lg:hidden p-2 hover:bg-blue-700 dark:hover:bg-blue-900 rounded"
+              id="backButton"
+              class="hidden px-2 py-1 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 rounded font-medium transition-colors"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"
+                  d="M15 19l-7-7 7-7"
                 ></path>
               </svg>
             </button>
-            <h1 class="text-xl font-bold">Songs App</h1>
+
+            <div class="w-10 h-10">
+              <img src="images/favicon-white.svg" alt="BandHelper icon" class="w-full" />
+            </div>
           </div>
           <div class="flex items-center gap-2 max-w-md">
             <button
@@ -89,7 +101,7 @@
                 id="sheetsIdInput"
                 placeholder="Google Sheets ID or URL"
                 value=""
-                class="flex-1 px-3 py-2 rounded text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-[100px] w-full"
+                class="flex-1 px-2 py-1 rounded text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-[100px] w-full"
               />
               <button
                 id="loadSongsBtn"
@@ -103,12 +115,9 @@
       </header>
 
       <div class="flex flex-1 overflow-hidden">
-        <!-- Sidebar -->
-        <aside
-          id="sidebar"
-          class="hidden lg:flex flex-col w-80 border-r border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 transition-transform"
-        >
-          <div class="p-4 border-b border-gray-300 dark:border-gray-700">
+        <!-- Main Content -->
+        <main id="mainSection" class="flex-1 overflow-y-auto p-2 py-4">
+          <div id="filtersSection" class="mb-2">
             <div class="relative">
               <input
                 type="text"
@@ -126,63 +135,7 @@
               </button>
             </div>
           </div>
-          <div id="songsList" class="flex-1 overflow-y-auto p-2">
-            <p class="text-gray-500 dark:text-gray-400 text-center py-4">No songs loaded</p>
-          </div>
-        </aside>
 
-        <!-- Mobile Sidebar Overlay -->
-        <div
-          id="sidebarOverlay"
-          class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-        ></div>
-
-        <!-- Mobile Sidebar -->
-        <aside
-          id="mobileSidebar"
-          class="fixed left-0 top-0 h-full w-80 z-50 flex flex-col border-r border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 transform -translate-x-full transition-transform"
-        >
-          <div class="p-4 border-b border-gray-300 dark:border-gray-700">
-            <div class="flex items-center justify-between mb-4">
-              <h2 class="font-semibold">Songs</h2>
-              <button
-                id="mobileSidebarClose"
-                class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              >
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-            <div class="relative">
-              <input
-                type="text"
-                id="mobileSearchInput"
-                placeholder="Search songs..."
-                disabled
-                class="w-full px-3 pr-4 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-              <button
-                id="clearMobileSearchInput"
-                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                aria-label="Clear search"
-              >
-                &times;
-              </button>
-            </div>
-          </div>
-          <div id="mobileSongsList" class="flex-1 overflow-y-auto p-2">
-            <p class="text-gray-500 dark:text-gray-400 text-center py-4">No songs loaded</p>
-          </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto p-6">
           <div id="mainContent">
             <div class="text-center py-12">
               <h2 class="text-2xl font-semibold mb-2">No song selected</h2>

@@ -1,0 +1,21 @@
+{
+  "short_name": "BandHelper",
+  "name": "Band Rehearsal Helper",
+  "icons": [
+    {
+      "src": "https://peteichuk.github.io/band-rehearsal-helper/images/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "https://peteichuk.github.io/band-rehearsal-helper/images/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "maskable"
+    }
+  ],
+  "display": "standalone",
+  "theme_color": "#2563eb",
+  "background_color": "#2563eb"
+}
