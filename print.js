@@ -70,7 +70,7 @@ window.addEventListener('DOMContentLoaded', () => {
         </style>
       </head>
       <body class="font-sans bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
-        <div id="controls" class="mb-4 flex justify-end w-full border-b py-2">
+        <div id="controls" class="mb-4 flex justify-end w-full border-b p-4">
           <button
             id="closePrintWindow"
             class="px-4 py-2 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white rounded font-medium transition-colors text-center"
