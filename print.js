@@ -66,11 +66,23 @@ window.addEventListener('DOMContentLoaded', () => {
   `);
     printWindow.document.close();
 
+    const checkWindowClosed = setInterval(() => {
+      if (printWindow.closed) {
+        clearInterval(checkWindowClosed);
+      }
+    }, 500);
+
     printWindow.onload = () => {
+      printWindow.focus();
       printWindow.print();
       printWindow.onafterprint = () => {
+        clearInterval(checkWindowClosed);
         printWindow.close();
       };
+    };
+
+    printWindow.onbeforeunload = () => {
+      clearInterval(checkWindowClosed);
     };
   });
 });
