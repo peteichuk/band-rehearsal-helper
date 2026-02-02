@@ -74,6 +74,16 @@
           </div>
           <div class="flex items-center gap-2 max-w-md">
             <button
+              id="reloadButton"
+              class="px-4 py-2 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 rounded font-medium transition-colors"
+              type="button"
+            >
+              <div class="w-6 h-6">
+                <img src="images/icons/reload.svg" alt="Reload icon" class="w-full" />
+              </div>
+            </button>
+
+            <button
               id="printMainContent"
               class="hidden px-4 py-2 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 rounded font-medium transition-colors"
               type="button"
@@ -134,6 +144,16 @@
                 Load
               </button>
             </div>
+
+            <button
+              id="shareButton"
+              class="px-4 py-2 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 rounded font-medium transition-colors"
+              type="button"
+            >
+              <div class="w-6 h-6">
+                <img src="images/icons/share.svg" alt="Share icon" class="w-full" />
+              </div>
+            </button>
           </div>
         </div>
       </header>
@@ -191,8 +211,70 @@
       </div>
     </div>
 
+    <div id="shareModal" class="p-4 fixed inset-0 flex items-center justify-center hidden">
+      <div
+        id="shareModalOverlay"
+        class="absolute w-full h-full t-0 l-0 bg-gray-500/60 dark:bg-gray-700/60 backdrop-blur-[2px]"
+      ></div>
+      <div
+        class="content rounded border border-1 shadow-lg relative bg-white dark:bg-gray-800 p-6 max-w-md w-full"
+      >
+        <button
+          id="closeShareModal"
+          class="absolute top-0 right-0 p-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl"
+          type="button"
+        >
+          &times;
+        </button>
+        <h2 class="text-xl font-semibold mb-4" id="shareModalTitle">Share BandHelper</h2>
+
+        <div class="mb-4 flex justify-center flex-wrap gap-2">
+          <button
+            id="tgShareButton"
+            class="px-4 py-2 bg-[#53aaec] hover:bg-[#53aaec]/80 text-white rounded font-medium transition-colors flex items-center justify-center gap-2"
+            type="button"
+          >
+            <div class="w-4 h-4">
+              <img src="images/icons/telegram.svg" alt="Telegram icon" class="w-full" />
+            </div>
+            Telegram
+          </button>
+
+          <button
+            id="whatsAppShareButton"
+            class="px-4 py-2 bg-[#24d366] hover:bg-[#24d366]/80 text-white rounded font-medium transition-colors flex items-center justify-center gap-2"
+            type="button"
+          >
+            <div class="w-4 h-4">
+              <img src="images/icons/whatsapp.svg" alt="WhatsApp icon" class="w-full" />
+            </div>
+            WhatsApp
+          </button>
+        </div>
+
+        <input
+          type="text"
+          id="shareLinkInput"
+          readonly
+          class="w-full px-3 py-2 mb-4 rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+
+        <button
+          id="copyShareLinkButton"
+          class="px-4 py-2 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white rounded font-medium transition-colors flex items-center justify-center gap-2 w-full"
+          type="button"
+        >
+          <div class="w-4 h-4">
+            <img src="images/icons/copy.svg" alt="Copy icon" class="w-full" />
+          </div>
+          Copy Link
+        </button>
+      </div>
+    </div>
+
     <script src="script.js"></script>
     <script src="metronome.js"></script>
     <script src="print.js"></script>
+    <script src="share.js"></script>
   </body>
 </html>

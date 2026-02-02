@@ -17,6 +17,7 @@ const backButton = document.getElementById('backButton');
 const mainSection = document.getElementById('mainSection');
 const filtersSection = document.getElementById('filtersSection');
 const printMainContent = document.getElementById('printMainContent');
+const reloadButton = document.getElementById('reloadButton');
 
 // Initialize dark mode based on system preference
 function initDarkMode() {
@@ -473,4 +474,9 @@ backButton.addEventListener('click', () => {
   const url = new URL(window.location);
   url.hash = '';
   window.history.replaceState({}, '', url);
+});
+
+// Reload button
+reloadButton.addEventListener('click', () => {
+  window.location.reload();
 });

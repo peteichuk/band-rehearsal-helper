@@ -22,6 +22,7 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **Metronome:** Integrated metronome to help keep time during practice. Preselect BPM from the song data.
 - **As Mobile App:** Installable as a Native App on iOS and Android devices. Choose "Add to Home Screen" from your browser menu.
 - **Print:** Simple print styles for physical copies of lyrics and chords.
+- **Share:** Share specific songs or filtered lists.
 
 ## 📊 Data Structure (Google Sheets)
 
