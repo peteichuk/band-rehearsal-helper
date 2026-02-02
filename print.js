@@ -1,5 +1,6 @@
 window.addEventListener('DOMContentLoaded', () => {
   const printMainContent = document.getElementById('printMainContent');
+  let savedPrintContent = null; // Variable to save printing content
 
   if (!printMainContent) return;
 
@@ -12,6 +13,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     const mainContentInnerHTML = mainContent.innerHTML;
+    savedPrintContent = mainContentInnerHTML; // Save the printing content
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
     <html lang="en">
@@ -58,9 +60,28 @@ window.addEventListener('DOMContentLoaded', () => {
             },
           };
         </script>
+        
+        <style>
+          @media print {
+            #controls {
+              display: none;
+            }
+          }
+        </style>
       </head>
       <body class="font-sans bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
-        ${mainContentInnerHTML}
+        <div id="controls" class="mb-4 flex justify-end w-full border-b py-2">
+          <button
+            id="closePrintWindow"
+            class="px-4 py-2 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white rounded font-medium transition-colors text-center"
+            type="button"
+          >
+            &times; Close
+          </button>
+        </div>
+        <div id="printContainer">
+          ${savedPrintContent}
+        </div>
       </body>
     </html>
   `);
@@ -73,6 +94,11 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 500);
 
     printWindow.onload = () => {
+      const closeButton = printWindow.document.getElementById('closePrintWindow');
+      closeButton.addEventListener('click', () => {
+        printWindow.close();
+      });
+
       printWindow.focus();
       printWindow.print();
       printWindow.onafterprint = () => {
