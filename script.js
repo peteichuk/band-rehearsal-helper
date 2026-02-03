@@ -18,6 +18,7 @@ const mainSection = document.getElementById('mainSection');
 const filtersSection = document.getElementById('filtersSection');
 const printMainContent = document.getElementById('printMainContent');
 const reloadButton = document.getElementById('reloadButton');
+const loader = document.getElementById('loader');
 
 // Initialize dark mode based on system preference
 function initDarkMode() {
@@ -63,6 +64,7 @@ async function loadSongs() {
     `?tqx=out:json&headers=1&tq=${encodeURIComponent('select *')}`;
 
   try {
+    showLoader();
     loadSongsBtn.disabled = true;
     loadSongsBtn.textContent = 'Loading...';
 
@@ -83,6 +85,7 @@ async function loadSongs() {
     console.error('Error loading songs:', error);
     alert('Failed to load songs. Please check the Google Sheets ID.');
   } finally {
+    hideLoader();
     loadSongsBtn.disabled = false;
     loadSongsBtn.textContent = 'Load';
   }
@@ -480,3 +483,11 @@ backButton.addEventListener('click', () => {
 reloadButton.addEventListener('click', () => {
   window.location.reload();
 });
+
+function showLoader() {
+  loader?.classList.remove('hidden');
+}
+
+function hideLoader() {
+  loader?.classList.add('hidden');
+}
