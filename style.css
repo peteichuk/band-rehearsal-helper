@@ -1,3 +1,15 @@
 html {
   touch-action: manipulation;
 }
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::after {
+  content: "▼";
+  font-size: 0.8rem;
+  top: 8px;
+  right: 10px;
+  position: absolute;
+}

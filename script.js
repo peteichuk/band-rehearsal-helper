@@ -39,6 +39,70 @@ function initDarkMode() {
   });
 }
 
+function renderTransposeControls() {
+  const transposeContainer = document.querySelector('#transposeContainer');
+  if (!transposeContainer) return;
+
+  const SCALESTEPS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+  // Get the original tonality from the selected song
+  const originalTonality = selectedSong?.Tonality || 'C';
+  const baseMatch = originalTonality.match(/^([A-G][#b]?)(.*)$/);
+  const baseRoot = baseMatch ? baseMatch[1] : 'C';
+  const baseSuffix = baseMatch ? baseMatch[2] : '';
+
+  const normalizedRoot = NORMALIZE_MAP[baseRoot] || baseRoot;
+  const baseIndex = SCALESTEPS.indexOf(normalizedRoot);
+
+  let dropdownOptions = '';
+  for (let i = 0; i < 12; i++) {
+    const noteIndex = (baseIndex + i) % 12;
+    const currentNote = SCALESTEPS[noteIndex];
+    const fullChordName = currentNote + baseSuffix;
+
+    // Add "(Original)" label for the original tonality
+    const label = i === 0 ? `${fullChordName} (Original)` : fullChordName;
+    dropdownOptions += `<option value="${i}">${label}</option>`;
+  }
+
+  transposeContainer.innerHTML = `
+    <div class="flex items-center justify-center gap-2">
+      <button id="transposeDown" class="px-3 py-1 bg-blue-600 dark:bg-blue-600 hover:bg-blue-500 dark:hover:bg-blue-700 rounded text-white">-</button>
+      <div class="select-wrapper text-white">
+        <select id="transposeDropdown" class="px-2 py-1 bg-blue-600 dark:bg-blue-600 hover:bg-blue-500 dark:hover:bg-blue-700 rounded appearance-none pr-6 outline-none">
+          ${dropdownOptions}
+        </select>
+      </div>
+      <button id="transposeUp" class="px-3 py-1 bg-blue-600 dark:bg-blue-600 hover:bg-blue-500 dark:hover:bg-blue-700 rounded text-white">+</button>
+    </div>
+  `;
+
+  const dropdown = document.querySelector('#transposeDropdown');
+  const transposeDown = document.querySelector('#transposeDown');
+  const transposeUp = document.querySelector('#transposeUp');
+
+  function applyTranspose(steps) {
+    dropdown.value = steps;
+    const url = new URL(window.location);
+    url.searchParams.set('tonality', steps);
+    window.history.replaceState({}, '', url);
+
+    window.transposeChordsInSpans(steps);
+  }
+
+  dropdown.addEventListener('change', e => applyTranspose(parseInt(e.target.value, 10)));
+
+  transposeDown.addEventListener('click', () => {
+    const nextVal = (parseInt(dropdown.value, 10) - 1 + 12) % 12;
+    applyTranspose(nextVal);
+  });
+
+  transposeUp.addEventListener('click', () => {
+    const nextVal = (parseInt(dropdown.value, 10) + 1) % 12;
+    applyTranspose(nextVal);
+  });
+}
+
 // Load songs from Google Sheets
 async function loadSongs() {
   let sheetsId = sheetsIdInput.value.trim();
@@ -363,6 +427,10 @@ function renderMainContent() {
     }
 
     <div id="zoomControls" class="${text ? '' : 'hidden'}"></div>
+    
+    <div class="h-100 border border-l-1 border-color-gray-200 dark:border-color-gray-700"></div>
+    
+    <div id="transposeContainer" class="${text ? '' : 'hidden'}"></div>
   </div>
 
   ${
@@ -377,6 +445,7 @@ function renderMainContent() {
 
   addZoomControls();
   colorizeChords();
+  renderTransposeControls();
 }
 
 // Escape HTML to prevent XSS
@@ -431,6 +500,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const tableId = url.searchParams.get('tableId');
   const searchQuery = url.searchParams.get('search');
   const fragment = decodeURIComponent(url.hash.slice(1));
+  const tonality = parseInt(url.searchParams.get('tonality'), 10);
 
   if (tableId) {
     sheetsIdInput.value = tableId; // Populate input with table ID
@@ -444,6 +514,16 @@ window.addEventListener('DOMContentLoaded', () => {
         const song = songs.find(s => s.Name === fragment);
         if (song) {
           selectSong(song);
+        }
+      }
+      if (!isNaN(tonality)) {
+        // Apply the saved tonality
+        window.transposeChordsInSpans(tonality);
+
+        // Set the dropdown value to the saved tonality
+        const dropdown = document.querySelector('#transposeDropdown');
+        if (dropdown) {
+          dropdown.value = tonality;
         }
       }
     });

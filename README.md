@@ -23,6 +23,7 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **As Mobile App:** Installable as a Native App on iOS and Android devices. Choose "Add to Home Screen" from your browser menu.
 - **Print:** Simple print styles for physical copies of lyrics and chords.
 - **Share:** Share specific songs or filtered lists.
+- **Transpose Chords:** Enhancing the chord parser to allow one-click transposition.
 
 ## 📊 Data Structure (Google Sheets)
 
@@ -49,7 +50,6 @@ To ensure the application works correctly, your Google Sheet should include the 
 - [ ] Implementation of advanced filtering and searching by the `GroupBy` field.
 - [ ] Multi-select support for groups (assigning a song to multiple sets/locations).
 - [ ] Integration of a separate "Groups" table for better setlist management.
-- [ ] Enhancing the chord parser to allow one-click transposition.
 
 ## 🤝 Contributing
 
