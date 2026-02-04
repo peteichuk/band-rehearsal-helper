@@ -137,14 +137,18 @@ function renderTransposeControls() {
   transposeDown.addEventListener('click', () => {
     if (dropdown.selectedIndex > 0) {
       dropdown.selectedIndex--;
-      applyTranspose(true);
+    } else {
+      dropdown.selectedIndex = dropdown.options.length - 1;
     }
+    applyTranspose(true);
   });
   transposeUp.addEventListener('click', () => {
     if (dropdown.selectedIndex < dropdown.options.length - 1) {
       dropdown.selectedIndex++;
-      applyTranspose(true);
+    } else {
+      dropdown.selectedIndex = 0;
     }
+    applyTranspose(true);
   });
 }
 
