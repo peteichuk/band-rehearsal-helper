@@ -43,27 +43,56 @@ function renderTransposeControls() {
   const transposeContainer = document.querySelector('#transposeContainer');
   if (!transposeContainer) return;
 
-  const SCALESTEPS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const DISPLAY_SCALE = [
+    'C',
+    'C#',
+    'Db',
+    'D',
+    'D#',
+    'Eb',
+    'E',
+    'F',
+    'F#',
+    'Gb',
+    'G',
+    'G#',
+    'Ab',
+    'A',
+    'A#',
+    'Bb',
+    'B',
+    'H',
+  ];
 
   // Get the original tonality from the selected song
   const originalTonality = selectedSong?.Tonality || 'C';
-  const baseMatch = originalTonality.match(/^([A-G][#b]?)(.*)$/);
-  const baseRoot = baseMatch ? baseMatch[1] : 'C';
+  const baseMatch = originalTonality.match(/^([A-GH][#b]?)(.*)$/);
+  const baseRoot = baseMatch ? baseMatch[1] : originalTonality;
   const baseSuffix = baseMatch ? baseMatch[2] : '';
 
-  const normalizedRoot = NORMALIZE_MAP[baseRoot] || baseRoot;
-  const baseIndex = SCALESTEPS.indexOf(normalizedRoot);
+  const normalizedBaseRoot = NORMALIZE_MAP[baseRoot] || baseRoot;
+  const baseIndexInChords = CHORDS.indexOf(normalizedBaseRoot);
 
-  let dropdownOptions = '';
-  for (let i = 0; i < 12; i++) {
-    const noteIndex = (baseIndex + i) % 12;
-    const currentNote = SCALESTEPS[noteIndex];
-    const fullChordName = currentNote + baseSuffix;
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetTonalityFromUrl = urlParams.get('tonality');
 
-    // Add "(Original)" label for the original tonality
-    const label = i === 0 ? `${fullChordName} (Original)` : fullChordName;
-    dropdownOptions += `<option value="${i}">${label}</option>`;
-  }
+  let dropdownOptions = DISPLAY_SCALE.map(note => {
+    const normalizedNote = NORMALIZE_MAP[note] || note;
+    const noteIndex = CHORDS.indexOf(normalizedNote);
+    let steps = noteIndex - baseIndexInChords;
+
+    if (steps > 6) steps -= 12;
+    if (steps < -6) steps += 12;
+
+    const isSelected =
+      note + baseSuffix === targetTonalityFromUrl ||
+      (steps === 0 && note === baseRoot && !targetTonalityFromUrl);
+
+    const isOriginal = steps === 0 && note === baseRoot ? ' (Original)' : '';
+    const useFlats = note.includes('b') || ['F', 'Bb', 'Eb', 'Ab', 'Db'].includes(note);
+
+    return `<option value="${steps}" data-use-flats="${useFlats}" ${isSelected ? 'selected' : ''}>${note}${baseSuffix}${isOriginal}</option>`;
+  }).join('');
 
   transposeContainer.innerHTML = `
     <div class="flex items-center justify-center gap-2">
@@ -81,25 +110,41 @@ function renderTransposeControls() {
   const transposeDown = document.querySelector('#transposeDown');
   const transposeUp = document.querySelector('#transposeUp');
 
-  function applyTranspose(steps) {
-    dropdown.value = steps;
-    const url = new URL(window.location);
-    url.searchParams.set('tonality', steps);
-    window.history.replaceState({}, '', url);
+  function applyTranspose(isManual = true) {
+    const selectedOption = dropdown.options[dropdown.selectedIndex];
+    if (!selectedOption) return;
 
-    window.transposeChordsInSpans(steps);
+    const steps = parseInt(selectedOption.value, 10);
+    const useFlats = selectedOption.getAttribute('data-use-flats') === 'true';
+    const tonalityName = selectedOption.text.replace(' (Original)', '');
+
+    if (isManual) {
+      const url = new URL(window.location);
+      if (steps === 0) url.searchParams.delete('tonality');
+      else url.searchParams.set('tonality', tonalityName);
+      window.history.replaceState({}, '', url);
+    }
+
+    window.transposeChordsInSpans(steps, useFlats);
   }
 
-  dropdown.addEventListener('change', e => applyTranspose(parseInt(e.target.value, 10)));
+  // Call on init if target tonality is from URL
+  if (targetTonalityFromUrl) {
+    setTimeout(() => applyTranspose(false), 0);
+  }
 
+  dropdown.addEventListener('change', () => applyTranspose(true));
   transposeDown.addEventListener('click', () => {
-    const nextVal = (parseInt(dropdown.value, 10) - 1 + 12) % 12;
-    applyTranspose(nextVal);
+    if (dropdown.selectedIndex > 0) {
+      dropdown.selectedIndex--;
+      applyTranspose(true);
+    }
   });
-
   transposeUp.addEventListener('click', () => {
-    const nextVal = (parseInt(dropdown.value, 10) + 1) % 12;
-    applyTranspose(nextVal);
+    if (dropdown.selectedIndex < dropdown.options.length - 1) {
+      dropdown.selectedIndex++;
+      applyTranspose(true);
+    }
   });
 }
 
@@ -191,9 +236,9 @@ function filterSongs(query) {
     url.searchParams.set('search', searchTerm);
   } else {
     url.searchParams.delete('search');
-    url.hash = ''; // Clear the hash from the URL
-    selectedSong = null; // Clear the selected song when the filter is cleared
-    renderMainContent(); // Clear the main content
+    url.hash = '';
+    selectedSong = null;
+    renderMainContent();
   }
   window.history.replaceState({}, '', url);
 
@@ -268,9 +313,10 @@ function renderSongsList() {
 }
 
 // Select a song
-function selectSong(song) {
+function selectSong(song, targetTonality = null) {
   selectedSong = song;
-  globalTonality = song.Tonality || null;
+  // If targetTonality exists (from URL), we'll use it, otherwise use song's original
+  globalTonality = targetTonality || song.Tonality || 'C';
   globalTempo = song.BPM || null;
 
   const url = new URL(window.location);
@@ -500,30 +546,20 @@ window.addEventListener('DOMContentLoaded', () => {
   const tableId = url.searchParams.get('tableId');
   const searchQuery = url.searchParams.get('search');
   const fragment = decodeURIComponent(url.hash.slice(1));
-  const tonality = parseInt(url.searchParams.get('tonality'), 10);
+  const targetTonality = url.searchParams.get('tonality');
 
   if (tableId) {
     sheetsIdInput.value = tableId; // Populate input with table ID
     loadSongs().then(() => {
       if (searchQuery) {
         searchInput.value = searchQuery;
-        mobileSearchInput.value = searchQuery;
         filterSongs(searchQuery); // Filter songs after loading
       }
+
       if (fragment) {
         const song = songs.find(s => s.Name === fragment);
         if (song) {
-          selectSong(song);
-        }
-      }
-      if (!isNaN(tonality)) {
-        // Apply the saved tonality
-        window.transposeChordsInSpans(tonality);
-
-        // Set the dropdown value to the saved tonality
-        const dropdown = document.querySelector('#transposeDropdown');
-        if (dropdown) {
-          dropdown.value = tonality;
+          selectSong(song, targetTonality);
         }
       }
     });
@@ -556,6 +592,7 @@ backButton.addEventListener('click', () => {
   // Clear the hash from the URL
   const url = new URL(window.location);
   url.hash = '';
+  url.searchParams.delete('tonality');
   window.history.replaceState({}, '', url);
 });
 

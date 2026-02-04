@@ -10,9 +10,18 @@ const NORMALIZE_MAP = {
   Bb: 'A#',
   'E#': 'F',
   'B#': 'C',
+  H: 'B', // Support H as B
 };
 
-function transposeChord(chord, steps) {
+const SHARP_TO_FLAT = {
+  'C#': 'Db',
+  'D#': 'Eb',
+  'F#': 'Gb',
+  'G#': 'Ab',
+  'A#': 'Bb',
+};
+
+function transposeChord(chord, steps, useFlats = false) {
   if (!chord) return chord;
 
   // Parsing slash chords
@@ -22,7 +31,7 @@ function transposeChord(chord, steps) {
     return parts.map(part => transposeChord(part, steps)).join('/');
   }
 
-  const match = chord.match(/^([A-G][#b]?)(.*)$/);
+  const match = chord.match(/^([A-H][#b]?)(.*)$/);
   if (!match) return chord;
 
   let [_, root, suffix] = match;
@@ -37,11 +46,17 @@ function transposeChord(chord, steps) {
   let newIndex = (index + steps) % 12;
   if (newIndex < 0) newIndex += 12;
 
-  const transposedRoot = CHORDS[newIndex];
+  let transposedRoot = CHORDS[newIndex];
+
+  // Choose between sharps and flats
+  if (useFlats && SHARP_TO_FLAT[transposedRoot]) {
+    transposedRoot = SHARP_TO_FLAT[transposedRoot];
+  }
+
   return transposedRoot + suffix;
 }
 
-function transposeChordsInSpans(steps) {
+function transposeChordsInSpans(steps, useFlats = false) {
   const chordSpans = document.querySelectorAll('span.chord');
   chordSpans.forEach(span => {
     // Save current chord if not already saved
@@ -50,9 +65,7 @@ function transposeChordsInSpans(steps) {
     }
 
     const original = span.getAttribute('data-original-chord');
-    const transposed = transposeChord(original, steps); // Функція з першої відповіді
-
-    span.textContent = transposed;
+    span.textContent = transposeChord(original, steps, useFlats);
   });
 }
 
