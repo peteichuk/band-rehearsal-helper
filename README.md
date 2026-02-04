@@ -24,6 +24,7 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **Print:** Simple print styles for physical copies of lyrics and chords.
 - **Share:** Share specific songs or filtered lists.
 - **Transpose Chords:** Enhancing the chord parser to allow one-click transposition.
+- **Working in Offline:** Once loaded, the app can function offline (except for fetching new data from Google Sheets). 
 
 ## 📊 Data Structure (Google Sheets)
 
