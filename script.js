@@ -318,7 +318,7 @@ function renderSongsList() {
   mainContent.innerHTML = listItems.join('');
 
   // Add click handlers
-  document.querySelectorAll('#mainContent button, #mobileSongsList button').forEach(btn => {
+  document.querySelectorAll('#mainContent button').forEach(btn => {
     btn.addEventListener('click', () => {
       const index = parseInt(btn.getAttribute('data-song-index'));
       selectSong(filteredSongs[index]);
