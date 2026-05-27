@@ -29,7 +29,7 @@
     />
     <meta name="mobile-web-app-capable" content="yes" />
     <link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
-    <link rel="stylesheet" href="./snow.css" />
+    <!--    <link rel="stylesheet" href="./snow.css" />-->
     <link rel="stylesheet" href="./metronome.css" />
     <link rel="stylesheet" href="./style.css" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -79,8 +79,8 @@
               class="px-4 py-2 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 rounded font-medium transition-colors"
               type="button"
             >
-              <div class="w-6 h-6">
-                <img src="images/icons/reload.svg" alt="Reload icon" class="w-full" />
+              <div class="w-6 h-6 flex items-center justify-center text-white">
+                <svg-icon src="images/icons/refresh.svg"></svg-icon>
               </div>
             </button>
 
@@ -89,8 +89,8 @@
               class="hidden px-4 py-2 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 rounded font-medium transition-colors"
               type="button"
             >
-              <div class="w-6 h-6">
-                <img src="images/icons/print.svg" alt="Print icon" class="w-full" />
+              <div class="w-6 h-6 flex items-center justify-center text-white">
+                <svg-icon src="images/icons/print.svg"></svg-icon>
               </div>
             </button>
 
@@ -151,8 +151,8 @@
               class="px-4 py-2 bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 rounded font-medium transition-colors"
               type="button"
             >
-              <div class="w-6 h-6">
-                <img src="images/icons/share.svg" alt="Share icon" class="w-full" />
+              <div class="w-6 h-6 flex items-center justify-center text-white">
+                <svg-icon src="images/icons/share.svg"></svg-icon>
               </div>
             </button>
           </div>
@@ -284,11 +284,14 @@
     <!--snow effects end-->
 
     <!--<script src="snow.js"></script>-->
+    <script src="svg-icon.js"></script>
     <script src="transpose-chords.js"></script>
     <script src="script.js"></script>
     <script src="metronome.js"></script>
     <script src="print.js"></script>
     <script src="share.js"></script>
+    <script src="select.js"></script>
     <script src="sw-runner.js"></script>
+    <script src="wake-lock.js"></script>
   </body>
 </html>

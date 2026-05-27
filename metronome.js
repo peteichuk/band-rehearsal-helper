@@ -34,7 +34,7 @@ function initializeMetronome() {
   const theme = getSystemTheme();
   const iframe = `<iframe
           id="metronomeIframe"
-          src="https://guitarapp.com/metronome.html?embed=true&tempo=${globalTempo || 120}&timeSignature=2&pattern=1&theme=${theme}"
+          src="https://guitarapp.com/metronome.html?embed=true&tempo=${globalTempo || 120}&timeSignature=2&pattern=0&theme=${theme}"
           title="Online Metronome"
           style="width: 360px; height: 520px; border-style: none; border-radius: 4px;"
           data-tempo="${globalTempo || 120}"

@@ -24,7 +24,11 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **Print:** Simple print styles for physical copies of lyrics and chords.
 - **Share:** Share specific songs or filtered lists.
 - **Transpose Chords:** Enhancing the chord parser to allow one-click transposition.
-- **Working in Offline:** Once loaded, the app can function offline (except for fetching new data from Google Sheets). 
+- **Working in Offline:** Once loaded, the app can function offline (except for fetching new data from Google Sheets).
+- **Split by Columns:** View song in separate columns (e.g., Verse, Chorus).
+- **Wake lock:** Wake lock for desktop PC (for mobile not possible temporary).
+- **Toggle Show/Hide Chords:** Option to hide chords for a cleaner view of the lyrics.
+- **Toggle Show/Hide Text:** Option to hide lyrics for a focus on chords only.
 
 ## 📊 Data Structure (Google Sheets)
 
@@ -47,10 +51,11 @@ To ensure the application works correctly, your Google Sheet should include the 
 
 ## 🛠 Roadmap
 
-- [ ] Metronome enhancements (save local state for each song).
+- [ ] UI Admin with CRUD. Auth by Google then easy add/edit/delete songs directly from the Google Sheets for APP.
 - [ ] Implementation of advanced filtering and searching by the `GroupBy` field.
 - [ ] Multi-select support for groups (assigning a song to multiple sets/locations).
 - [ ] Integration of a separate "Groups" table for better setlist management.
+- [ ] Wake lock for (IOS, Android).
 
 ## 🤝 Contributing
 

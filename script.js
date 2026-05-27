@@ -96,13 +96,13 @@ function renderTransposeControls() {
 
   transposeContainer.innerHTML = `
     <div class="flex items-center justify-center gap-2">
-      <button id="transposeDown" class="px-3 py-1 bg-blue-600 dark:bg-blue-600 hover:bg-blue-500 dark:hover:bg-blue-700 rounded text-white">-</button>
+      <button id="transposeDown" class="px-3 py-1 bg-blue-600 dark:bg-blue-700 hover:bg-blue-500 dark:hover:bg-blue-600 rounded text-white">-</button>
       <div class="select-wrapper text-white">
-        <select id="transposeDropdown" class="px-2 py-1 bg-blue-600 dark:bg-blue-600 hover:bg-blue-500 dark:hover:bg-blue-700 rounded appearance-none pr-6 outline-none">
+        <select id="transposeDropdown" class="px-2 py-1 bg-blue-600 dark:bg-blue-700 hover:bg-blue-500 dark:hover:bg-blue-600 rounded appearance-none pr-6 outline-none">
           ${dropdownOptions}
         </select>
       </div>
-      <button id="transposeUp" class="px-3 py-1 bg-blue-600 dark:bg-blue-600 hover:bg-blue-500 dark:hover:bg-blue-700 rounded text-white">+</button>
+      <button id="transposeUp" class="px-3 py-1 bg-blue-600 dark:bg-blue-700 hover:bg-blue-500 dark:hover:bg-blue-600 rounded text-white">+</button>
     </div>
   `;
 
@@ -348,13 +348,6 @@ function addZoomControls() {
 
   zoomControls.innerHTML = `
     <div class="flex items-center gap-2">
-      <button id="zoomInBtn" class="p-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded" type="button">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-zoom-in" viewBox="0 0 16 16">
-          <path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11M13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0"/>
-          <path d="M10.344 11.742q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1 6.5 6.5 0 0 1-1.398 1.4z"/>
-          <path fill-rule="evenodd" d="M6.5 3a.5.5 0 0 1 .5.5V6h2.5a.5.5 0 0 1 0 1H7v2.5a.5.5 0 0 1-1 0V7H3.5a.5.5 0 0 1 0-1H6V3.5a.5.5 0 0 1 .5-.5"/>
-        </svg>
-      </button>
       <button id="zoomOutBtn" class="p-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded" type="button">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-zoom-out" viewBox="0 0 16 16">
           <path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11M13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0"/>
@@ -363,8 +356,15 @@ function addZoomControls() {
         </svg>
       </button>
       <button id="resetZoomBtn" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded flex items-center gap-2" type="button">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        <svg-icon src="images/icons/reload.svg" class="w-5 h-5"></svg-icon>
         Reset
+      </button>
+      <button id="zoomInBtn" class="p-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-zoom-in" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11M13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0"/>
+          <path d="M10.344 11.742q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1 6.5 6.5 0 0 1-1.398 1.4z"/>
+          <path fill-rule="evenodd" d="M6.5 3a.5.5 0 0 1 .5.5V6h2.5a.5.5 0 0 1 0 1H7v2.5a.5.5 0 0 1-1 0V7H3.5a.5.5 0 0 1 0-1H6V3.5a.5.5 0 0 1 .5-.5"/>
+        </svg>
       </button>
     </div>
   `;
@@ -396,6 +396,164 @@ function addZoomControls() {
 
   songContent.style.fontSize = `${currentFontSize}px`;
   localStorage.setItem('songContentFontSize', currentFontSize);
+}
+
+function addColumnControls() {
+  const columnControls = document.getElementById('columnControls');
+  if (!columnControls) return;
+  columnControls.innerHTML = `<div class="custom-select relative w-auto">
+  <input type="hidden" id="columnSelect" name="columns" class="select-value" value="col-auto" />
+
+  <button
+    type="button"
+    class="select-trigger w-full px-2 py-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded flex items-center gap-2"
+  >
+    <span class="selected-label text-gray-500"
+      ><svg-icon src="images/icons/col.svg" class="w-5 h-5 mr-2"></svg-icon> Col</span
+    >
+    <span class="pointer-events-none">▼</span>
+  </button>
+
+  <ul
+      class="select-menu absolute z-10 w-full min-w-[140px] mt-1 bg-white border border-gray-300 rounded-md shadow-lg hidden"
+    >
+    <li data-value="col-auto" class="px-2 py-1 bg-white dark:bg-gray-900 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer">
+      <p class="flex flex-nowrap items-center">
+        <svg-icon src="images/icons/col.svg" class="w-5 h-5 mr-2"></svg-icon> Col Auto
+      </p>
+    </li>
+    <li data-value="col-1" class="px-2 py-1 bg-white dark:bg-gray-900 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer">
+      <p class="flex flex-nowrap items-center">
+        <svg-icon src="images/icons/col.svg" class="w-5 h-5 mr-2"></svg-icon> Col 1
+      </p>
+    </li>
+    <li data-value="col-2" class="px-2 py-1 bg-white dark:bg-gray-900 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer">
+      <p class="flex flex-nowrap items-center">
+        <svg-icon src="images/icons/col.svg" class="w-5 h-5 mr-2"></svg-icon> Col 2
+      </p>
+    </li>
+    <li data-value="col-3" class="px-2 py-1 bg-white dark:bg-gray-900 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer">
+      <p class="flex flex-nowrap items-center">
+        <svg-icon src="images/icons/col.svg" class="w-5 h-5 mr-2"></svg-icon> Col 3
+      </p>
+    </li>
+    <li data-value="col-4" class="px-2 py-1 bg-white dark:bg-gray-900 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer">
+      <p class="flex flex-nowrap items-center">
+        <svg-icon src="images/icons/col.svg" class="w-5 h-5 mr-2"></svg-icon> Col 4
+      </p>
+    </li>
+  </ul>
+</div>`;
+
+  const songContent = document.getElementById('songContent');
+  if (!songContent) return;
+
+  const columnSelect = document.getElementById('columnSelect');
+  const columnClasses = ['col-auto', 'col-1', 'col-2', 'col-3', 'col-4'];
+
+  // Load the saved column class from localStorage
+  const savedClass = localStorage.getItem('selectedColumnClass') || 'col-auto';
+  columnClasses.forEach(cls => songContent.classList.remove(cls));
+  songContent.classList.add(savedClass);
+  columnSelect.value = savedClass;
+
+  columnSelect.addEventListener('change', () => {
+    const selectedClass = columnSelect.value;
+    columnClasses.forEach(cls => songContent.classList.remove(cls));
+    songContent.classList.add(selectedClass);
+
+    // Save the selected column class to localStorage
+    localStorage.setItem('selectedColumnClass', selectedClass);
+  });
+}
+
+function addToggleControls() {
+  const toggleControls = document.getElementById('toggleControls');
+  if (!toggleControls) return;
+
+  toggleControls.innerHTML = `<div class="flex items-center gap-2">
+    <button id="toggleTextLineBtn" class="px-2 py-1 bg-green-600 dark:bg-green-800 hover:bg-green-500 dark:hover:bg-green-700 rounded text-white" title="Toggle Text Lines">
+      <svg-icon src="images/icons/hide-text.svg" class="w-5 h-5 block"></svg-icon>
+    </button>
+    <button id="toggleChordLineBtn" class="px-2 py-1 bg-green-600 dark:bg-green-800 hover:bg-green-500 dark:hover:bg-green-700 rounded text-white" title="Toggle Chord Lines">
+      <svg-icon src="images/icons/hide-chords.svg" class="w-5 h-5 block"></svg-icon>
+    </button>
+  </div>`;
+
+  // Initialize buttons after they are added to the DOM
+  const toggleTextLineBtn = document.getElementById('toggleTextLineBtn');
+  const toggleChordLineBtn = document.getElementById('toggleChordLineBtn');
+
+  const textLineState = JSON.parse(localStorage.getItem('hideTextLine')) || false;
+  const chordLineState = JSON.parse(localStorage.getItem('hideChordLine')) || false;
+  const activeClasses = [
+    'bg-red-600',
+    'dark:bg-red-800',
+    'hover:bg-red-500',
+    'dark:hover:bg-red-700',
+  ];
+  const normalClasses = [
+    'bg-green-600',
+    'dark:bg-green-800',
+    'hover:bg-green-500',
+    'dark:hover:bg-green-700',
+  ];
+
+  // Apply initial state
+  document
+    .querySelectorAll('.text-line')
+    .forEach(el => (textLineState ? el.classList.add('hidden') : el.classList.remove('hidden')));
+  document
+    .querySelectorAll('.chord-line')
+    .forEach(el => (chordLineState ? el.classList.add('hidden') : el.classList.remove('hidden')));
+
+  // Add event listeners
+  toggleTextLineBtn.addEventListener('click', () => {
+    const currentState = !(JSON.parse(localStorage.getItem('hideTextLine')) || false);
+    toggleButtonClasses(toggleTextLineBtn, currentState);
+    document.querySelectorAll('.text-line').forEach(el => el.classList.toggle('hidden'));
+    localStorage.setItem('hideTextLine', JSON.stringify(currentState));
+    updateFlowForChordsLine();
+  });
+
+  toggleChordLineBtn.addEventListener('click', () => {
+    const currentState = !(JSON.parse(localStorage.getItem('hideChordLine')) || false);
+    toggleButtonClasses(toggleChordLineBtn, currentState);
+    document.querySelectorAll('.chord-line').forEach(el => el.classList.toggle('hidden'));
+    localStorage.setItem('hideChordLine', JSON.stringify(currentState));
+    updateFlowForChordsLine();
+  });
+
+  function toggleButtonClasses(btn, isHidden) {
+    if (isHidden) {
+      btn.classList.remove(...normalClasses);
+      btn.classList.add(...activeClasses);
+    } else {
+      btn.classList.remove(...activeClasses);
+      btn.classList.add(...normalClasses);
+    }
+  }
+
+  function updateFlowForChordsLine() {
+    const isHiddenText = JSON.parse(localStorage.getItem('hideTextLine')) || false;
+    const chordLines = document.querySelectorAll('.chord-line');
+    // whitespace-pre-wrap whitespace-normal
+    if (isHiddenText) {
+      chordLines.forEach(el => {
+        el.classList.remove('whitespace-pre-wrap');
+        el.classList.add('whitespace-normal');
+      });
+    } else {
+      chordLines.forEach(el => {
+        el.classList.remove('whitespace-normal');
+        el.classList.add('whitespace-pre-wrap');
+      });
+    }
+  }
+
+  toggleButtonClasses(toggleTextLineBtn, textLineState);
+  toggleButtonClasses(toggleChordLineBtn, chordLineState);
+  updateFlowForChordsLine();
 }
 
 function getContentMessage(title, message) {
@@ -446,7 +604,7 @@ function renderMainContent() {
       target="_blank"
       rel="noopener noreferrer"
       title="Watch on YouTube"
-      class="px-2 py-1 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+      class="px-2 py-1 bg-red-600 dark:bg-red-800 hover:bg-red-700 dark:hover:bg-red-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
     >
       <img src="images/icons/youtube.svg" alt="YouTube" class="w-5 h-5"/>
     </a>
@@ -486,16 +644,26 @@ function renderMainContent() {
         : ''
     }
 
+    <div class="h-100 border border-l-1 border-color-gray-200 dark:border-color-gray-700 ${text ? '' : 'hidden'}"></div>
+
     <div id="zoomControls" class="${text ? '' : 'hidden'}"></div>
     
-    <div class="h-100 border border-l-1 border-color-gray-200 dark:border-color-gray-700"></div>
+    <div class="h-100 border border-l-1 border-color-gray-200 dark:border-color-gray-700 ${text ? '' : 'hidden'}"></div>
     
     <div id="transposeContainer" class="${text ? '' : 'hidden'}"></div>
+    
+    <div class="h-100 border border-l-1 border-color-gray-200 dark:border-color-gray-700 ${text ? '' : 'hidden'}"></div>
+    
+    <div id="columnControls" class="${text ? '' : 'hidden'}"></div>
+
+    <div class="h-100 border border-l-1 border-color-gray-200 dark:border-color-gray-700 ${text ? '' : 'hidden'}"></div>
+    
+    <div id="toggleControls" class="${text ? '' : 'hidden'}"></div>
   </div>
 
   ${
     text
-      ? `<pre id="songContent" class="whitespace-pre-wrap font-sans text-sm leading-[1.5] text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 p-4 rounded border border-gray-300 dark:border-gray-600 overflow-x-auto">${text}</pre>`
+      ? `<div id="songContent" class="font-sans text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 col-auto overflow-y-visible pt-1">${text}</div>`
       : getContentMessage(
           'Text not found for this song',
           'The selected song does not have any text available.'
@@ -506,6 +674,8 @@ function renderMainContent() {
   addZoomControls();
   colorizeChords();
   renderTransposeControls();
+  addColumnControls();
+  addToggleControls();
 }
 
 // Escape HTML to prevent XSS
@@ -518,17 +688,57 @@ function escapeHtml(text) {
 
 // Colorize chords in the text
 function colorizeChords() {
-  const preTag = document.querySelector('#songContent');
-  if (!preTag) return;
+  const container = document.querySelector('#songContent');
+  if (!container || !selectedSong || !selectedSong.Text) return;
+
+  const content = selectedSong.Text.trim();
+
+  const rawSections = content.split(/\n\s*\n/);
 
   const chordPattern =
     /(^|\s)([A-GH][#b]?(?:m|maj|dim|aug|sus\d?|[2456789]|11|13)*(?:\/[A-GH][#b]?(?:m|maj|dim|aug|sus\d?|[2456789]|11|13)*)*)(?=\s|$)/g;
 
-  const content = preTag.textContent;
+  const sectionsHtml = rawSections
+    .map(sectionStr => {
+      const lines = sectionStr.split('\n');
+      let titleHtml = '';
 
-  preTag.innerHTML = content.replace(chordPattern, (match, p1, p2) => {
-    return `${p1}<span class="chord text-blue-600 dark:text-blue-400" data-chord="${p2}">${p2}</span>`;
-  });
+      if (lines.length === 0) return '';
+
+      if (lines[0].includes(':') || /^\[/gi.test(lines[0])) {
+        const titleText = lines.shift();
+        titleHtml = `<strong class="block font-bold text-sm text-gray-900 dark:text-white absolute bg-white dark:bg-gray-800 rounded -translate-y-6 px-2 border border-blue-200 dark:border-blue-900 z-10">${escapeHtml(titleText)}</strong>`;
+      }
+
+      const fragmentsHtml = lines
+        .map(line => {
+          if (line.trim() === '') return '';
+
+          const processedLine = line.replace(chordPattern, (match, p1, p2) => {
+            return `${p1}<span class="chord text-blue-600 dark:text-blue-400" data-chord="${p2}">${p2}</span>`;
+          });
+
+          const isChordLine = line.match(chordPattern);
+          const lineClass = isChordLine
+            ? 'chord-line text-blue-600 dark:text-blue-400'
+            : 'text-line';
+
+          return `<div class="${lineClass} whitespace-pre-wrap leading-none">${processedLine}</div>`;
+        })
+        .join('');
+
+      return `
+      <section class="song-section mb-5 break-inside-avoid p-2 pt-3 mt-3 rounded border border-blue-200 dark:border-blue-900 relative overflow-y-visible shadow-sm">
+        ${titleHtml}
+        <div class="section-body">
+          ${fragmentsHtml}
+        </div>
+      </section>
+    `;
+    })
+    .join('');
+
+  container.innerHTML = sectionsHtml;
 }
 
 function scrollToTop() {
