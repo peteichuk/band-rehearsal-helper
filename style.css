@@ -42,7 +42,7 @@ html {
   column-count: 1;
 }
 #songContent.col-2 {
-  column-width: calc((100vw / 2) - 20px);
+  column-width: calc((100vw / 2) - 30px);
   column-count: 2;
 }
 #songContent.col-3 {

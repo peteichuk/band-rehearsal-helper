@@ -415,7 +415,7 @@ function addColumnControls() {
   </button>
 
   <ul
-      class="select-menu absolute z-10 w-full min-w-[140px] mt-1 bg-white border border-gray-300 rounded-md shadow-lg hidden"
+      class="select-menu absolute z-10 w-full min-w-[140px] mt-1 bg-white border border-gray-300 rounded-md shadow-lg hidden z-20"
     >
     <li data-value="col-auto" class="px-2 py-1 bg-white dark:bg-gray-900 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer">
       <p class="flex flex-nowrap items-center">
@@ -595,7 +595,7 @@ function renderMainContent() {
   mainContent.innerHTML = `
   <h2 class="text-2xl font-bold mb-2">${escapeHtml(selectedSong.Name || 'Untitled')} <span class="text-xs text-blue-600 dark:text-blue-400 mb-2">Tonality: <span class="font-semibold">${escapeHtml(selectedSong.Tonality) || '-'}</span></span> <span class="text-xs text-orange-600 mb-2">BPM: <span class="font-semibold">${selectedSong.BPM || '-'}</span></span></h2>
 
-  <div class="flex flex-wrap gap-3 mb-4">
+  <div class="flex flex-wrap gap-3 mb-2">
     ${
       youtubeUrl
         ? `
@@ -663,7 +663,7 @@ function renderMainContent() {
 
   ${
     text
-      ? `<div id="songContent" class="font-sans text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 col-auto overflow-y-visible pt-1">${text}</div>`
+      ? `<div id="songContent" class="font-sans text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 col-auto overflow-y-visible">${text}</div>`
       : getContentMessage(
           'Text not found for this song',
           'The selected song does not have any text available.'
@@ -707,7 +707,7 @@ function colorizeChords() {
 
       if (lines[0].includes(':') || /^\[/gi.test(lines[0])) {
         const titleText = lines.shift();
-        titleHtml = `<strong class="block font-bold text-sm text-gray-900 dark:text-white absolute bg-white dark:bg-gray-800 rounded -translate-y-6 px-2 border border-blue-200 dark:border-blue-900 z-10">${escapeHtml(titleText)}</strong>`;
+        titleHtml = `<strong class="font-semibold text-gray-900 dark:text-white relative bg-white dark:bg-gray-800 rounded border border-blue-200 dark:border-blue-900 py-1 px-2 -top-3 z-10 inline-block leading-none">${escapeHtml(titleText)}</strong>`;
       }
 
       const fragmentsHtml = lines
@@ -727,14 +727,14 @@ function colorizeChords() {
         })
         .join('');
 
-      return `
-      <section class="song-section mb-5 break-inside-avoid p-2 pt-3 mt-3 rounded border border-blue-200 dark:border-blue-900 relative overflow-y-visible shadow-sm">
-        ${titleHtml}
-        <div class="section-body">
-          ${fragmentsHtml}
-        </div>
-      </section>
-    `;
+      return `<div class="pt-4">
+  <section class="song-section break-inside-avoid px-2 -pt-3  rounded border border-blue-200 dark:border-blue-900 relative overflow-y-visible">
+    ${titleHtml}
+    <div class="section-body relative -top-2">
+      ${fragmentsHtml}
+    </div>
+  </section>
+</div>`;
     })
     .join('');
 
