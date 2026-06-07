@@ -204,11 +204,27 @@ async function loadSongs() {
 }
 
 function processAndRenderSongs() {
-  songs = songs
-    .filter(song => song.Name)
-    .sort((a, b) => a.Name.localeCompare(b.Name))
-    .sort((a, b) => (b.Favorites === true ? 1 : 0) - (a.Favorites === true ? 1 : 0));
-
+  songs = songs.filter(song => song.Name);
+  songs = songs.sort((a, b) => a.Name.localeCompare(b.Name));
+  const favoritesSong = songs.filter(song => song.Favorites === true);
+  const favoritesWithPriority = favoritesSong.filter(
+    song =>
+      song.SortingPriority !== null &&
+      song.SortingPriority !== undefined &&
+      !Number.isNaN(Number.parseInt(song.SortingPriority, 10))
+  );
+  const favoritesWithoutPriority = favoritesSong.filter(
+    song =>
+      song.SortingPriority === null ||
+      song.SortingPriority === undefined ||
+      Number.isNaN(Number.parseInt(song.SortingPriority, 10))
+  );
+  const otherSongs = songs.filter(song => song.Favorites !== true);
+  songs = [
+    ...favoritesWithPriority.sort((a, b) => a.SortingPriority - b.SortingPriority),
+    ...favoritesWithoutPriority,
+    ...otherSongs,
+  ];
   filteredSongs = [...songs];
   renderSongsList();
   enableSearch();

@@ -29,23 +29,25 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **Wake lock:** Wake lock for desktop PC (for mobile not possible temporary).
 - **Toggle Show/Hide Chords:** Option to hide chords for a cleaner view of the lyrics.
 - **Toggle Show/Hide Text:** Option to hide lyrics for a focus on chords only.
+- **Sorting Priority:** When a song is marked as a favorite, it will be sorted based on the `SortingPriority` field.
 
 ## 📊 Data Structure (Google Sheets)
 
 To ensure the application works correctly, your Google Sheet should include the following columns:
 
-| Column         | Type      | Description                                                        |
-| :------------- | :-------- | :----------------------------------------------------------------- |
-| **Name**       | `string`  | The song title (searchable).                                       |
-| **Favorites**  | `boolean` | Mark as TRUE to highlight or star the song.                        |
-| **Language**   | `string`  | The language of the lyrics.                                        |
-| **Tonality**   | `string`  | The original key of the song.                                      |
-| **BPM**        | `number`  | Temp BPM.                                                          |
-| **Text**       | `string`  | Lyrics with chords (use spaces between chords for proper parsing). |
-| **Holychords** | `url`     | Link to the song on Holychords.                                    |
-| **YouTube**    | `url`     | Link to a reference video or backing track.                        |
-| **Chordify**   | `url`     | Link to the Chordify page.                                         |
-| **GroupBy**    | `any`     | Used for filtering (e.g., "Acoustic Set", "Sunday Service").       |
+| Column              | Type      | Description                                                                  |
+| :------------------ |:----------| :--------------------------------------------------------------------------- |
+| **Name**            | `string`  | The song title (searchable).                                                 |
+| **Favorites**       | `boolean` | Mark as TRUE to highlight or star the song.                                  |
+| **Language**        | `string`  | The language of the lyrics.                                                  |
+| **Tonality**        | `string`  | The original key of the song.                                                |
+| **BPM**             | `number`  | Temp BPM.                                                                    |
+| **Text**            | `string`  | Lyrics with chords (use spaces between chords for proper parsing).           |
+| **Holychords**      | `url`     | Link to the song on Holychords.                                              |
+| **YouTube**         | `url`     | Link to a reference video or backing track.                                  |
+| **Chordify**        | `url`     | Link to the Chordify page.                                                   |
+| **GroupBy**         | `any`     | Used for filtering (e.g., "Acoustic Set", "Sunday Service").                 |
+| **SortingPriority** | `number`  | When song is added as Favorites, this ordering is enabled for favorites song |
 
 > **Note:** For the chord transposition engine to work, ensure there are clear spaces between chord symbols in the `Text` field.
 
