@@ -685,6 +685,8 @@ function renderMainContent() {
           'The selected song does not have any text available.'
         )
   }
+  
+  <div id="navigationControls"></div>
  `;
 
   addZoomControls();
@@ -692,6 +694,7 @@ function renderMainContent() {
   renderTransposeControls();
   addColumnControls();
   addToggleControls();
+  renderNavigationControls();
 }
 
 // Escape HTML to prevent XSS
@@ -755,6 +758,37 @@ function colorizeChords() {
     .join('');
 
   container.innerHTML = sectionsHtml;
+}
+
+function renderNavigationControls() {
+  const navigationContainer = document.getElementById('navigationControls');
+  if (!navigationContainer || !selectedSong || !selectedSong.Favorites) return;
+
+  const favorites = songs.filter(song => song.Favorites === true);
+  const currentIndex = favorites.findIndex(song => song === selectedSong);
+
+  const prevSong = currentIndex > 0 ? favorites[currentIndex - 1] : null;
+  const nextSong = currentIndex < favorites.length - 1 ? favorites[currentIndex + 1] : null;
+
+  navigationContainer.innerHTML = `<div class="flex justify-between items-center mt-4 gap-4">
+  <button id="prevFavoriteBtn" class="flex items-center gap-2 px-3 py-1 min-w-[90px] max-w-[46%] overflow-hidden rounded ${!prevSong ? 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-200 hover:dark:bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-blue-600 dark:bg-blue-700 hover:bg-blue-500 dark:hover:bg-blue-600 text-white'}" ${!prevSong ? 'disabled' : ''}>
+    <span class="flex-shrink-0">&larr;</span>
+    <span class="truncate">${prevSong ? prevSong.Name : '...'}</span>
+  </button>
+
+  <button id="nextFavoriteBtn" class="flex items-center gap-2 px-3 py-1 min-w-[90px] max-w-[46%] overflow-hidden rounded ${!nextSong ? 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-200 hover:dark:bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-blue-600 dark:bg-blue-700 hover:bg-blue-500 dark:hover:bg-blue-600 text-white'}" ${!nextSong ? 'disabled' : ''}>
+    <span class="truncate">${nextSong ? nextSong.Name : '...'}</span>
+    <span class="flex-shrink-0">&rarr;</span>
+  </button>
+</div>`;
+
+  document.getElementById('prevFavoriteBtn').addEventListener('click', () => {
+    if (prevSong) selectSong(prevSong);
+  });
+
+  document.getElementById('nextFavoriteBtn').addEventListener('click', () => {
+    if (nextSong) selectSong(nextSong);
+  });
 }
 
 function scrollToTop() {

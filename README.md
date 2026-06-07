@@ -30,6 +30,7 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **Toggle Show/Hide Chords:** Option to hide chords for a cleaner view of the lyrics.
 - **Toggle Show/Hide Text:** Option to hide lyrics for a focus on chords only.
 - **Sorting Priority:** When a song is marked as a favorite, it will be sorted based on the `SortingPriority` field.
+- **Navigation between selected favorites songs:** When a song is marked as a favorite, you can navigate between selected favorites songs using the prev and next button.
 
 ## 📊 Data Structure (Google Sheets)
 
