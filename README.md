@@ -15,7 +15,8 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **No-Build & Serverless:** Pure HTML/JS/CSS. No complex build steps or backend servers required.
 - **Google Sheets as DB:** Manage your songs in a spreadsheet; updates are reflected instantly in the app.
 - **Smart Chord Parsing:** Supports dynamic chord parsing from text, allowing for future transposition features.
-- **Favorites & Setlists:** Mark songs with a star to quickly filter what you need for an upcoming rehearsal or gig.
+- **Pinned Songs:** Songs marked `PinedByDefault` in the sheet are pinned to the top of the list for everyone. Anyone can locally pin/unpin any song from the UI — this only changes sort order for you, it's never written back to the sheet.
+- **Favorites & Setlists:** Star any song locally to build your own setlist — this is what the prev/next navigation on a song page cycles through. Until you star anything, prev/next falls back to the pinned songs by default.
 - **External Resource Integration:** Quick links to **YouTube**, **Chordify**, and **Holychords**.
 - **Auto Dark Mode:** Built-in responsive design that respects your OS light/dark theme settings.
 - **Mobile Friendly:** Fully responsive UI, perfect for smartphones on a music stand.
@@ -29,33 +30,36 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **Wake lock:** Wake lock for desktop PC (for mobile not possible temporary).
 - **Toggle Show/Hide Chords:** Option to hide chords for a cleaner view of the lyrics.
 - **Toggle Show/Hide Text:** Option to hide lyrics for a focus on chords only.
-- **Sorting Priority:** When a song is marked as a favorite, it will be sorted based on the `SortingPriority` field.
-- **Navigation between selected favorites songs:** When a song is marked as a favorite, you can navigate between selected favorites songs using the prev and next button.
+- **Sorting Priority:** Among pinned songs, `SortingPriority` controls the order (lower first); unpinned songs stay alphabetical.
+- **Navigation between favorite songs:** Open a song and use the prev/next buttons (or swipe) to move through your favorites — or, by default, through the pinned songs until you've starred your own.
+- **Admin Mode (Google Sign-In):** Sign in with Google; if your account has edit access to the sheet, an "Add Song" button and a per-song edit (pencil) icon appear, letting you create/update songs directly from the app.
 
 ## 📊 Data Structure (Google Sheets)
 
 To ensure the application works correctly, your Google Sheet should include the following columns:
 
-| Column              | Type      | Description                                                                  |
-| :------------------ |:----------| :--------------------------------------------------------------------------- |
-| **Name**            | `string`  | The song title (searchable).                                                 |
-| **Favorites**       | `boolean` | Mark as TRUE to highlight or star the song.                                  |
-| **Language**        | `string`  | The language of the lyrics.                                                  |
-| **Tonality**        | `string`  | The original key of the song.                                                |
-| **BPM**             | `number`  | Temp BPM.                                                                    |
-| **Text**            | `string`  | Lyrics with chords (use spaces between chords for proper parsing).           |
-| **Holychords**      | `url`     | Link to the song on Holychords.                                              |
-| **YouTube**         | `url`     | Link to a reference video or backing track.                                  |
-| **Chordify**        | `url`     | Link to the Chordify page.                                                   |
-| **GroupBy**         | `any`     | Used for filtering (e.g., "Acoustic Set", "Sunday Service").                 |
-| **SortingPriority** | `number`  | When song is added as Favorites, this ordering is enabled for favorites song |
+| Column              | Type      | Description                                                                                                                                                                |
+| :------------------ | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Name**            | `string`  | The song title (searchable). **Required.**                                                                                                                                 |
+| **PinedByDefault**  | `boolean` | Mark as TRUE to pin the song to the top of the list by default for everyone. Anyone can still locally override this (pin/unpin for themselves) without changing the sheet. |
+| **Language**        | `string`  | The language of the lyrics.                                                                                                                                                |
+| **Tonality**        | `string`  | The original key of the song.                                                                                                                                              |
+| **BPM**             | `number`  | Temp BPM.                                                                                                                                                                  |
+| **Text**            | `string`  | Lyrics with chords (use spaces between chords for proper parsing). **Required.**                                                                                           |
+| **Holychords**      | `url`     | Link to the song on Holychords.                                                                                                                                            |
+| **YouTube**         | `url`     | Link to a reference video or backing track.                                                                                                                                |
+| **Chordify**        | `url`     | Link to the Chordify page.                                                                                                                                                 |
+| **GroupBy**         | `any`     | Used for filtering (e.g., "Acoustic Set", "Sunday Service").                                                                                                               |
+| **SortingPriority** | `number`  | Among pinned songs (see `PinedByDefault` above), this controls their order.                                                                                                |
 
 > **Note:** For the chord transposition engine to work, ensure there are clear spaces between chord symbols in the `Text` field.
+>
+> **Note:** Column names are read dynamically from your sheet's header row — if you rename, add, or remove a column, the app (including the admin "Add Song"/edit form) picks it up automatically. `PinedByDefault`, `Text`, and a few others are only special-cased for their input type/behavior; any other column just becomes a plain text field.
 
 ## 🛠 Roadmap
 
-- [ ] UI Admin with CRUD. Auth by Google then easy add/edit/delete songs directly from the Google Sheets for APP.
-- [ ] Implementation of advanced filtering and searching by the `GroupBy` field.
+- [x] UI Admin with CRUD. Auth by Google then easy add/edit songs directly from the Google Sheets for APP. (delete not yet implemented)
+- [x] Implementation of advanced filtering and searching by the `GroupBy` field.
 - [ ] Multi-select support for groups (assigning a song to multiple sets/locations).
 - [ ] Integration of a separate "Groups" table for better setlist management.
 - [ ] Wake lock for (IOS, Android).
