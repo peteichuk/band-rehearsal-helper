@@ -29,7 +29,12 @@ export default defineConfig({
       manifest: {
         name: 'Band Rehearsal Helper',
         short_name: 'BandHelper',
-        start_url: '/band-rehearsal-helper/',
+        // No start_url: the plugin defaults it to the base path, but that makes every
+        // "Add to Home Screen" open the bare app, losing the current ?tableId=... . Omitting
+        // it (vite-plugin-pwa drops undefined keys from the written JSON) makes iOS
+        // Safari/Chrome fall back to the current document URL instead, so the installed
+        // icon reopens whichever table was loaded when the user added it.
+        start_url: undefined,
         scope: '/band-rehearsal-helper/',
         display: 'standalone',
         theme_color: '#2563eb',
