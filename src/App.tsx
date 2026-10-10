@@ -1,0 +1,154 @@
+import { useMemo, useState } from 'react';
+import { HashRouter, Outlet, Route, Routes, useSearchParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { SongListPage } from '@/pages/SongListPage';
+import { SongDetailPage } from '@/pages/SongDetailPage';
+import { Header } from '@/components/layout/Header';
+import { Loader } from '@/components/layout/Loader';
+import { MetronomeModal } from '@/components/modals/MetronomeModal';
+import { ShareModal } from '@/components/modals/ShareModal';
+import { SettingsModal } from '@/components/modals/SettingsModal';
+import { SongFormDialog } from '@/components/song-form/SongFormDialog';
+import { useSongsQuery } from '@/hooks/useSongsQuery';
+import { useDarkMode } from '@/hooks/useDarkMode';
+import { useWakeLock } from '@/hooks/useWakeLock';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { useEditAccess } from '@/hooks/useEditAccess';
+import { useSheetTitle } from '@/hooks/useSheetTitle';
+import { appendSong, updateSong } from '@/lib/google/sheetsWrite';
+import { useEffectivePinsSet } from '@/hooks/useEffectivePins';
+import { sortForDisplay } from '@/lib/songs/sortAndFilter';
+import { DEFAULT_PAGE_ACTIONS, type PageActions } from '@/types/pageActions';
+import type { Song } from '@/types/song';
+
+export interface RootOutletContext {
+  allSongs: Song[];
+  isLoading: boolean;
+  isError: boolean;
+  error: unknown;
+  tableId: string | null;
+  setTableId: (tableId: string) => void;
+  setPageActions: (actions: PageActions) => void;
+  canEdit: boolean;
+  openAddSong: () => void;
+  openEditSong: (song: Song) => void;
+}
+
+function RootLayout() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tableId = searchParams.get('tableId');
+  const queryClient = useQueryClient();
+
+  const { data, isLoading, isError, error } = useSongsQuery(tableId);
+  const rawSongs = data?.songs ?? [];
+  const effectivePinnedNames = useEffectivePinsSet(rawSongs);
+  const allSongs = useMemo(
+    () => sortForDisplay(rawSongs, effectivePinnedNames),
+    [rawSongs, effectivePinnedNames]
+  );
+  const headers = data?.headers ?? [];
+
+  const auth = useGoogleAuth();
+  const canEdit = useEditAccess(tableId, auth.accessToken);
+  const { data: sheetTitle } = useSheetTitle(tableId, auth.accessToken, canEdit);
+
+  const [pageActions, setPageActions] = useState<PageActions>(DEFAULT_PAGE_ACTIONS);
+  const [isMetronomeOpen, setIsMetronomeOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [editingSong, setEditingSong] = useState<Song | 'new' | null>(null);
+
+  useDarkMode();
+  useWakeLock();
+
+  const setTableId = (next: string) => {
+    setSearchParams(prev => {
+      const merged = new URLSearchParams(prev);
+      merged.set('tableId', next);
+      return merged;
+    });
+  };
+
+  const handleFormSubmit = async (values: Record<string, unknown>) => {
+    if (!tableId || !auth.accessToken || !sheetTitle) {
+      throw new Error('Not ready to save yet — try again in a moment.');
+    }
+    if (editingSong === 'new') {
+      await appendSong(tableId, auth.accessToken, sheetTitle, headers, values);
+    } else if (editingSong) {
+      await updateSong(
+        tableId,
+        auth.accessToken,
+        sheetTitle,
+        headers,
+        editingSong._rowIndex,
+        values
+      );
+    }
+    await queryClient.invalidateQueries({ queryKey: ['songs', tableId] });
+  };
+
+  const context: RootOutletContext = {
+    allSongs,
+    isLoading,
+    isError,
+    error,
+    tableId,
+    setTableId,
+    setPageActions,
+    canEdit,
+    openAddSong: () => setEditingSong('new'),
+    openEditSong: song => setEditingSong(song),
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header
+        pageActions={pageActions}
+        tableId={tableId}
+        onTableIdChange={setTableId}
+        onOpenMetronome={() => setIsMetronomeOpen(true)}
+        onOpenShare={() => setIsShareOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        auth={auth}
+        canEdit={canEdit}
+        onAddSong={() => setEditingSong('new')}
+      />
+
+      <main className="flex-1 overflow-y-auto">
+        <Outlet context={context} />
+      </main>
+
+      <Loader visible={isLoading} />
+      <MetronomeModal
+        open={isMetronomeOpen}
+        onOpenChange={setIsMetronomeOpen}
+        bpm={pageActions.metronomeBpm}
+      />
+      <ShareModal open={isShareOpen} onOpenChange={setIsShareOpen} title={pageActions.shareTitle} />
+      <SettingsModal open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
+      <SongFormDialog
+        open={editingSong !== null}
+        onOpenChange={open => !open && setEditingSong(null)}
+        headers={headers}
+        initialSong={editingSong === 'new' ? null : editingSong}
+        onSubmit={handleFormSubmit}
+      />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <HashRouter>
+      <Routes>
+        <Route element={<RootLayout />}>
+          <Route path="/" element={<SongListPage />} />
+          <Route path="/song/:songName" element={<SongDetailPage />} />
+        </Route>
+      </Routes>
+    </HashRouter>
+  );
+}
+
+export default App;

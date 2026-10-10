@@ -1,0 +1,25 @@
+/* Multi-column lyrics layout — column-count/width can't be expressed as plain
+   Tailwind utilities, so this mirrors the legacy app's style.css rules. */
+#songContent.col-auto {
+  column-width: 320px;
+  column-gap: 14px;
+}
+
+#songContent.col-1 {
+  column-count: 1;
+}
+
+#songContent.col-2 {
+  column-width: calc((100vw / 2) - 30px);
+  column-count: 2;
+}
+
+#songContent.col-3 {
+  column-width: calc((100vw / 3) - 30px);
+  column-count: 3;
+}
+
+#songContent.col-4 {
+  column-width: calc((100vw / 4) - 30px);
+  column-count: 4;
+}
