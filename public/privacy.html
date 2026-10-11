@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy — Band Rehearsal Helper</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        font-family: system-ui, -apple-system, Roboto, sans-serif;
+        line-height: 1.6;
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 4rem;
+        color: #1f2430;
+        background: #ffffff;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          color: #e5e7eb;
+          background: #111827;
+        }
+        a {
+          color: #93c5fd;
+        }
+      }
+      h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+      }
+      h2 {
+        font-size: 1.15rem;
+        margin-top: 2rem;
+      }
+      .updated {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+      }
+      a {
+        color: #2563eb;
+      }
+      ul {
+        padding-left: 1.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Privacy Policy — Band Rehearsal Helper</h1>
+    <p class="updated">Last updated: October 11, 2026</p>
+
+    <p>
+      Band Rehearsal Helper ("the app") is a free, open-source web app for viewing and managing a
+      band's song repertoire. This page explains what data the app accesses and what it does with
+      it.
+    </p>
+
+    <h2>Who runs this app</h2>
+    <p>
+      The app is developed and maintained by Michael Peteichuk. Contact:
+      <a href="mailto:michael.peteichuk@gmail.com">michael.peteichuk@gmail.com</a>.
+    </p>
+
+    <h2>How the app works</h2>
+    <p>
+      The app is a static, client-side-only web page with no backend server. It reads song data
+      from a Google Sheet that you choose to connect (you supply its ID in the URL). All data
+      processing happens in your own browser.
+    </p>
+
+    <h2>Google Sign-In and what it's used for</h2>
+    <p>
+      Signing in with Google is optional and only needed if you want to add or edit songs directly
+      from the app. If you sign in, the app requests the following Google OAuth scopes:
+    </p>
+    <ul>
+      <li>
+        <strong>Your email address</strong> — used only to show who is signed in and to resolve
+        edit permissions.
+      </li>
+      <li>
+        <strong>Google Sheets access</strong> — used only to read and write rows in the specific
+        Google Sheet you connected, so the app can display songs and, if you have edit rights on
+        that sheet, let you add or update them.
+      </li>
+      <li>
+        <strong>Google Drive metadata (read-only)</strong> — used only to check whether your
+        Google account has edit access to the connected sheet, so the app can decide whether to
+        show the "Add/Edit song" controls.
+      </li>
+    </ul>
+    <p>
+      The app never requests access to any other file, sheet, or Drive content beyond the one
+      spreadsheet you explicitly connect.
+    </p>
+
+    <h2>Where your data is stored</h2>
+    <p>
+      There is no backend and no database operated by the app. Your Google access token, email,
+      starred/pinned songs, and preferences (e.g. dark mode, hidden chords) are stored only in your
+      own browser's local storage, on your own device. Nothing is sent to or stored on any server
+      controlled by the app's developer.
+    </p>
+    <p>
+      Signing out revokes the Google access token immediately. Clearing your browser's site data
+      removes everything the app has stored locally.
+    </p>
+
+    <h2>Third parties</h2>
+    <p>
+      The app communicates directly with Google's own APIs (Google Identity Services, Google
+      Sheets API, Google Drive API) to perform the functions described above. The app does not use
+      any analytics, advertising, or tracking services, and does not share your data with any
+      other third party.
+    </p>
+
+    <h2>Children's privacy</h2>
+    <p>The app is not directed at children and does not knowingly collect data from children.</p>
+
+    <h2>Changes to this policy</h2>
+    <p>
+      This policy may be updated from time to time. Changes will be reflected by updating the
+      "Last updated" date above.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions about this policy or the app can be sent to
+      <a href="mailto:michael.peteichuk@gmail.com">michael.peteichuk@gmail.com</a>.
+    </p>
+  </body>
+</html>
