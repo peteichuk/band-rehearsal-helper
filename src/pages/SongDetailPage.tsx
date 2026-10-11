@@ -145,16 +145,9 @@ export function SongDetailPage() {
     });
   };
 
-  const goHome = () => {
-    const next = new URLSearchParams(searchParams);
-    next.delete('tonality');
-    navigate(`/?${next.toString()}`);
-  };
-
   const swipeHandlers = useSwipeNavigation({
     onSwipeLeft: () => navigation.next && goToSong(navigation.next),
     onSwipeRight: () => navigation.prev && goToSong(navigation.prev),
-    onEdgeSwipeBack: goHome,
     hasNext: Boolean(navigation.next),
     hasPrev: Boolean(navigation.prev),
   });

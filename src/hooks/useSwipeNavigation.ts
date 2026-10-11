@@ -1,7 +1,6 @@
 import { useRef, type TouchEvent } from 'react';
 
 const MIN_SWIPE_DISTANCE_PX = 60;
-const EDGE_ZONE_PX = 24;
 const AXIS_LOCK_PX = 10;
 const RESISTANCE = 0.3;
 const SLIDE_TRANSITION = 'transform 180ms ease-out, opacity 180ms ease-out';
@@ -9,12 +8,6 @@ const SLIDE_TRANSITION = 'transform 180ms ease-out, opacity 180ms ease-out';
 interface UseSwipeNavigationOptions {
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
-  /**
-   * Swipe starting within EDGE_ZONE_PX of the left screen edge, moving
-   * right — mimics the native iOS "edge swipe to go back" gesture. Takes
-   * priority over onSwipeRight for that specific starting position.
-   */
-  onEdgeSwipeBack?: () => void;
   /** Whether there's a next/prev song to navigate to — drives rubber-band resistance. */
   hasNext?: boolean;
   hasPrev?: boolean;
@@ -30,14 +23,12 @@ interface UseSwipeNavigationOptions {
 export function useSwipeNavigation({
   onSwipeLeft,
   onSwipeRight,
-  onEdgeSwipeBack,
   hasNext = true,
   hasPrev = true,
 }: UseSwipeNavigationOptions) {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
-  const startedAtEdge = useRef(false);
   const axisLocked = useRef<'horizontal' | 'vertical' | null>(null);
 
   const applyStyle = (x: number, opacity: number, withTransition: boolean) => {
@@ -66,11 +57,8 @@ export function useSwipeNavigation({
   };
 
   const onTouchStart = (event: TouchEvent) => {
-    const x = event.touches[0]?.clientX ?? null;
-    const y = event.touches[0]?.clientY ?? null;
-    touchStartX.current = x;
-    touchStartY.current = y;
-    startedAtEdge.current = x != null && x <= EDGE_ZONE_PX;
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+    touchStartY.current = event.touches[0]?.clientY ?? null;
     axisLocked.current = null;
   };
 
@@ -90,7 +78,7 @@ export function useSwipeNavigation({
     }
 
     const movingToNext = dx < 0;
-    const canMove = movingToNext ? hasNext : hasPrev || startedAtEdge.current;
+    const canMove = movingToNext ? hasNext : hasPrev;
     const dragX = canMove ? dx : dx * RESISTANCE;
     const opacity = Math.max(1 - Math.abs(dragX) / 500, 0.7);
     applyStyle(dragX, opacity, false);
@@ -103,27 +91,16 @@ export function useSwipeNavigation({
     if (touchStartX.current == null || !wasHorizontal) {
       touchStartX.current = null;
       touchStartY.current = null;
-      startedAtEdge.current = false;
       return;
     }
 
     const touchEndX = event.changedTouches[0]?.clientX ?? touchStartX.current;
     const delta = touchEndX - touchStartX.current;
-    const wasEdgeStart = startedAtEdge.current;
     touchStartX.current = null;
     touchStartY.current = null;
-    startedAtEdge.current = false;
 
     if (Math.abs(delta) < MIN_SWIPE_DISTANCE_PX) {
       applyStyle(0, 1, true);
-      return;
-    }
-
-    if (delta > 0 && wasEdgeStart && onEdgeSwipeBack) {
-      const el = elementRef.current;
-      const width = el?.offsetWidth || window.innerWidth;
-      applyStyle(width, 0, true);
-      onEdgeSwipeBack();
       return;
     }
 
