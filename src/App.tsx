@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { HashRouter, Outlet, Route, Routes, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { SongListPage } from '@/pages/SongListPage';
 import { SongDetailPage } from '@/pages/SongDetailPage';
 import { Header } from '@/components/layout/Header';
 import { Loader } from '@/components/layout/Loader';
+import { PullToRefreshIndicator } from '@/components/layout/PullToRefreshIndicator';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { MetronomeModal } from '@/components/modals/MetronomeModal';
 import { ShareModal } from '@/components/modals/ShareModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
@@ -40,7 +42,7 @@ function RootLayout() {
   const tableId = searchParams.get('tableId');
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, error } = useSongsQuery(tableId);
+  const { data, isLoading, isError, error, refetch } = useSongsQuery(tableId);
   const rawSongs = data?.songs ?? [];
   const effectivePinnedNames = useEffectivePinsSet(rawSongs);
   const allSongs = useMemo(
@@ -61,6 +63,12 @@ function RootLayout() {
 
   useDarkMode();
   useWakeLock();
+
+  const handlePullToRefresh = useCallback(() => refetch(), [refetch]);
+  const pullToRefresh = usePullToRefresh<HTMLElement>({
+    onRefresh: handlePullToRefresh,
+    disabled: !tableId,
+  });
 
   const setTableId = (next: string) => {
     setSearchParams(prev => {
@@ -116,8 +124,26 @@ function RootLayout() {
         onAddSong={() => setEditingSong('new')}
       />
 
-      <main className="flex-1 overflow-y-auto overflow-x-clip">
-        <Outlet context={context} />
+      <main
+        ref={pullToRefresh.containerRef}
+        className="flex-1 overflow-y-auto overflow-x-clip relative"
+      >
+        <PullToRefreshIndicator
+          pullDistance={pullToRefresh.pullDistance}
+          isDragging={pullToRefresh.isDragging}
+          isRefreshing={pullToRefresh.isRefreshing}
+          threshold={pullToRefresh.threshold}
+        />
+        <div
+          style={{
+            transform: pullToRefresh.pullDistance
+              ? `translateY(${pullToRefresh.pullDistance}px)`
+              : undefined,
+            transition: pullToRefresh.isDragging ? 'none' : 'transform 200ms ease-out',
+          }}
+        >
+          <Outlet context={context} />
+        </div>
       </main>
 
       <Loader visible={isLoading} />

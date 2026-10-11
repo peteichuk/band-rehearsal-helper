@@ -30,17 +30,42 @@ export function useGoogleAuth(): GoogleAuthState {
     NonNullable<Window['google']>['accounts']['oauth2']['initTokenClient']
   > | null>(null);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Mobile browsers throttle (or fully suspend) setTimeout in a backgrounded
+  // tab — e.g. the screen locking mid-rehearsal — so a scheduled refresh can
+  // fire minutes late, after the token's already expired and a request has
+  // already 401'd. Tracked so the visibilitychange handler below can catch
+  // up immediately on resume instead of waiting for that overdue timer.
+  const expiresAtRef = useRef<number | null>(null);
 
-  const scheduleRefresh = useCallback((expiresAt: number) => {
-    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
-    const delay = Math.max(expiresAt - Date.now() - REFRESH_BEFORE_EXPIRY_MS, 0);
-    refreshTimerRef.current = setTimeout(() => {
-      // Silent (prompt: '') — renews the token invisibly while the Google
-      // session/consent is still valid; if it isn't, error_callback fires and
-      // the user just signs in again like normal, no different from today.
-      tokenClientRef.current?.requestAccessToken({ prompt: '' });
-    }, delay);
+  const refreshNow = useCallback(() => {
+    // Silent (prompt: '') — renews the token invisibly while the Google
+    // session/consent is still valid; if it isn't, error_callback fires and
+    // the user just signs in again like normal, no different from today.
+    tokenClientRef.current?.requestAccessToken({ prompt: '' });
   }, []);
+
+  const scheduleRefresh = useCallback(
+    (expiresAt: number) => {
+      expiresAtRef.current = expiresAt;
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+      const delay = Math.max(expiresAt - Date.now() - REFRESH_BEFORE_EXPIRY_MS, 0);
+      refreshTimerRef.current = setTimeout(refreshNow, delay);
+    },
+    [refreshNow]
+  );
+
+  // Catches up the moment the tab is foregrounded again, in case the timer
+  // above was due while backgrounded and got delayed past it.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      const expiresAt = expiresAtRef.current;
+      if (expiresAt == null) return;
+      if (Date.now() >= expiresAt - REFRESH_BEFORE_EXPIRY_MS) refreshNow();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [refreshNow]);
 
   // Restore a still-valid session immediately (survives a page/tab reload —
   // see authStorage, which now persists across browser restarts too) and
@@ -127,6 +152,7 @@ export function useGoogleAuth(): GoogleAuthState {
       window.google.accounts.oauth2.revoke(accessToken);
     }
     if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    expiresAtRef.current = null;
     clearAuthSession();
     setAccessToken(null);
     setEmail(null);

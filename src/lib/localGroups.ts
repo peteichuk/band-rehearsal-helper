@@ -52,7 +52,17 @@ export function addSongGroup(songName: string, label: string) {
 
 export function removeSongGroup(songName: string, label: string) {
   const current = groups[songName] ?? [];
-  groups = { ...groups, [songName]: current.filter(name => name !== label) };
+  const next = current.filter(name => name !== label);
+
+  const nextGroups = { ...groups };
+  // Drop the key entirely once empty — an empty array still reads as "this
+  // song has a tag" to anything checking for the key's presence (e.g. the
+  // group-filter dropdown, or the pin/bookmark indicator), not just its
+  // contents.
+  if (next.length === 0) delete nextGroups[songName];
+  else nextGroups[songName] = next;
+
+  groups = nextGroups;
   persist();
 }
 
