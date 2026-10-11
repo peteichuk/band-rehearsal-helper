@@ -195,12 +195,14 @@ export function SongDetailPage() {
     );
   };
 
-  // Capo is just another way to dial in the same tonality — picking "Capo
-  // (+2)" is equivalent to picking the key that's 2 semitones up, and both
-  // controls stay in sync by always deriving one from the other.
-  const capo = wrapCapoSteps(transpose?.steps ?? 0);
+  // Capo is just another way to dial in the same tonality — but a capo
+  // raises the pitch, so playing shapes for a LOWER key with a capo on
+  // sounds like the original: "Capo (+2)" means the displayed/played
+  // tonality is 2 semitones *down* from the original, not up. Both controls
+  // stay in sync by always deriving one from the other via this inverse.
+  const capo = wrapCapoSteps(-(transpose?.steps ?? 0));
   const handleCapoChange = (nextCapo: number) => {
-    handleTransposeChange(getTransposeOptionForSteps(originalTonality, nextCapo));
+    handleTransposeChange(getTransposeOptionForSteps(originalTonality, -nextCapo));
   };
 
   return (

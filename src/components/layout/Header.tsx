@@ -1,5 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ChevronLeft, LogIn, LogOut, Menu, Plus, Settings } from 'lucide-react';
+import { ChevronLeft, LogIn, LogOut, Menu, Plus, Settings, Timer } from 'lucide-react';
 import { TableIdPrompt } from '@/components/song-list/TableIdPrompt';
 import {
   DropdownMenu,
@@ -8,7 +8,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PRIMARY_BUTTON_CLASS } from '@/components/layout/headerButtonStyles';
+import {
+  METRONOME_BUTTON_CLASS,
+  PRIMARY_BUTTON_CLASS,
+} from '@/components/layout/headerButtonStyles';
 import ReloadIcon from '@/assets/icons/refresh.svg?react';
 import ShareIcon from '@/assets/icons/share.svg?react';
 import FaviconWhite from '@/assets/favicon-white.svg?react';
@@ -21,6 +24,8 @@ interface HeaderProps {
   onTableIdChange: (tableId: string) => void;
   onOpenShare: () => void;
   onOpenSettings: () => void;
+  onOpenMetronome: () => void;
+  showMetronomeButton: boolean;
   auth: GoogleAuthState;
   canEdit: boolean;
   onAddSong: () => void;
@@ -32,6 +37,8 @@ export function Header({
   onTableIdChange,
   onOpenShare,
   onOpenSettings,
+  onOpenMetronome,
+  showMetronomeButton,
   auth,
   canEdit,
   onAddSong,
@@ -61,13 +68,27 @@ export function Header({
           </div>
         </div>
 
-        <button
-          type="button"
-          className={PRIMARY_BUTTON_CLASS}
-          onClick={() => window.location.reload()}
-        >
-          <ReloadIcon className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className={PRIMARY_BUTTON_CLASS}
+            onClick={() => window.location.reload()}
+          >
+            <ReloadIcon className="w-4 h-4" />
+          </button>
+
+          {showMetronomeButton && (
+            <button
+              type="button"
+              title="Metronome"
+              data-metronome-trigger
+              className={METRONOME_BUTTON_CLASS}
+              onClick={onOpenMetronome}
+            >
+              <Timer className="w-4 h-4" />
+            </button>
+          )}
+        </div>
 
         <div className="flex justify-end">
           <DropdownMenu>

@@ -1,5 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
-import { HashRouter, Outlet, Route, Routes, useSearchParams } from 'react-router-dom';
+import {
+  HashRouter,
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { SongListPage } from '@/pages/SongListPage';
 import { SongDetailPage } from '@/pages/SongDetailPage';
@@ -12,6 +20,7 @@ import { ShareModal } from '@/components/modals/ShareModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { SongFormDialog } from '@/components/song-form/SongFormDialog';
 import { useSongsQuery } from '@/hooks/useSongsQuery';
+import { useMetronome } from '@/hooks/useMetronome';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
@@ -39,6 +48,8 @@ export interface RootOutletContext {
 
 function RootLayout() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const tableId = searchParams.get('tableId');
   const queryClient = useQueryClient();
 
@@ -56,7 +67,7 @@ function RootLayout() {
   const { data: sheetTitle } = useSheetTitle(tableId, auth.accessToken, canEdit);
 
   const [pageActions, setPageActions] = useState<PageActions>(DEFAULT_PAGE_ACTIONS);
-  const [isMetronomeOpen, setIsMetronomeOpen] = useState(false);
+  const metronome = useMetronome(location.pathname, pageActions.metronomeBpm);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | 'new' | null>(null);
@@ -93,6 +104,15 @@ function RootLayout() {
         editingSong._rowIndex,
         values
       );
+
+      // Renaming the song currently open on its detail page would otherwise
+      // leave the URL pointing at a name that no longer exists once the
+      // list below refetches, so the page loses its song.
+      const newName = String(values.Name ?? '');
+      const oldPath = `/song/${encodeURIComponent(editingSong.Name)}`;
+      if (newName && newName !== editingSong.Name && location.pathname === oldPath) {
+        navigate(`/song/${encodeURIComponent(newName)}${location.search}`, { replace: true });
+      }
     }
     await queryClient.invalidateQueries({ queryKey: ['songs', tableId] });
   };
@@ -108,7 +128,7 @@ function RootLayout() {
     canEdit,
     openAddSong: () => setEditingSong('new'),
     openEditSong: song => setEditingSong(song),
-    onOpenMetronome: () => setIsMetronomeOpen(true),
+    onOpenMetronome: metronome.open,
   };
 
   return (
@@ -119,6 +139,8 @@ function RootLayout() {
         onTableIdChange={setTableId}
         onOpenShare={() => setIsShareOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenMetronome={metronome.open}
+        showMetronomeButton={metronome.hasOpenedOnce}
         auth={auth}
         canEdit={canEdit}
         onAddSong={() => setEditingSong('new')}
@@ -147,11 +169,7 @@ function RootLayout() {
       </main>
 
       <Loader visible={isLoading} />
-      <MetronomeModal
-        open={isMetronomeOpen}
-        onOpenChange={setIsMetronomeOpen}
-        bpm={pageActions.metronomeBpm}
-      />
+      <MetronomeModal open={metronome.isOpen} onClose={metronome.close} src={metronome.src} />
       <ShareModal open={isShareOpen} onOpenChange={setIsShareOpen} title={pageActions.shareTitle} />
       <SettingsModal open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
       <SongFormDialog
