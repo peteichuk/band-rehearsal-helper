@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { PRIMARY_BUTTON_CLASS } from '@/components/layout/headerButtonStyles';
 
 interface TableIdPromptProps {
   initialValue: string;
@@ -26,9 +26,9 @@ export function TableIdPrompt({ initialValue, onLoad }: TableIdPromptProps) {
         autoComplete="off"
         className="h-9 flex-1 px-2 rounded text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-[100px] w-full"
       />
-      <Button type="button" className="h-9" onClick={submit}>
+      <button type="button" className={PRIMARY_BUTTON_CLASS} onClick={submit}>
         Load
-      </Button>
+      </button>
     </div>
   );
 }

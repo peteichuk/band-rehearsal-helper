@@ -10,6 +10,5 @@ export async function checkCanEdit(fileId: string, accessToken: string): Promise
     return false;
   }
   const data = (await res.json()) as { capabilities?: { canEdit?: boolean } };
-  console.log('[checkCanEdit] capabilities:', data.capabilities);
   return Boolean(data.capabilities?.canEdit);
 }

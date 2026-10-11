@@ -24,6 +24,11 @@ import {
   getLocalGroupsSnapshot,
   type LocalGroups,
 } from '@/lib/localGroups';
+import {
+  resetSongTonalityPrefs,
+  subscribeSongTonalityPrefs,
+  getSongTonalityPrefsSnapshot,
+} from '@/lib/songKeyPrefs';
 
 interface SettingsModalProps {
   open: boolean;
@@ -46,6 +51,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const pinOverrideCount = Object.keys(pinOverrides).length;
   const customGroups = useSyncExternalStore(subscribeLocalGroups, getLocalGroupsSnapshot);
   const customGroupedSongsCount = Object.keys(customGroups).length;
+  const tonalityPrefs = useSyncExternalStore(
+    subscribeSongTonalityPrefs,
+    getSongTonalityPrefsSnapshot
+  );
+  const tonalityPrefCount = Object.keys(tonalityPrefs).length;
 
   const handleExport = () => {
     const data: ExportedSettings = {
@@ -129,6 +139,13 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     }
   };
 
+  const handleResetTonalityPrefs = () => {
+    if (window.confirm('Reset your saved tonality/capo choices for every song?')) {
+      resetSongTonalityPrefs();
+      setMessage('Tonality/capo choices reset.');
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -181,6 +198,24 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               disabled={customGroupedSongsCount === 0}
             >
               Reset My Groups
+            </Button>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold mb-1">
+              Tonality/capo choices ({tonalityPrefCount} songs)
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+              The key (and matching capo) you last picked per song, remembered locally so the song
+              reopens the way you left it.
+            </p>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleResetTonalityPrefs}
+              disabled={tonalityPrefCount === 0}
+            >
+              Reset Tonality/Capo Choices
             </Button>
           </div>
 

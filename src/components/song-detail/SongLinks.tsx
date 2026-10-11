@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import YoutubeIcon from '@/assets/icons/youtube.svg?react';
 import HolychordsIcon from '@/assets/icons/holychords.svg?react';
 import ChordifyIcon from '@/assets/icons/chordify.svg?react';
@@ -8,48 +9,39 @@ interface SongLinksProps {
   song: Song;
 }
 
-/**
- * Renders just the resource link buttons (no wrapper) so the caller can lay
- * them out in the same flex row as the rest of the song toolbar, matching
- * the legacy app where links and toolbar controls flowed as one line.
- */
+export function hasSongLinks(song: Song): boolean {
+  return Boolean(song.YouTube || song.Holychords || song.Chordify);
+}
+
+/** Renders the resource links as overflow-menu items (no wrapper — caller owns layout/separators). */
 export function SongLinks({ song }: SongLinksProps) {
   return (
     <Fragment>
       {song.YouTube && (
-        <a
-          href={song.YouTube}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Watch on YouTube"
-          className="h-9 px-2 shrink-0 bg-red-600 dark:bg-red-800 hover:bg-red-700 dark:hover:bg-red-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
-        >
-          <YoutubeIcon className="w-5 h-5" />
-        </a>
+        <DropdownMenuItem asChild>
+          <a href={song.YouTube} target="_blank" rel="noopener noreferrer">
+            <YoutubeIcon className="w-4 h-4" />
+            Watch on YouTube
+          </a>
+        </DropdownMenuItem>
       )}
 
       {song.Holychords && (
-        <a
-          href={song.Holychords}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="View on HolyChords"
-          className="h-9 px-2 shrink-0 bg-[#26ad92] hover:bg-[#50bf5a] text-white rounded-lg font-medium transition-colors flex items-center gap-2"
-        >
-          <HolychordsIcon className="w-5 h-5" />
-        </a>
+        <DropdownMenuItem asChild>
+          <a href={song.Holychords} target="_blank" rel="noopener noreferrer">
+            <HolychordsIcon className="w-4 h-4" />
+            View on HolyChords
+          </a>
+        </DropdownMenuItem>
       )}
 
       {song.Chordify && (
-        <a
-          href={song.Chordify}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="View on Chordify"
-          className="h-9 px-2 shrink-0 bg-[#0A8282] hover:bg-[#10bbbb] text-white rounded-lg font-medium transition-colors flex items-center gap-2"
-        >
-          <ChordifyIcon className="w-5 h-5" />
-        </a>
+        <DropdownMenuItem asChild>
+          <a href={song.Chordify} target="_blank" rel="noopener noreferrer">
+            <ChordifyIcon className="w-4 h-4" />
+            View on Chordify
+          </a>
+        </DropdownMenuItem>
       )}
     </Fragment>
   );

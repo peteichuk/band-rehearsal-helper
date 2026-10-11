@@ -32,6 +32,7 @@ export interface RootOutletContext {
   canEdit: boolean;
   openAddSong: () => void;
   openEditSong: (song: Song) => void;
+  onOpenMetronome: () => void;
 }
 
 function RootLayout() {
@@ -99,6 +100,7 @@ function RootLayout() {
     canEdit,
     openAddSong: () => setEditingSong('new'),
     openEditSong: song => setEditingSong(song),
+    onOpenMetronome: () => setIsMetronomeOpen(true),
   };
 
   return (
@@ -107,7 +109,6 @@ function RootLayout() {
         pageActions={pageActions}
         tableId={tableId}
         onTableIdChange={setTableId}
-        onOpenMetronome={() => setIsMetronomeOpen(true)}
         onOpenShare={() => setIsShareOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         auth={auth}
@@ -115,7 +116,7 @@ function RootLayout() {
         onAddSong={() => setEditingSong('new')}
       />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto overflow-x-clip">
         <Outlet context={context} />
       </main>
 

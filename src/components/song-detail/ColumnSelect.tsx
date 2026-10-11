@@ -8,7 +8,7 @@ import {
 import ColIcon from '@/assets/icons/col.svg?react';
 
 const COLUMN_OPTIONS = [
-  { value: 'col-auto', label: 'Col Auto' },
+  { value: 'col-auto', label: 'Auto' },
   { value: 'col-1', label: 'Col 1' },
   { value: 'col-2', label: 'Col 2' },
   { value: 'col-3', label: 'Col 3' },

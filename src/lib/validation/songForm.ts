@@ -1,4 +1,4 @@
-const REQUIRED_FIELDS = ['Name', 'Text'];
+const REQUIRED_FIELDS = ['Name', 'Text', 'Tonality'];
 const URL_FIELDS = ['YouTube', 'Chordify', 'Holychords'];
 
 // Requires an http(s) scheme and a domain-looking host (at least one dot),

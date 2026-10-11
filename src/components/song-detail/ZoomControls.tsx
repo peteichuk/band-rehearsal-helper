@@ -22,11 +22,12 @@ export function ZoomControls({ fontSize, onChange }: ZoomControlsProps) {
       </button>
       <button
         type="button"
-        className="h-9 px-3 shrink-0 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded flex items-center gap-2"
+        title="Reset font size"
+        className="h-9 px-3 shrink-0 flex items-center gap-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded font-semibold"
         onClick={() => onChange(DEFAULT_FONT_SIZE)}
       >
         <ReloadIcon className="w-4 h-4" />
-        Reset
+        Aa
       </button>
       <button
         type="button"

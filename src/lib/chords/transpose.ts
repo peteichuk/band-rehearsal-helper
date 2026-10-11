@@ -55,7 +55,7 @@ export function transposeChord(chord: string, steps: number, useFlats = false): 
   return transposedRoot + suffix;
 }
 
-const DISPLAY_SCALE = [
+export const DISPLAY_SCALE = [
   'C',
   'C#',
   'Db',
@@ -86,6 +86,34 @@ export interface TransposeOption {
   steps: number;
   useFlats: boolean;
   isOriginal: boolean;
+}
+
+/** Wraps a step offset into 0..11 — the only range a capo fret count can be. */
+export function wrapCapoSteps(steps: number): number {
+  return ((steps % 12) + 12) % 12;
+}
+
+/**
+ * Finds the tonality option that's `steps` semitones above the original key
+ * (wrapping into a single octave), so a capo fret count can drive the same
+ * tonality dropdown that a key name does.
+ */
+export function getTransposeOptionForSteps(
+  originalTonality: string,
+  steps: number
+): TransposeOption {
+  const options = getTransposeOptions(originalTonality);
+  const wrapped = wrapCapoSteps(steps);
+  const candidates = options.filter(option => wrapCapoSteps(option.steps) === wrapped);
+  // A 0-semitone offset ("No Capo") always has two enharmonic candidates
+  // when the song's own key is flat-spelled (e.g. Eb has both D# and Eb in
+  // the list) — prefer whichever one is flagged as the song's true original
+  // spelling, or isOriginal never matches and "No Capo" never resets prefs.
+  return (
+    candidates.find(option => option.isOriginal) ??
+    candidates[0] ??
+    options.find(option => option.isOriginal)!
+  );
 }
 
 /**

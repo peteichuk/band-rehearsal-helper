@@ -6,9 +6,12 @@ interface StoredSession {
   expiresAt: number; // epoch ms
 }
 
+// localStorage, not sessionStorage — so closing the tab (or the whole
+// browser) doesn't force a re-login as long as the underlying Google token
+// is still being kept fresh (see useGoogleAuth's silent refresh).
 export function saveAuthSession(session: StoredSession) {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
   } catch {
     // ignore (e.g. storage disabled)
   }
@@ -16,7 +19,7 @@ export function saveAuthSession(session: StoredSession) {
 
 export function loadAuthSession(): StoredSession | null {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const session = JSON.parse(raw) as StoredSession;
     if (session.expiresAt <= Date.now()) {
@@ -31,7 +34,7 @@ export function loadAuthSession(): StoredSession | null {
 
 export function clearAuthSession() {
   try {
-    sessionStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
   } catch {
     // ignore
   }

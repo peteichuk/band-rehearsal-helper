@@ -47,41 +47,43 @@ export function SongListItem({ song, isSelected, onSelect }: SongListItemProps) 
       >
         <div className="flex items-start gap-1">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1 mb-1">
-              <button
-                type="button"
-                onClick={event => {
-                  event.stopPropagation();
-                  togglePinOverride(song.Name, isPinned);
-                }}
-                title={isPinned ? 'Unpin' : 'Pin to top'}
-                className="shrink-0 text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400"
-              >
-                <Pin
-                  className={cn('w-4 h-4', isPinned && 'text-yellow-500 dark:text-yellow-400')}
-                  fill={isPinned ? 'currentColor' : 'none'}
-                />
-              </button>
+            <div className="flex items-start gap-1 mb-1">
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={event => {
+                    event.stopPropagation();
+                    togglePinOverride(song.Name, isPinned);
+                  }}
+                  title={isPinned ? 'Unpin' : 'Pin to top'}
+                  className="shrink-0 text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400"
+                >
+                  <Pin
+                    className={cn('w-4 h-4', isPinned && 'text-yellow-500 dark:text-yellow-400')}
+                    fill={isPinned ? 'currentColor' : 'none'}
+                  />
+                </button>
 
-              <button
-                type="button"
-                onClick={event => {
-                  event.stopPropagation();
-                  toggleFavorite(song.Name);
-                }}
-                title={isLocalFavorite ? 'Remove from my favorites' : 'Add to my favorites'}
-                className="shrink-0 text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400"
-              >
-                <Star
-                  className={cn(
-                    'w-5 h-5',
-                    isLocalFavorite && 'text-yellow-500 dark:text-yellow-400'
-                  )}
-                  fill={isLocalFavorite ? 'currentColor' : 'none'}
-                />
-              </button>
+                <button
+                  type="button"
+                  onClick={event => {
+                    event.stopPropagation();
+                    toggleFavorite(song.Name);
+                  }}
+                  title={isLocalFavorite ? 'Remove from my favorites' : 'Add to my favorites'}
+                  className="shrink-0 text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400"
+                >
+                  <Star
+                    className={cn(
+                      'w-5 h-5',
+                      isLocalFavorite && 'text-yellow-500 dark:text-yellow-400'
+                    )}
+                    fill={isLocalFavorite ? 'currentColor' : 'none'}
+                  />
+                </button>
+              </div>
 
-              <div className="flex-1 min-w-0 font-medium flex w-full gap-2 items-center">
+              <div className="flex-1 min-w-0 font-medium flex w-full gap-2 items-start">
                 <span
                   className={cn(
                     'flex flex-nowrap items-center gap-1',
@@ -89,16 +91,20 @@ export function SongListItem({ song, isSelected, onSelect }: SongListItemProps) 
                   )}
                 >
                   {song.Name || 'Untitled'}
-                  {hasText && (
-                    <span className="text-xs text-green-600 dark:text-green-700">
-                      <FileCheck2 className="w-4 h-4" />
-                    </span>
-                  )}
                 </span>
-                {song.Tonality && (
-                  <span className="text-xs text-blue-600 dark:text-blue-400">{song.Tonality}</span>
+                {hasText && (
+                  <span className="text-xs text-green-600 dark:text-green-700 mt-1">
+                    <FileCheck2 className="w-4 h-4" />
+                  </span>
                 )}
-                {song.BPM != null && <span className="text-xs text-orange-600">{song.BPM}</span>}
+                {song.Tonality && (
+                  <span className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                    {song.Tonality}
+                  </span>
+                )}
+                {song.BPM != null && (
+                  <span className="text-xs text-orange-600 mt-1">{song.BPM}</span>
+                )}
               </div>
             </div>
             <button
@@ -123,7 +129,7 @@ export function SongListItem({ song, isSelected, onSelect }: SongListItemProps) 
             </button>
           </div>
           {(song.GroupBy || song.Language) && (
-            <div className="shrink-0 flex items-center gap-1 text-xs mt-2">
+            <div className="shrink-0 flex items-center gap-1 text-xs mt-1">
               {song.GroupBy && (
                 <span className="px-2 py-1 bg-purple-300 dark:bg-purple-900 rounded-lg">
                   {song.GroupBy}

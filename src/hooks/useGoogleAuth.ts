@@ -14,6 +14,13 @@ export interface GoogleAuthState {
   error: string | null;
 }
 
+// Google caps this token-client flow's access token at ~1h no matter what we
+// ask for — that ceiling can't be configured away. Refreshing silently
+// this long before it expires keeps a session effectively going as long as
+// the tab stays open and Google still trusts the browser, without ever
+// showing the user a sign-in prompt mid-rehearsal.
+const REFRESH_BEFORE_EXPIRY_MS = 5 * 60 * 1000;
+
 export function useGoogleAuth(): GoogleAuthState {
   const [isReady, setIsReady] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -22,15 +29,35 @@ export function useGoogleAuth(): GoogleAuthState {
   const tokenClientRef = useRef<ReturnType<
     NonNullable<Window['google']>['accounts']['oauth2']['initTokenClient']
   > | null>(null);
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Restore a still-valid session immediately (survives a page reload within
-  // the ~1h token lifetime — GIS keeps the token in memory only by default).
+  const scheduleRefresh = useCallback((expiresAt: number) => {
+    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    const delay = Math.max(expiresAt - Date.now() - REFRESH_BEFORE_EXPIRY_MS, 0);
+    refreshTimerRef.current = setTimeout(() => {
+      // Silent (prompt: '') — renews the token invisibly while the Google
+      // session/consent is still valid; if it isn't, error_callback fires and
+      // the user just signs in again like normal, no different from today.
+      tokenClientRef.current?.requestAccessToken({ prompt: '' });
+    }, delay);
+  }, []);
+
+  // Restore a still-valid session immediately (survives a page/tab reload —
+  // see authStorage, which now persists across browser restarts too) and
+  // pick up the refresh schedule where it left off.
   useEffect(() => {
     const restored = loadAuthSession();
     if (restored) {
       setAccessToken(restored.accessToken);
       setEmail(restored.email);
+      scheduleRefresh(restored.expiresAt);
     }
+  }, [scheduleRefresh]);
+
+  useEffect(() => {
+    return () => {
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -52,6 +79,8 @@ export function useGoogleAuth(): GoogleAuthState {
             }
             setError(null);
             setAccessToken(response.access_token);
+            const expiresAt = Date.now() + response.expires_in * 1000;
+            scheduleRefresh(expiresAt);
 
             fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
               headers: { Authorization: `Bearer ${response.access_token}` },
@@ -63,7 +92,7 @@ export function useGoogleAuth(): GoogleAuthState {
                 saveAuthSession({
                   accessToken: response.access_token,
                   email: resolvedEmail,
-                  expiresAt: Date.now() + response.expires_in * 1000,
+                  expiresAt,
                 });
               })
               .catch(() => {
@@ -71,7 +100,7 @@ export function useGoogleAuth(): GoogleAuthState {
                 saveAuthSession({
                   accessToken: response.access_token,
                   email: null,
-                  expiresAt: Date.now() + response.expires_in * 1000,
+                  expiresAt,
                 });
               });
           },
@@ -87,7 +116,7 @@ export function useGoogleAuth(): GoogleAuthState {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [scheduleRefresh]);
 
   const signIn = useCallback(() => {
     tokenClientRef.current?.requestAccessToken();
@@ -97,6 +126,7 @@ export function useGoogleAuth(): GoogleAuthState {
     if (accessToken && window.google) {
       window.google.accounts.oauth2.revoke(accessToken);
     }
+    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
     clearAuthSession();
     setAccessToken(null);
     setEmail(null);
