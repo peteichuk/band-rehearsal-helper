@@ -15,7 +15,7 @@ import { Header } from '@/components/layout/Header';
 import { Loader } from '@/components/layout/Loader';
 import { PullToRefreshIndicator } from '@/components/layout/PullToRefreshIndicator';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
-import { MetronomeModal } from '@/components/modals/MetronomeModal';
+import { MetronomeModal } from '@/components/metronome/MetronomeModal';
 import { ShareModal } from '@/components/modals/ShareModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { SongFormDialog } from '@/components/song-form/SongFormDialog';
@@ -67,7 +67,7 @@ function RootLayout() {
   const { data: sheetTitle } = useSheetTitle(tableId, auth.accessToken, canEdit);
 
   const [pageActions, setPageActions] = useState<PageActions>(DEFAULT_PAGE_ACTIONS);
-  const metronome = useMetronome(location.pathname, pageActions.metronomeBpm);
+  const metronome = useMetronome(location.pathname);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | 'new' | null>(null);
@@ -169,7 +169,13 @@ function RootLayout() {
       </main>
 
       <Loader visible={isLoading} />
-      <MetronomeModal open={metronome.isOpen} onClose={metronome.close} src={metronome.src} />
+      <MetronomeModal
+        open={metronome.isOpen}
+        onClose={metronome.close}
+        hasOpenedOnce={metronome.hasOpenedOnce}
+        resetKey={location.pathname}
+        bpm={pageActions.metronomeBpm}
+      />
       <ShareModal open={isShareOpen} onOpenChange={setIsShareOpen} title={pageActions.shareTitle} />
       <SettingsModal open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
       <SongFormDialog

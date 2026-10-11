@@ -1,17 +1,32 @@
+import { useState } from 'react';
 import { Dialog as DialogPrimitive } from 'radix-ui';
 import { cn } from 'cn';
 import { XIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { EngineSwitch, type MetronomeEngine } from '@/components/metronome/EngineSwitch';
+import { LocalMetronomePanel } from '@/components/metronome/LocalMetronomePanel';
+import { IframeMetronomePanel } from '@/components/metronome/IframeMetronomePanel';
 
 interface MetronomeModalProps {
   open: boolean;
   onClose: () => void;
-  /** The iframe URL for the currently running song, or null if never started. */
-  src: string | null;
+  hasOpenedOnce: boolean;
+  /** Identifies the current song (e.g. a route path) — changing it resets the metronome. */
+  resetKey: string;
+  bpm: number | null;
 }
 
-export function MetronomeModal({ open, onClose, src }: MetronomeModalProps) {
-  if (src === null) return null;
+export function MetronomeModal({
+  open,
+  onClose,
+  hasOpenedOnce,
+  resetKey,
+  bpm,
+}: MetronomeModalProps) {
+  const [engine, setEngine] = useState<MetronomeEngine>('local');
+
+  if (!hasOpenedOnce) return null;
+  const resolvedBpm = bpm || 120;
 
   return (
     // `modal={false}` is required here: a modal Radix Dialog permanently
@@ -47,7 +62,14 @@ export function MetronomeModal({ open, onClose, src }: MetronomeModalProps) {
               <span className="sr-only">Close</span>
             </Button>
           </DialogPrimitive.Close>
-          <iframe src={src} title="Metronome" className="w-full h-[500px] border-0 rounded" />
+
+          <EngineSwitch value={engine} onChange={setEngine} />
+
+          {engine === 'local' ? (
+            <LocalMetronomePanel key={resetKey} bpm={resolvedBpm} />
+          ) : (
+            <IframeMetronomePanel key={resetKey} bpm={resolvedBpm} />
+          )}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
