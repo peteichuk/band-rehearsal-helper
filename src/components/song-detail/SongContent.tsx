@@ -114,7 +114,7 @@ export function SongContent({
       </div>
 
       <Dialog open={editingKey !== null} onOpenChange={open => !open && closeEditor()}>
-        <DialogContent>
+        <DialogContent className="max-w-[calc(100%-20px)]">
           <DialogHeader>
             <DialogTitle>Note</DialogTitle>
           </DialogHeader>
