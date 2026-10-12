@@ -66,8 +66,16 @@ export function useSwipeNavigation({
     applyStyle(0, 1, true);
   };
 
+  // Once the user has pinch-zoomed the page itself, a one-finger drag pans
+  // that zoomed view — it's a scroll, not a swipe, even though it still
+  // fires the same touch events. Bail out entirely so native panning works.
+  const isPageZoomed = () => {
+    const scale = window.visualViewport?.scale;
+    return typeof scale === 'number' && scale > 1.01;
+  };
+
   const onTouchStart = (event: TouchEvent) => {
-    if (event.touches.length > 1) {
+    if (event.touches.length > 1 || isPageZoomed()) {
       cancelGesture();
       return;
     }
@@ -77,7 +85,7 @@ export function useSwipeNavigation({
   };
 
   const onTouchMove = (event: TouchEvent) => {
-    if (event.touches.length > 1) {
+    if (event.touches.length > 1 || isPageZoomed()) {
       cancelGesture();
       return;
     }
