@@ -312,6 +312,7 @@ export function SongDetailPage() {
 
       {text ? (
         <SongContent
+          songName={song.Name}
           text={text}
           steps={transpose?.steps ?? 0}
           useFlats={transpose?.useFlats ?? false}

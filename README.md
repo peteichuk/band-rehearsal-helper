@@ -33,6 +33,7 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **Sorting Priority:** Among pinned songs, `SortingPriority` controls the order (lower first); unpinned songs stay alphabetical.
 - **Navigation between favorite songs:** Open a song and use the prev/next buttons (or swipe) to move through your favorites — or, by default, through the pinned songs until you've starred your own.
 - **Admin Mode (Google Sign-In):** Sign in with Google; if your account has edit access to the sheet, an "Add Song" button and a per-song edit (pencil) icon appear, letting you create/update songs directly from the app.
+- **Line & Label Notes:** Tap any lyric/chord line, or a section label like "Chorus"/"Intro", to attach a personal cue (e.g. "I come in here"). The note shows up right away, inline under the line or label. Stored locally in your browser only, per device; never written to the shared Google Sheet.
 
 ## 📊 Data Structure (Google Sheets)
 
@@ -60,8 +61,6 @@ To ensure the application works correctly, your Google Sheet should include the 
 
 - [x] UI Admin with CRUD. Auth by Google then easy add/edit songs directly from the Google Sheets for APP. (delete not yet implemented)
 - [x] Implementation of advanced filtering and searching by the `GroupBy` field.
-- [ ] Multi-select support for groups (assigning a song to multiple sets/locations).
-- [ ] Integration of a separate "Groups" table for better setlist management.
 - [ ] Wake lock for (IOS, Android).
 
 ## 🤝 Contributing
