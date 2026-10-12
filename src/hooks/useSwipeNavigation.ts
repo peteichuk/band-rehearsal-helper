@@ -56,13 +56,31 @@ export function useSwipeNavigation({
     }, 180);
   };
 
+  // Any time a second finger is on screen it's a pinch-zoom (or some other
+  // multi-touch gesture), never a swipe — drop whatever drag is in progress
+  // and snap back, rather than letting it resolve from the first finger alone.
+  const cancelGesture = () => {
+    touchStartX.current = null;
+    touchStartY.current = null;
+    axisLocked.current = null;
+    applyStyle(0, 1, true);
+  };
+
   const onTouchStart = (event: TouchEvent) => {
+    if (event.touches.length > 1) {
+      cancelGesture();
+      return;
+    }
     touchStartX.current = event.touches[0]?.clientX ?? null;
     touchStartY.current = event.touches[0]?.clientY ?? null;
     axisLocked.current = null;
   };
 
   const onTouchMove = (event: TouchEvent) => {
+    if (event.touches.length > 1) {
+      cancelGesture();
+      return;
+    }
     if (touchStartX.current == null || touchStartY.current == null) return;
     if (axisLocked.current === 'vertical') return;
 
