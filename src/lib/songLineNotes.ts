@@ -47,7 +47,16 @@ export function deleteSongLineNote(songName: string, lineKey: string) {
   if (!songNotes || !(lineKey in songNotes)) return;
   const nextSongNotes = { ...songNotes };
   delete nextSongNotes[lineKey];
-  store = { ...store, [songName]: nextSongNotes };
+
+  const nextStore = { ...store };
+  if (Object.keys(nextSongNotes).length === 0) {
+    // No notes left for this song — drop the key entirely rather than
+    // leaving an empty `{}` behind for every song anyone ever annotated.
+    delete nextStore[songName];
+  } else {
+    nextStore[songName] = nextSongNotes;
+  }
+  store = nextStore;
   persist();
 }
 
