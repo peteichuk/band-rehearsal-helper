@@ -8,9 +8,15 @@ const STEP = 2;
 interface ZoomControlsProps {
   fontSize: number;
   onChange: (next: number) => void;
+  /** What "reset" goes back to — defaults to the hardcoded base size. */
+  resetValue?: number;
 }
 
-export function ZoomControls({ fontSize, onChange }: ZoomControlsProps) {
+export function ZoomControls({
+  fontSize,
+  onChange,
+  resetValue = DEFAULT_FONT_SIZE,
+}: ZoomControlsProps) {
   return (
     <div className="flex items-center gap-2 h-9">
       <button
@@ -24,7 +30,7 @@ export function ZoomControls({ fontSize, onChange }: ZoomControlsProps) {
         type="button"
         title="Reset font size"
         className="h-9 px-3 shrink-0 flex items-center gap-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded font-semibold"
-        onClick={() => onChange(DEFAULT_FONT_SIZE)}
+        onClick={() => onChange(resetValue)}
       >
         <ReloadIcon className="w-4 h-4" />
         Aa

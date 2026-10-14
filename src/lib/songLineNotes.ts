@@ -64,3 +64,22 @@ export function subscribeSongLineNotes(listener: Listener): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
+
+export function getSongLineNotesSnapshot(): Store {
+  return store;
+}
+
+export function resetSongLineNotes() {
+  store = {};
+  persist();
+}
+
+/** Bulk import — merges per song (an imported note for a line a song already has a note on wins, same as setSongLineNote). */
+export function mergeSongLineNotes(incoming: Store) {
+  const next = { ...store };
+  for (const [songName, notes] of Object.entries(incoming)) {
+    next[songName] = { ...next[songName], ...notes };
+  }
+  store = next;
+  persist();
+}

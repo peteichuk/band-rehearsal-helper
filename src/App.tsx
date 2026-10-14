@@ -11,7 +11,9 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { SongListPage } from '@/pages/SongListPage';
 import { SongDetailPage } from '@/pages/SongDetailPage';
+import { AlbumDetailPage } from '@/pages/AlbumDetailPage';
 import { Header } from '@/components/layout/Header';
+import { BottomTabBar } from '@/components/layout/BottomTabBar';
 import { Loader } from '@/components/layout/Loader';
 import { PullToRefreshIndicator } from '@/components/layout/PullToRefreshIndicator';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
@@ -28,8 +30,9 @@ import { useEditAccess } from '@/hooks/useEditAccess';
 import { useSheetTitle } from '@/hooks/useSheetTitle';
 import { appendSong, updateSong } from '@/lib/google/sheetsWrite';
 import { useEffectivePinsSet } from '@/hooks/useEffectivePins';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { sortForDisplay } from '@/lib/songs/sortAndFilter';
-import { DEFAULT_PAGE_ACTIONS, type PageActions } from '@/types/pageActions';
+import { DEFAULT_PAGE_ACTIONS, type CatalogViewMode, type PageActions } from '@/types/pageActions';
 import type { Song } from '@/types/song';
 
 export interface RootOutletContext {
@@ -44,6 +47,8 @@ export interface RootOutletContext {
   openAddSong: () => void;
   openEditSong: (song: Song) => void;
   onOpenMetronome: () => void;
+  catalogViewMode: CatalogViewMode;
+  setCatalogViewMode: (mode: CatalogViewMode) => void;
 }
 
 function RootLayout() {
@@ -67,6 +72,10 @@ function RootLayout() {
   const { data: sheetTitle } = useSheetTitle(tableId, auth.accessToken, canEdit);
 
   const [pageActions, setPageActions] = useState<PageActions>(DEFAULT_PAGE_ACTIONS);
+  const [catalogViewMode, setCatalogViewMode] = useLocalStorageState<CatalogViewMode>(
+    'catalogViewMode',
+    'list'
+  );
   const metronome = useMetronome(location.pathname);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -76,6 +85,9 @@ function RootLayout() {
   useWakeLock();
 
   const handlePullToRefresh = useCallback(() => refetch(), [refetch]);
+  // Drag-reorder/swipe-to-delete suppression lives inside usePullToRefresh
+  // itself (a synchronous check against the interaction lock on every touch
+  // event) rather than as a `disabled` prop here — see its comment for why.
   const pullToRefresh = usePullToRefresh<HTMLElement>({
     onRefresh: handlePullToRefresh,
     disabled: !tableId,
@@ -129,6 +141,8 @@ function RootLayout() {
     openAddSong: () => setEditingSong('new'),
     openEditSong: song => setEditingSong(song),
     onOpenMetronome: metronome.open,
+    catalogViewMode,
+    setCatalogViewMode,
   };
 
   return (
@@ -168,6 +182,12 @@ function RootLayout() {
         </div>
       </main>
 
+      <BottomTabBar
+        value={catalogViewMode}
+        onChange={setCatalogViewMode}
+        visible={!pageActions.showBack}
+      />
+
       <Loader visible={isLoading} />
       <MetronomeModal
         open={metronome.isOpen}
@@ -196,6 +216,7 @@ function App() {
         <Route element={<RootLayout />}>
           <Route path="/" element={<SongListPage />} />
           <Route path="/song/:songName" element={<SongDetailPage />} />
+          <Route path="/albums/:albumId" element={<AlbumDetailPage />} />
         </Route>
       </Routes>
     </HashRouter>

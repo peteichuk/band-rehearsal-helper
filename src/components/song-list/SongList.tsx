@@ -6,9 +6,11 @@ interface SongListProps {
   songs: Song[];
   selectedSong: Song | null;
   onSelect: (song: Song) => void;
+  canEdit: boolean;
+  onEdit: (song: Song) => void;
 }
 
-export function SongList({ songs, selectedSong, onSelect }: SongListProps) {
+export function SongList({ songs, selectedSong, onSelect, canEdit, onEdit }: SongListProps) {
   if (songs.length === 0) {
     return <EmptyState title="No songs found" />;
   }
@@ -21,6 +23,8 @@ export function SongList({ songs, selectedSong, onSelect }: SongListProps) {
           song={song}
           isSelected={selectedSong === song}
           onSelect={onSelect}
+          canEdit={canEdit}
+          onEdit={onEdit}
         />
       ))}
     </div>

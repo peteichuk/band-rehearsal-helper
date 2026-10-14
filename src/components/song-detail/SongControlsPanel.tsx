@@ -14,6 +14,7 @@ interface SongControlsPanelProps {
   open: boolean;
   fontSize: number;
   onFontSizeChange: (next: number) => void;
+  resetFontSize: number;
   originalTonality: string;
   targetTonality: string | null;
   onTransposeChange: (option: TransposeOption) => void;
@@ -38,6 +39,7 @@ export function SongControlsPanel({
   open,
   fontSize,
   onFontSizeChange,
+  resetFontSize,
   originalTonality,
   targetTonality,
   onTransposeChange,
@@ -55,7 +57,7 @@ export function SongControlsPanel({
   return (
     <CollapsiblePanel open={open} className="print:hidden">
       <div className="flex flex-wrap items-center gap-3 mb-2 pt-1">
-        <ZoomControls fontSize={fontSize} onChange={onFontSizeChange} />
+        <ZoomControls fontSize={fontSize} onChange={onFontSizeChange} resetValue={resetFontSize} />
         {DIVIDER}
         <TransposeControls
           originalTonality={originalTonality}

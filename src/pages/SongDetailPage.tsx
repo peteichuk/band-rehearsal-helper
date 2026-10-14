@@ -9,21 +9,22 @@ import {
 import { Bookmark, Pin, SlidersHorizontal, Star } from 'lucide-react';
 import { SongOverflowMenu } from '@/components/song-detail/SongOverflowMenu';
 import { SongControlsPanel } from '@/components/song-detail/SongControlsPanel';
-import { DEFAULT_FONT_SIZE } from '@/components/song-detail/ZoomControls';
-import { DEFAULT_COLUMN_CLASS } from '@/components/song-detail/ColumnSelect';
 import { SongContent } from '@/components/song-detail/SongContent';
 import { SongNavigation } from '@/components/song-detail/SongNavigation';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useSongNavigation } from '@/hooks/useSongNavigation';
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useSongDisplayConfig } from '@/hooks/useSongDisplayConfig';
+import { useGlobalDisplayDefaults } from '@/hooks/useGlobalDisplayDefaults';
 import { usePinOverrides, useEffectivePinsSet } from '@/hooks/useEffectivePins';
 import { togglePinOverride } from '@/lib/localPins';
 import { isEffectivelyPinned } from '@/lib/songs/effectivePins';
 import { getLocalFavoritesSnapshot, subscribeLocalFavorites } from '@/lib/localFavorites';
 import { useLocalFavorites } from '@/hooks/useLocalFavorites';
-import { songsForNavigation } from '@/lib/songs/sortAndFilter';
+import { songsForNavigation, sortAlbumSongs } from '@/lib/songs/sortAndFilter';
 import { useLocalGroups } from '@/hooks/useLocalGroups';
+import { useLocalAlbums } from '@/hooks/useLocalAlbums';
 import { GroupEditorDialog } from '@/components/shared/GroupEditorDialog';
 import {
   applySongTonalityToParams,
@@ -48,29 +49,40 @@ export function SongDetailPage() {
   // Set by selectSong/goToSong (list, prev/next, swipe) — anything that's
   // genuinely navigating within the app, as opposed to a cold landing on
   // this song's bare URL (fresh load, refresh, bookmark, external link).
-  const cameFromInAppNav = Boolean((location.state as { fromAppNav?: boolean } | null)?.fromAppNav);
+  const navState = location.state as { fromAppNav?: boolean; albumId?: string } | null;
+  const cameFromInAppNav = Boolean(navState?.fromAppNav);
+  // Only trusted while we actually navigated here in-app — a cold landing
+  // (back button from the album's own back arrow, external link) has no
+  // state at all, so this naturally falls back to favorites/pinned below.
+  const albumId = cameFromInAppNav ? navState?.albumId : undefined;
 
-  // Prev/next always cycles through favorites specifically — the "setlist"
-  // you're browsing during rehearsal — regardless of how you got to this song.
-  // Until the user curates their own favorites, fall back to pinned songs so
-  // there's always a sensible setlist to browse out of the box.
+  // Prev/next cycles through favorites by default — the "setlist" you're
+  // browsing during rehearsal. Until the user curates their own favorites,
+  // fall back to pinned songs. But opened from inside an album, prev/next
+  // instead cycles that album's own full ordered song list, regardless of
+  // favorites/pins.
   const localFavoriteNames = useSyncExternalStore(
     subscribeLocalFavorites,
     getLocalFavoritesSnapshot
   );
   const pinOverrides = usePinOverrides();
   const effectivePinnedNames = useEffectivePinsSet(allSongs);
-  const navigationList = songsForNavigation(allSongs, localFavoriteNames, effectivePinnedNames);
+  const { getAlbum } = useLocalAlbums();
+  const activeAlbum = albumId ? getAlbum(albumId) : undefined;
+  const navigationList = activeAlbum
+    ? sortAlbumSongs(allSongs, activeAlbum.songs)
+    : songsForNavigation(allSongs, localFavoriteNames, effectivePinnedNames);
   const song = allSongs.find(candidate => candidate.Name === decodeURIComponent(songName ?? ''));
   const navigation = useSongNavigation(song ?? null, navigationList);
 
   const [transpose, setTranspose] = useState<TransposeOption | null>(null);
   const [isControlsOpen, setIsControlsOpen] = useState(false);
-  const [fontSize, setFontSize] = useLocalStorageState('songContentFontSize', DEFAULT_FONT_SIZE);
-  const [columnClass, setColumnClass] = useLocalStorageState(
-    'selectedColumnClass',
-    DEFAULT_COLUMN_CLASS
+  // Per-song, per-orientation override on top of the Settings → Appearance
+  // global default — adjusting either here only ever touches this one song.
+  const { fontSize, setFontSize, columnClass, setColumnClass } = useSongDisplayConfig(
+    decodeURIComponent(songName ?? '')
   );
+  const globalDisplayDefaults = useGlobalDisplayDefaults();
   const [hideTextLine, setHideTextLine] = useLocalStorageState('hideTextLine', false);
   const [hideChordLine, setHideChordLine] = useLocalStorageState('hideChordLine', false);
   const [isGroupEditorOpen, setIsGroupEditorOpen] = useState(false);
@@ -88,13 +100,25 @@ export function SongDetailPage() {
     searchParams.get('tonality') ?? (cameFromInAppNav ? songTonalityPref : null);
 
   useEffect(() => {
+    // Reached via an album — however many songs we've swiped/prev-nexted
+    // through since, "back" should jump straight to that album, not step
+    // back through each one or fall all the way out to the catalog root.
+    let backTo: string | null = null;
+    if (activeAlbum) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('tonality');
+      backTo = `/albums/${encodeURIComponent(activeAlbum.id)}?${next.toString()}`;
+    }
+
     setPageActions({
       showBack: true,
+      backTo,
       showPrint: Boolean(text),
       shareTitle: song?.Name ?? null,
       metronomeBpm: song?.BPM ?? null,
     });
-  }, [setPageActions, text, song?.Name, song?.BPM]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setPageActions, text, song?.Name, song?.BPM, activeAlbum]);
 
   // Jump to the top of the song on open, and again every time prev/next swaps
   // to a different song (the route param changes but this page doesn't
@@ -141,7 +165,7 @@ export function SongDetailPage() {
     // actually has one saved. Never carry the song we're leaving's choice.
     const next = applySongTonalityToParams(searchParams, nextSong.Name);
     navigate(`/song/${encodeURIComponent(nextSong.Name)}?${next.toString()}`, {
-      state: { fromAppNav: true },
+      state: { fromAppNav: true, albumId },
     });
   };
 
@@ -294,6 +318,7 @@ export function SongDetailPage() {
           open={isControlsOpen}
           fontSize={fontSize}
           onFontSizeChange={setFontSize}
+          resetFontSize={globalDisplayDefaults.fontSize}
           originalTonality={originalTonality}
           targetTonality={targetTonality}
           onTransposeChange={handleTransposeChange}

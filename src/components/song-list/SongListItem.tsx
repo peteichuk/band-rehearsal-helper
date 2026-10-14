@@ -7,15 +7,18 @@ import { useLocalGroups } from '@/hooks/useLocalGroups';
 import { togglePinOverride } from '@/lib/localPins';
 import { isEffectivelyPinned } from '@/lib/songs/effectivePins';
 import { GroupEditorDialog } from '@/components/shared/GroupEditorDialog';
+import { SongActionsMenu } from '@/components/song-list/SongActionsMenu';
 import type { Song } from '@/types/song';
 
 interface SongListItemProps {
   song: Song;
   isSelected: boolean;
   onSelect: (song: Song) => void;
+  canEdit: boolean;
+  onEdit: (song: Song) => void;
 }
 
-export function SongListItem({ song, isSelected, onSelect }: SongListItemProps) {
+export function SongListItem({ song, isSelected, onSelect, canEdit, onEdit }: SongListItemProps) {
   const hasText = Boolean(song.Text);
   const { isFavorite, toggleFavorite } = useLocalFavorites();
   const isLocalFavorite = isFavorite(song.Name);
@@ -128,18 +131,17 @@ export function SongListItem({ song, isSelected, onSelect }: SongListItemProps) 
               {myGroups.length > 0 && <span className="break-words">{myGroups.join(', ')}</span>}
             </button>
           </div>
-          {(song.GroupBy || song.Language) && (
-            <div className="shrink-0 flex items-center gap-1 text-xs mt-1">
-              {song.GroupBy && (
-                <span className="px-2 py-1 bg-purple-300 dark:bg-purple-900 rounded-lg">
-                  {song.GroupBy}
-                </span>
-              )}
-              {song.Language && (
-                <span className="text-gray-500 dark:text-gray-400">{song.Language}</span>
-              )}
-            </div>
-          )}
+          <div className="shrink-0 flex items-center gap-1 text-xs mt-1">
+            {song.GroupBy && (
+              <span className="px-2 py-1 bg-purple-300 dark:bg-purple-900 rounded-lg">
+                {song.GroupBy}
+              </span>
+            )}
+            {song.Language && (
+              <span className="text-gray-500 dark:text-gray-400">{song.Language}</span>
+            )}
+            <SongActionsMenu song={song} canEdit={canEdit} onEdit={() => onEdit(song)} />
+          </div>
         </div>
       </div>
 

@@ -15,6 +15,13 @@ export default defineConfig({
   build: {
     outDir: 'docs',
   },
+  // Binds to 0.0.0.0 instead of just localhost, so the dev server is also
+  // reachable from other devices on the LAN (e.g. a phone, for testing
+  // touch gestures) at http://<your-machine-ip>:5173 — printed in the
+  // terminal as the "Network:" URL when `npm run dev` starts.
+  server: {
+    host: true,
+  },
   plugins: [
     react(),
     tailwindcss(),

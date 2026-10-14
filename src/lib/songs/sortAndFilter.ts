@@ -1,4 +1,5 @@
 import type { Song } from '@/types/song';
+import type { AlbumSongEntry } from '@/lib/localAlbums';
 
 /**
  * Effectively-pinned songs first (sheet's `PinedByDefault` column, overridden
@@ -62,6 +63,28 @@ export function filterByLanguages(songs: Song[], languages: string[]): Song[] {
  * effectively pinned, so there's always a sensible setlist to browse. As
  * soon as at least one song is starred, navigation uses that list instead.
  */
+/**
+ * Order for songs inside an album: entries with an explicit `customIndex`
+ * (set by dragging or typing a position) come first, sorted by it; every
+ * other song in the album follows, alphabetically. Sparse by design — most
+ * songs never get a customIndex at all. Songs no longer present in `songs`
+ * (e.g. removed from the sheet) are dropped.
+ */
+export function sortAlbumSongs(songs: Song[], entries: AlbumSongEntry[]): Song[] {
+  const byName = new Map(songs.map(song => [song.Name, song]));
+  const present = entries
+    .map(entry => ({ entry, song: byName.get(entry.songName) }))
+    .filter((x): x is { entry: AlbumSongEntry; song: Song } => Boolean(x.song));
+
+  const withIndex = present.filter(x => x.entry.customIndex != null);
+  const withoutIndex = present.filter(x => x.entry.customIndex == null);
+
+  withIndex.sort((a, b) => Number(a.entry.customIndex) - Number(b.entry.customIndex));
+  withoutIndex.sort((a, b) => a.song.Name.localeCompare(b.song.Name));
+
+  return [...withIndex, ...withoutIndex].map(x => x.song);
+}
+
 export function songsForNavigation(
   songs: Song[],
   localFavoriteNames: Set<string>,

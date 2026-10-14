@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import TelegramIcon from '@/assets/icons/telegram.svg?react';
@@ -16,7 +17,13 @@ const APP_NAME = 'Band Rehearsal helper app';
 export function ShareModal({ open, onOpenChange, title }: ShareModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState(false);
-  const shareUrl = window.location.href;
+  const location = useLocation();
+  // Albums are local-only (a per-device id, never written anywhere shared),
+  // so a link to /albums/:id is meaningless to whoever opens it — share the
+  // catalog root instead, keeping tableId and every other query param.
+  const isAlbumRoute = location.pathname.startsWith('/albums/');
+  const sharePath = isAlbumRoute ? '/' : location.pathname;
+  const shareUrl = `${window.location.origin}${window.location.pathname}#${sharePath}${location.search}`;
   const shareText = title || APP_NAME;
 
   const copyLink = async () => {

@@ -62,6 +62,16 @@ export function getSongTonalityPrefsSnapshot(): Store {
   return store;
 }
 
+export function getAllSongTonalityPrefs(): Store {
+  return store;
+}
+
+/** Bulk import — merges, so an imported file never drops prefs already set locally. */
+export function mergeSongTonalityPrefs(incoming: Store) {
+  store = { ...store, ...incoming };
+  persist();
+}
+
 /**
  * Builds the query params for navigating TO `songName`: always strips
  * whatever tonality was in the URL for the song being left, then — and only

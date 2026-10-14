@@ -55,6 +55,10 @@ export function Header({
               type="button"
               className={PRIMARY_BUTTON_CLASS}
               onClick={() => {
+                if (pageActions.backTo) {
+                  navigate(pageActions.backTo);
+                  return;
+                }
                 const next = new URLSearchParams(searchParams);
                 next.delete('tonality');
                 navigate(`/?${next.toString()}`);

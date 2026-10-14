@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { isInteractionActive } from '@/lib/interactionLock';
 
 const THRESHOLD_PX = 64;
 const MAX_PULL_PX = 96;
@@ -58,7 +59,14 @@ export function usePullToRefresh<T extends HTMLElement>({
     const onTouchStart = (event: TouchEvent) => {
       const y = event.touches[0]?.clientY ?? null;
       const withinStartZone = y != null && y - el.getBoundingClientRect().top <= START_ZONE_PX;
-      if (isRefreshingRef.current || !isAtTop() || !withinStartZone) {
+      // isInteractionActive() is a plain synchronous read of a module-level
+      // counter — unlike the `disabled` prop, it needs no re-render/effect
+      // cycle to take effect. That matters here: this listener detaches via
+      // a *passive* useEffect below, which runs after paint, so there's a
+      // real window where a drag/swipe has already started (its own handler
+      // already called beginInteraction()) but this old listener is still
+      // attached and would otherwise still capture the touch as a pull.
+      if (isRefreshingRef.current || isInteractionActive() || !isAtTop() || !withinStartZone) {
         touchStartY.current = null;
         return;
       }
@@ -70,7 +78,7 @@ export function usePullToRefresh<T extends HTMLElement>({
       if (touchStartY.current == null) return;
       const dy = (event.touches[0]?.clientY ?? touchStartY.current) - touchStartY.current;
 
-      if (dy <= 0 || !isAtTop()) {
+      if (dy <= 0 || !isAtTop() || isInteractionActive()) {
         pulling.current = false;
         currentDistance.current = 0;
         setIsDragging(false);
