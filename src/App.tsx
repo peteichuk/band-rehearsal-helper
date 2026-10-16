@@ -33,6 +33,7 @@ import { useSheetTitle } from '@/hooks/useSheetTitle';
 import { appendSong, updateSong } from '@/lib/google/sheetsWrite';
 import { useEffectivePinsSet } from '@/hooks/useEffectivePins';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { MenuProvider, useSetMenuOpen } from '@/contexts/MenuContext';
 import { sortForDisplay } from '@/lib/songs/sortAndFilter';
 import { DEFAULT_PAGE_ACTIONS, type CatalogViewMode, type PageActions } from '@/types/pageActions';
 import type { Song } from '@/types/song';
@@ -49,6 +50,7 @@ export interface RootOutletContext {
   openAddSong: () => void;
   openEditSong: (song: Song) => void;
   onOpenMetronome: () => void;
+  isMetronomePlaying: boolean;
   catalogViewMode: CatalogViewMode;
   setCatalogViewMode: (mode: CatalogViewMode) => void;
 }
@@ -60,7 +62,8 @@ function RootLayout() {
   const tableId = searchParams.get('tableId');
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, error, refetch } = useSongsQuery(tableId);
+  const { data, isLoading, isFetching, isSuccess, isError, error, refetch } =
+    useSongsQuery(tableId);
   const rawSongs = data?.songs ?? [];
   const effectivePinnedNames = useEffectivePinsSet(rawSongs);
   const allSongs = useMemo(
@@ -90,9 +93,11 @@ function RootLayout() {
     'list'
   );
   const metronome = useMetronome(location.pathname);
+  const [isMetronomePlaying, setIsMetronomePlaying] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | 'new' | null>(null);
+  const setMenuOpen = useSetMenuOpen();
 
   useDarkMode();
   useWakeLock();
@@ -107,9 +112,22 @@ function RootLayout() {
   });
 
   const setTableId = (next: string) => {
+    const newId = extractSheetId(next);
+    // Loading a new sheet while on a song/album detail page would otherwise
+    // leave the URL pointing at content that no longer exists once the new
+    // sheet's songs load — send the user back to the catalog instead.
+    if (location.pathname !== '/') {
+      const merged = new URLSearchParams(searchParams);
+      merged.set('tableId', newId);
+      setMenuOpen(false);
+      setTimeout(() => {
+        navigate(`/?${merged.toString()}`);
+      }, 400);
+      return;
+    }
     setSearchParams(prev => {
       const merged = new URLSearchParams(prev);
-      merged.set('tableId', extractSheetId(next));
+      merged.set('tableId', newId);
       return merged;
     });
   };
@@ -154,6 +172,7 @@ function RootLayout() {
     openAddSong: () => setEditingSong('new'),
     openEditSong: song => setEditingSong(song),
     onOpenMetronome: metronome.open,
+    isMetronomePlaying,
     catalogViewMode,
     setCatalogViewMode,
   };
@@ -167,7 +186,9 @@ function RootLayout() {
         onOpenShare={() => setIsShareOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenMetronome={metronome.open}
-        showMetronomeButton={metronome.hasOpenedOnce}
+        isMetronomePlaying={isMetronomePlaying}
+        isTableFetching={isFetching}
+        isTableLoaded={isSuccess}
         auth={auth}
         canEdit={canEdit}
         onAddSong={() => setEditingSong('new')}
@@ -209,6 +230,7 @@ function RootLayout() {
         resetKey={location.pathname}
         bpm={currentSong?.BPM ?? null}
         timeSignature={currentSong?.TimeSignature ?? null}
+        onPlayingChange={setIsMetronomePlaying}
       />
       <ShareModal open={isShareOpen} onOpenChange={setIsShareOpen} title={pageActions.shareTitle} />
       <SettingsModal open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
@@ -225,15 +247,17 @@ function RootLayout() {
 
 function App() {
   return (
-    <HashRouter>
-      <Routes>
-        <Route element={<RootLayout />}>
-          <Route path="/" element={<SongListPage />} />
-          <Route path="/song/:songName" element={<SongDetailPage />} />
-          <Route path="/albums/:albumId" element={<AlbumDetailPage />} />
-        </Route>
-      </Routes>
-    </HashRouter>
+    <MenuProvider>
+      <HashRouter>
+        <Routes>
+          <Route element={<RootLayout />}>
+            <Route path="/" element={<SongListPage />} />
+            <Route path="/song/:songName" element={<SongDetailPage />} />
+            <Route path="/albums/:albumId" element={<AlbumDetailPage />} />
+          </Route>
+        </Routes>
+      </HashRouter>
+    </MenuProvider>
   );
 }
 

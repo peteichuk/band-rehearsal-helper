@@ -71,6 +71,8 @@ To ensure the application works correctly, your Google Sheet should include the 
 - [x] UI Admin with CRUD. Auth by Google then easy add/edit songs directly from the Google Sheets for APP. (delete not yet implemented)
 - [x] Implementation of advanced filtering and searching by the `GroupBy` field.
 - [ ] Wake lock for (IOS, Android).
+- [ ] Sync local data (Favorites, Pinned, Albums, Notes, Appearance) between devices.
+- [ ] Play + auto-scroll the lyrics, paced to the song's tempo.
 
 ## 🧰 Development & Build
 

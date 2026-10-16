@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { Filter } from 'lucide-react';
 import { TableIdPrompt } from '@/components/song-list/TableIdPrompt';
+import { TableIdHelp } from '@/components/song-list/TableIdHelp';
 import { SearchBar } from '@/components/song-list/SearchBar';
 import { GroupFilterSelect } from '@/components/song-list/GroupFilterSelect';
 import { LanguageFilterSelect } from '@/components/song-list/LanguageFilterSelect';
@@ -67,12 +68,13 @@ export function SongListPage() {
     return (
       <div className="p-4">
         <div className="mb-4 flex justify-center">
-          <TableIdPrompt initialValue="" onLoad={setTableId} />
+          <TableIdPrompt initialValue="" onLoad={setTableId} loading={isLoading} />
         </div>
         <EmptyState
           title="No table ID provided"
           message="Please enter a Google Sheets ID or URL to load songs."
         />
+        <TableIdHelp />
       </div>
     );
   }

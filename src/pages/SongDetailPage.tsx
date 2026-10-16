@@ -39,7 +39,7 @@ import type { TransposeOption } from '@/lib/chords/transpose';
 import type { Song } from '@/types/song';
 
 export function SongDetailPage() {
-  const { allSongs, setPageActions, canEdit, openEditSong, onOpenMetronome } =
+  const { allSongs, setPageActions, canEdit, openEditSong, onOpenMetronome, isMetronomePlaying } =
     useOutletContext<RootOutletContext>();
   const { songName } = useParams<{ songName: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -330,6 +330,7 @@ export function SongDetailPage() {
           onToggleTextLine={() => setHideTextLine(!hideTextLine)}
           onToggleChordLine={() => setHideChordLine(!hideChordLine)}
           onOpenMetronome={onOpenMetronome}
+          isMetronomePlaying={isMetronomePlaying}
           canPrint={Boolean(text)}
         />
       )}

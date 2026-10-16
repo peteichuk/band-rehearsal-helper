@@ -89,3 +89,13 @@
 html {
   touch-action: manipulation;
 }
+
+@keyframes metronome-swing {
+  0%,
+  100% {
+    transform: rotate(-18deg);
+  }
+  50% {
+    transform: rotate(18deg);
+  }
+}

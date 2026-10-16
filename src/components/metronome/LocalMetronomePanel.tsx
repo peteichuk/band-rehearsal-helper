@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { useMetronomeEngine } from '@/components/metronome/useMetronomeEngine';
 import { getTimeSignature } from '@/components/metronome/timeSignatures';
@@ -19,11 +19,14 @@ interface LocalMetronomePanelProps {
   bpm: number;
   /** Seeded from the song's `TimeSignature` sheet column — not persisted, same as `bpm`. */
   timeSignatureId: string;
+  /** Mirrors the engine's play state up to callers (e.g. to animate a header button). */
+  onPlayingChange?: (isPlaying: boolean) => void;
 }
 
 export function LocalMetronomePanel({
   bpm: initialBpm,
   timeSignatureId: initialTimeSignatureId,
+  onPlayingChange,
 }: LocalMetronomePanelProps) {
   const [bpm, setBpm] = useState(initialBpm);
   const [timeSignatureId, setTimeSignatureId] = useState(initialTimeSignatureId);
@@ -48,6 +51,18 @@ export function LocalMetronomePanel({
     setSoundId(id);
     if (!isPlaying) previewClickSound(id);
   };
+
+  useEffect(() => {
+    onPlayingChange?.(isPlaying);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying]);
+
+  // Covers engine switches and song changes: this panel unmounts (key/branch
+  // change) without `isPlaying` necessarily having flipped back to false first.
+  useEffect(() => {
+    return () => onPlayingChange?.(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex flex-col items-center gap-5 py-4">

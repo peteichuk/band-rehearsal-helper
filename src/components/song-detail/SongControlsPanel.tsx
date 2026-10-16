@@ -1,4 +1,4 @@
-import { Timer } from 'lucide-react';
+import { MetronomeIcon } from '@/components/metronome/MetronomeIcon';
 import { ZoomControls } from '@/components/song-detail/ZoomControls';
 import { TransposeControls } from '@/components/song-detail/TransposeControls';
 import { CapoSelect } from '@/components/song-detail/CapoSelect';
@@ -27,6 +27,7 @@ interface SongControlsPanelProps {
   onToggleTextLine: () => void;
   onToggleChordLine: () => void;
   onOpenMetronome: () => void;
+  isMetronomePlaying: boolean;
   canPrint: boolean;
 }
 
@@ -52,6 +53,7 @@ export function SongControlsPanel({
   onToggleTextLine,
   onToggleChordLine,
   onOpenMetronome,
+  isMetronomePlaying,
   canPrint,
 }: SongControlsPanelProps) {
   return (
@@ -82,7 +84,7 @@ export function SongControlsPanel({
           onClick={onOpenMetronome}
           className="h-9 w-9 shrink-0 flex items-center justify-center bg-orange-600 hover:bg-orange-700 text-white rounded"
         >
-          <Timer className="w-4 h-4" />
+          <MetronomeIcon playing={isMetronomePlaying} className="w-4 h-4" />
         </button>
         {canPrint && (
           <button

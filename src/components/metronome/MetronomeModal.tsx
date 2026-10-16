@@ -17,6 +17,8 @@ interface MetronomeModalProps {
   bpm: number | null;
   /** Song's time signature from the sheet, e.g. "4/4", "6/8". */
   timeSignature: string | null;
+  /** Only fires for the local engine — the iframe engine's playback isn't ours to observe. */
+  onPlayingChange?: (isPlaying: boolean) => void;
 }
 
 export function MetronomeModal({
@@ -26,6 +28,7 @@ export function MetronomeModal({
   resetKey,
   bpm,
   timeSignature,
+  onPlayingChange,
 }: MetronomeModalProps) {
   const [engine, setEngine] = useState<MetronomeEngine>('local');
 
@@ -75,6 +78,7 @@ export function MetronomeModal({
               key={resetKey}
               bpm={resolvedBpm}
               timeSignatureId={initialTimeSignatureId}
+              onPlayingChange={onPlayingChange}
             />
           ) : (
             <IframeMetronomePanel key={resetKey} bpm={resolvedBpm} />

@@ -1,13 +1,18 @@
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ChevronLeft, LogIn, LogOut, Menu, Plus, Settings, Timer } from 'lucide-react';
+import { ChevronLeft, Info, LogIn, LogOut, Plus, Settings } from 'lucide-react';
 import { TableIdPrompt } from '@/components/song-list/TableIdPrompt';
+import { MetronomeIcon } from '@/components/metronome/MetronomeIcon';
+import { useMenuOpen, useSetMenuOpen } from '@/contexts/MenuContext';
+import { extractSheetId } from '@/lib/google/sheetId';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import {
   METRONOME_BUTTON_CLASS,
   PRIMARY_BUTTON_CLASS,
@@ -15,8 +20,38 @@ import {
 import ReloadIcon from '@/assets/icons/refresh.svg?react';
 import ShareIcon from '@/assets/icons/share.svg?react';
 import FaviconWhite from '@/assets/favicon-white.svg?react';
+import { cn } from '@/lib/utils';
 import type { PageActions } from '@/types/pageActions';
 import type { GoogleAuthState } from '@/hooks/useGoogleAuth';
+
+const MENU_ITEM_CLASS =
+  'flex items-center gap-3 w-full rounded-lg px-3 py-3 text-base font-medium text-left hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none';
+
+/** Hamburger icon that morphs into an X as `open` toggles. */
+function MenuToggleIcon({ open }: { open: boolean }) {
+  return (
+    <span className="relative flex h-4 w-4 items-center justify-center">
+      <span
+        className={cn(
+          'absolute block h-0.5 w-4 rounded-full bg-current transition-transform duration-200',
+          open ? 'translate-y-0 rotate-45' : '-translate-y-[5px]'
+        )}
+      />
+      <span
+        className={cn(
+          'absolute block h-0.5 w-4 rounded-full bg-current transition-opacity duration-150',
+          open && 'opacity-0'
+        )}
+      />
+      <span
+        className={cn(
+          'absolute block h-0.5 w-4 rounded-full bg-current transition-transform duration-200',
+          open ? 'translate-y-0 -rotate-45' : 'translate-y-[5px]'
+        )}
+      />
+    </span>
+  );
+}
 
 interface HeaderProps {
   pageActions: PageActions;
@@ -25,7 +60,18 @@ interface HeaderProps {
   onOpenShare: () => void;
   onOpenSettings: () => void;
   onOpenMetronome: () => void;
-  showMetronomeButton: boolean;
+  isMetronomePlaying: boolean;
+  /** Whether `useSongsQuery` currently has a request in flight for `tableId`. */
+  isTableFetching: boolean;
+  /**
+   * Whether `useSongsQuery` has resolved successfully for `tableId` — not
+   * just "not fetching", since a brand-new `tableId` reads `isFetching:
+   * false` for one render before the fetch actually dispatches (it's kicked
+   * off from an effect, a tick after the `tableId` prop itself updates).
+   * `isSuccess` only flips once there's really data for it (or instantly, if
+   * it was already cached).
+   */
+  isTableLoaded: boolean;
   auth: GoogleAuthState;
   canEdit: boolean;
   onAddSong: () => void;
@@ -38,13 +84,29 @@ export function Header({
   onOpenShare,
   onOpenSettings,
   onOpenMetronome,
-  showMetronomeButton,
+  isMetronomePlaying,
+  isTableFetching,
+  isTableLoaded,
   auth,
   canEdit,
   onAddSong,
 }: HeaderProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const menuOpen = useMenuOpen();
+  const setMenuOpen = useSetMenuOpen();
+
+  // Closes the menu once the table submitted from it has actually loaded:
+  // the `tableId` prop has caught up to what was typed, *and* the query for
+  // it has resolved (`isSuccess`), not merely "stopped fetching" (see the
+  // prop doc comment for why that distinction matters).
+  const [pendingTableId, setPendingTableId] = useState<string | null>(null);
+  useEffect(() => {
+    if (pendingTableId && tableId === pendingTableId && isTableLoaded) {
+      setMenuOpen(false);
+      setPendingTableId(null);
+    }
+  }, [pendingTableId, tableId, isTableLoaded, setMenuOpen]);
 
   return (
     <header className="print:hidden bg-blue-600 dark:bg-blue-800 text-white px-2 py-2 shadow-lg">
@@ -81,76 +143,119 @@ export function Header({
             <ReloadIcon className="w-4 h-4" />
           </button>
 
-          {showMetronomeButton && (
-            <button
-              type="button"
-              title="Metronome"
-              data-metronome-trigger
-              className={METRONOME_BUTTON_CLASS}
-              onClick={onOpenMetronome}
-            >
-              <Timer className="w-4 h-4" />
-            </button>
-          )}
+          <button
+            type="button"
+            title="Metronome"
+            data-metronome-trigger
+            className={METRONOME_BUTTON_CLASS}
+            onClick={onOpenMetronome}
+          >
+            <MetronomeIcon playing={isMetronomePlaying} className="w-4 h-4" />
+          </button>
         </div>
 
         <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <SheetTrigger asChild>
               <button type="button" title="Menu" className={PRIMARY_BUTTON_CLASS}>
-                <Menu className="w-4 h-4" />
+                <MenuToggleIcon open={menuOpen} />
               </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64">
-              {canEdit && (
-                <DropdownMenuItem onSelect={onAddSong}>
-                  <Plus className="w-4 h-4" />
-                  Add Song
-                </DropdownMenuItem>
-              )}
-
-              <DropdownMenuItem onSelect={onOpenShare}>
-                <ShareIcon className="w-4 h-4" />
-                Share
-              </DropdownMenuItem>
-
-              {!pageActions.showBack && (
-                <>
-                  <DropdownMenuSeparator />
-                  <div
-                    className="px-1.5 py-1"
-                    onKeyDown={event => event.stopPropagation()}
-                    onPointerDown={event => event.stopPropagation()}
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="w-80 p-0"
+              // Radix returns focus to the trigger (the hamburger button) on
+              // close by default. If the sheet was closed by pressing Enter
+              // in the TableIdPrompt input, that same keypress's keyup lands
+              // on the now-focused trigger button and re-activates it as a
+              // native button click — reopening the sheet right after it
+              // closed. Suppressing the auto-focus avoids that.
+              onCloseAutoFocus={event => event.preventDefault()}
+            >
+              <SheetHeader className="justify-end">
+                <SheetTitle className="sr-only">Menu</SheetTitle>
+                <SheetClose asChild>
+                  <button
+                    type="button"
+                    title="Close"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
-                    <TableIdPrompt initialValue={tableId ?? ''} onLoad={onTableIdChange} />
-                  </div>
-                </>
-              )}
+                    <MenuToggleIcon open />
+                  </button>
+                </SheetClose>
+              </SheetHeader>
 
-              <DropdownMenuSeparator />
+              <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-1">
+                {canEdit && (
+                  <SheetClose asChild>
+                    <button type="button" className={MENU_ITEM_CLASS} onClick={onAddSong}>
+                      <Plus className="w-4 h-4 shrink-0" />
+                      Add Song
+                    </button>
+                  </SheetClose>
+                )}
 
-              <DropdownMenuItem onSelect={onOpenSettings}>
-                <Settings className="w-4 h-4" />
-                Settings
-              </DropdownMenuItem>
+                <SheetClose asChild>
+                  <button type="button" className={MENU_ITEM_CLASS} onClick={onOpenShare}>
+                    <ShareIcon className="w-4 h-4 shrink-0" />
+                    Share
+                  </button>
+                </SheetClose>
 
-              {auth.isSignedIn ? (
-                <DropdownMenuItem onSelect={auth.signOut}>
-                  <LogOut className="w-4 h-4" />
-                  <span className="truncate">Sign out{auth.email ? ` (${auth.email})` : ''}</span>
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem
-                  disabled={!auth.isReady}
-                  onSelect={auth.signIn}
-                  title={auth.isReady ? undefined : 'Google sign-in is not configured'}
-                >
-                  <LogIn className="w-4 h-4" />
-                  Sign in
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <div className="my-2 border-t border-border" />
+                <div className="px-1 py-1">
+                  <TableIdPrompt
+                    initialValue={tableId ?? ''}
+                    onLoad={value => {
+                      setPendingTableId(extractSheetId(value));
+                      onTableIdChange(value);
+                    }}
+                    loading={isTableFetching}
+                  />
+                </div>
+
+                <div className="my-2 border-t border-border" />
+
+                <SheetClose asChild>
+                  <button type="button" className={MENU_ITEM_CLASS} onClick={onOpenSettings}>
+                    <Settings className="w-4 h-4 shrink-0" />
+                    Settings
+                  </button>
+                </SheetClose>
+
+                <a href="landing.html" className={MENU_ITEM_CLASS}>
+                  <Info className="w-4 h-4 shrink-0" />
+                  About
+                </a>
+
+                <div className="my-2 border-t border-border" />
+
+                {auth.isSignedIn ? (
+                  <SheetClose asChild>
+                    <button type="button" className={MENU_ITEM_CLASS} onClick={auth.signOut}>
+                      <LogOut className="w-4 h-4 shrink-0" />
+                      <span className="truncate">
+                        Sign out{auth.email ? ` (${auth.email})` : ''}
+                      </span>
+                    </button>
+                  </SheetClose>
+                ) : (
+                  <SheetClose asChild>
+                    <button
+                      type="button"
+                      className={MENU_ITEM_CLASS}
+                      disabled={!auth.isReady}
+                      onClick={auth.signIn}
+                      title={auth.isReady ? undefined : 'Google sign-in is not configured'}
+                    >
+                      <LogIn className="w-4 h-4 shrink-0" />
+                      Sign in
+                    </button>
+                  </SheetClose>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
