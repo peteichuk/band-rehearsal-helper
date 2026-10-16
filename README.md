@@ -20,7 +20,7 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **External Resource Integration:** Quick links to **YouTube**, **Chordify**, and **Holychords**.
 - **Auto Dark Mode:** Built-in responsive design that respects your OS light/dark theme settings.
 - **Mobile Friendly:** Fully responsive UI, perfect for smartphones on a music stand.
-- **Metronome:** Integrated metronome to help keep time during practice. Preselect BPM from the song data.
+- **Metronome:** Integrated metronome to help keep time during practice. Preselects BPM and time signature from the song data (`BPM`, `TimeSignature`).
 - **As Mobile App:** Installable as a Native App on iOS and Android devices. Choose "Add to Home Screen" from your browser menu.
 - **Print:** Simple print styles for physical copies of lyrics and chords.
 - **Share:** Share specific songs or filtered lists.
@@ -45,19 +45,20 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 
 To ensure the application works correctly, your Google Sheet should include the following columns:
 
-| Column              | Type      | Description                                                                                                                                                                |
-| :------------------ | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Name**            | `string`  | The song title (searchable). **Required.**                                                                                                                                 |
-| **PinedByDefault**  | `boolean` | Mark as TRUE to pin the song to the top of the list by default for everyone. Anyone can still locally override this (pin/unpin for themselves) without changing the sheet. |
-| **Language**        | `string`  | The language of the lyrics.                                                                                                                                                |
-| **Tonality**        | `string`  | The original key of the song.                                                                                                                                              |
-| **BPM**             | `number`  | Temp BPM.                                                                                                                                                                  |
-| **Text**            | `string`  | Lyrics with chords (use spaces between chords for proper parsing). **Required.**                                                                                           |
-| **Holychords**      | `url`     | Link to the song on Holychords.                                                                                                                                            |
-| **YouTube**         | `url`     | Link to a reference video or backing track.                                                                                                                                |
-| **Chordify**        | `url`     | Link to the Chordify page.                                                                                                                                                 |
-| **GroupBy**         | `any`     | Used for filtering (e.g., "Acoustic Set", "Sunday Service").                                                                                                               |
-| **SortingPriority** | `number`  | Among pinned songs (see `PinedByDefault` above), this controls their order.                                                                                                |
+| Column              | Type      | Description                                                                                                                                                                     |
+| :------------------ | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Name**            | `string`  | The song title (searchable). **Required.**                                                                                                                                      |
+| **PinedByDefault**  | `boolean` | Mark as TRUE to pin the song to the top of the list by default for everyone. Anyone can still locally override this (pin/unpin for themselves) without changing the sheet.      |
+| **Language**        | `string`  | The language of the lyrics.                                                                                                                                                     |
+| **Tonality**        | `string`  | The original key of the song.                                                                                                                                                   |
+| **BPM**             | `number`  | Temp BPM.                                                                                                                                                                       |
+| **TimeSignature**   | `string`  | Time signature as a musician would write it, e.g. `4/4`, `3/4`, `6/8`. Preselects the metronome's time signature for the song; defaults to `4/4` if left blank or unrecognized. |
+| **Text**            | `string`  | Lyrics with chords (use spaces between chords for proper parsing). **Required.**                                                                                                |
+| **Holychords**      | `url`     | Link to the song on Holychords.                                                                                                                                                 |
+| **YouTube**         | `url`     | Link to a reference video or backing track.                                                                                                                                     |
+| **Chordify**        | `url`     | Link to the Chordify page.                                                                                                                                                      |
+| **GroupBy**         | `any`     | Used for filtering (e.g., "Acoustic Set", "Sunday Service").                                                                                                                    |
+| **SortingPriority** | `number`  | Among pinned songs (see `PinedByDefault` above), this controls their order.                                                                                                     |
 
 > **Note:** For the chord transposition engine to work, ensure there are clear spaces between chord symbols in the `Text` field.
 >

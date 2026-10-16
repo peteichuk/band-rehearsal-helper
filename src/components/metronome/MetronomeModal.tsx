@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { EngineSwitch, type MetronomeEngine } from '@/components/metronome/EngineSwitch';
 import { LocalMetronomePanel } from '@/components/metronome/LocalMetronomePanel';
 import { IframeMetronomePanel } from '@/components/metronome/IframeMetronomePanel';
+import { getTimeSignatureIdFromLabel } from '@/components/metronome/timeSignatures';
 
 interface MetronomeModalProps {
   open: boolean;
@@ -14,6 +15,8 @@ interface MetronomeModalProps {
   /** Identifies the current song (e.g. a route path) — changing it resets the metronome. */
   resetKey: string;
   bpm: number | null;
+  /** Song's time signature from the sheet, e.g. "4/4", "6/8". */
+  timeSignature: string | null;
 }
 
 export function MetronomeModal({
@@ -22,11 +25,13 @@ export function MetronomeModal({
   hasOpenedOnce,
   resetKey,
   bpm,
+  timeSignature,
 }: MetronomeModalProps) {
   const [engine, setEngine] = useState<MetronomeEngine>('local');
 
   if (!hasOpenedOnce) return null;
   const resolvedBpm = bpm || 120;
+  const initialTimeSignatureId = getTimeSignatureIdFromLabel(timeSignature);
 
   return (
     // `modal={false}` is required here: a modal Radix Dialog permanently
@@ -66,7 +71,11 @@ export function MetronomeModal({
           <EngineSwitch value={engine} onChange={setEngine} />
 
           {engine === 'local' ? (
-            <LocalMetronomePanel key={resetKey} bpm={resolvedBpm} />
+            <LocalMetronomePanel
+              key={resetKey}
+              bpm={resolvedBpm}
+              timeSignatureId={initialTimeSignatureId}
+            />
           ) : (
             <IframeMetronomePanel key={resetKey} bpm={resolvedBpm} />
           )}

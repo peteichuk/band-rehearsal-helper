@@ -4,6 +4,7 @@ import {
   Outlet,
   Route,
   Routes,
+  matchPath,
   useLocation,
   useNavigate,
   useSearchParams,
@@ -66,6 +67,17 @@ function RootLayout() {
     [rawSongs, effectivePinnedNames]
   );
   const headers = data?.headers ?? [];
+
+  // Derived straight from the route + allSongs (not from SongDetailPage's
+  // pageActions, which lags a render behind on navigation) so the metronome
+  // always gets the right song's BPM/TimeSignature the instant resetKey
+  // changes on prev/next/swipe — no stale-then-corrected two-render race.
+  const songRouteMatch = matchPath('/song/:songName', location.pathname);
+  const currentSong = songRouteMatch
+    ? (allSongs.find(
+        candidate => candidate.Name === decodeURIComponent(songRouteMatch.params.songName ?? '')
+      ) ?? null)
+    : null;
 
   const auth = useGoogleAuth();
   const canEdit = useEditAccess(tableId, auth.accessToken);
@@ -194,7 +206,8 @@ function RootLayout() {
         onClose={metronome.close}
         hasOpenedOnce={metronome.hasOpenedOnce}
         resetKey={location.pathname}
-        bpm={pageActions.metronomeBpm}
+        bpm={currentSong?.BPM ?? null}
+        timeSignature={currentSong?.TimeSignature ?? null}
       />
       <ShareModal open={isShareOpen} onOpenChange={setIsShareOpen} title={pageActions.shareTitle} />
       <SettingsModal open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />

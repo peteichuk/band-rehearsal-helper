@@ -5,6 +5,8 @@ export interface Song {
   Language?: string;
   Tonality?: string;
   BPM?: number;
+  /** Time signature as a musician would write it, e.g. "4/4", "3/4", "6/8". */
+  TimeSignature?: string;
   Text?: string;
   Holychords?: string;
   YouTube?: string;

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { useMetronomeEngine } from '@/components/metronome/useMetronomeEngine';
-import { getTimeSignature, DEFAULT_TIME_SIGNATURE_ID } from '@/components/metronome/timeSignatures';
+import { getTimeSignature } from '@/components/metronome/timeSignatures';
 import {
   DEFAULT_CLICK_SOUND_ID,
   previewClickSound,
@@ -17,14 +17,16 @@ import { PlayPauseButton } from '@/components/metronome/PlayPauseButton';
 
 interface LocalMetronomePanelProps {
   bpm: number;
+  /** Seeded from the song's `TimeSignature` sheet column — not persisted, same as `bpm`. */
+  timeSignatureId: string;
 }
 
-export function LocalMetronomePanel({ bpm: initialBpm }: LocalMetronomePanelProps) {
+export function LocalMetronomePanel({
+  bpm: initialBpm,
+  timeSignatureId: initialTimeSignatureId,
+}: LocalMetronomePanelProps) {
   const [bpm, setBpm] = useState(initialBpm);
-  const [timeSignatureId, setTimeSignatureId] = useLocalStorageState(
-    'metronome-time-signature',
-    DEFAULT_TIME_SIGNATURE_ID
-  );
+  const [timeSignatureId, setTimeSignatureId] = useState(initialTimeSignatureId);
   const [accentFirstBeat, setAccentFirstBeat] = useLocalStorageState(
     'metronome-accent-first-beat',
     true

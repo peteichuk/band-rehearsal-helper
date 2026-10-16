@@ -115,10 +115,9 @@ export function SongDetailPage() {
       backTo,
       showPrint: Boolean(text),
       shareTitle: song?.Name ?? null,
-      metronomeBpm: song?.BPM ?? null,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setPageActions, text, song?.Name, song?.BPM, activeAlbum]);
+  }, [setPageActions, text, song?.Name, activeAlbum]);
 
   // Jump to the top of the song on open, and again every time prev/next swaps
   // to a different song (the route param changes but this page doesn't

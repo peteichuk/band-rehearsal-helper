@@ -14,6 +14,7 @@ import { DISPLAY_SCALE } from '@/lib/chords/transpose';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { cn } from '@/lib/utils';
 import { validateSongForm } from '@/lib/validation/songForm';
+import { TIME_SIGNATURES } from '@/components/metronome/timeSignatures';
 import type { Song } from '@/types/song';
 
 interface SongFormDialogProps {
@@ -47,6 +48,7 @@ const FIELD_ORDER = [
   'Text',
   'Tonality',
   'BPM',
+  'TimeSignature',
   'Language',
   'SortingPriority',
   'GroupBy',
@@ -348,6 +350,23 @@ function Field({
         {DISPLAY_SCALE.map(note => (
           <option key={note} value={note}>
             {note}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  if (header === 'TimeSignature') {
+    return (
+      <select
+        value={String(value ?? '')}
+        onChange={e => update(e.target.value)}
+        className={cn(inputClass, hasError && inputErrorClass)}
+      >
+        <option value="">Time signature, e.g. 3/4, 4/4…</option>
+        {TIME_SIGNATURES.map(signature => (
+          <option key={signature.id} value={signature.label}>
+            {signature.label}
           </option>
         ))}
       </select>

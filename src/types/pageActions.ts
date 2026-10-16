@@ -6,7 +6,6 @@ export interface PageActions {
   backTo: string | null;
   showPrint: boolean;
   shareTitle: string | null;
-  metronomeBpm: number | null;
 }
 
 export const DEFAULT_PAGE_ACTIONS: PageActions = {
@@ -14,5 +13,4 @@ export const DEFAULT_PAGE_ACTIONS: PageActions = {
   backTo: null,
   showPrint: false,
   shareTitle: null,
-  metronomeBpm: null,
 };
