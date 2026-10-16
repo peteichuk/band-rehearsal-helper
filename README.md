@@ -1,6 +1,6 @@
 # 🎵 Band Rehearsal Helper
 
-A lightweight, **no-build** web utility designed for musical bands to manage repertoire, view chords, and rehearse efficiently. This tool uses a publicly accessible **Google Sheet** as a database, making it easy to update song lists without touching the code.
+A lightweight web utility designed for musical bands to manage repertoire, view chords, and rehearse efficiently. Built with **React**, **TypeScript**, and **Vite**. This tool uses a publicly accessible **Google Sheet** as a database, making it easy to update song lists without touching the code — either by editing the sheet directly, or, if you're signed in with edit access, by adding/editing songs right from the app's UI (see **Admin Mode** below).
 
 ### 🔗 Live Demo / Example
 
@@ -12,7 +12,7 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 
 ## 🚀 Features
 
-- **No-Build & Serverless:** Pure HTML/JS/CSS. No complex build steps or backend servers required.
+- **Serverless:** No backend required — the app is a static bundle, built with Vite and deployed to GitHub Pages.
 - **Google Sheets as DB:** Manage your songs in a spreadsheet; updates are reflected instantly in the app.
 - **Smart Chord Parsing:** Supports dynamic chord parsing from text, allowing for future transposition features.
 - **Pinned Songs:** Songs marked `PinedByDefault` in the sheet are pinned to the top of the list for everyone. Anyone can locally pin/unpin any song from the UI — this only changes sort order for you, it's never written back to the sheet.
@@ -32,7 +32,7 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **Toggle Show/Hide Text:** Option to hide lyrics for a focus on chords only.
 - **Sorting Priority:** Among pinned songs, `SortingPriority` controls the order (lower first); unpinned songs stay alphabetical.
 - **Navigation between favorite songs:** Open a song and use the prev/next buttons (or swipe) to move through your favorites — or, by default, through the pinned songs until you've starred your own.
-- **Admin Mode (Google Sign-In):** Sign in with Google; if your account has edit access to the sheet, an "Add Song" button and a per-song edit (pencil) icon appear, letting you create/update songs directly from the app.
+- **Admin Mode (Google Sign-In):** Sign in with Google; if your account has edit access to the sheet, an "Add Song" button and a per-song edit (pencil) icon appear, letting you create and update songs directly from the app — no need to open the spreadsheet. Deleting a song from the sheet via the UI isn't implemented yet; do that directly in the sheet for now.
 - **Line & Label Notes:** Tap any lyric/chord line, or a section label like "Chorus"/"Intro", to attach a personal cue (e.g. "I come in here"). The note shows up right away, inline under the line or label. Stored locally in your browser only, per device; never written to the shared Google Sheet.
 - **Albums (Custom Setlists):** Build your own local playlists from any songs in the catalog, switching between List/Albums from the bottom tab bar. Open an album to browse, add, or remove songs; opening a song from inside one makes prev/next cycle that album's own order instead of your favorites. Share a single album as a JSON file, or import one a bandmate sent you (with a replace/cancel prompt if you already have an album by that name).
 - **Drag & Drop Song Ordering:** Inside an album, pick a song up by its grip handle and drag it to a new spot — the other songs slide out of the way live, and the order is only actually committed once you let go. You can also just type a position number into a song's row to jump it straight there.
@@ -42,6 +42,8 @@ Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uA
 - **Settings Backup (Import/Export):** Export your local data — Favorites, Pinned overrides, Tags, Tonality/Capo choices, Line notes, Albums, and Appearance defaults — as a single JSON file, choosing exactly which categories to include. Importing reads the file first and only lets you enable categories it actually contains, merging with whatever you already have rather than overwriting it.
 
 ## 📊 Data Structure (Google Sheets)
+
+Songs can be managed two ways: by editing the Google Sheet directly, or — if you're signed in with an account that has edit access to it — by using the "Add Song" button and per-song edit (pencil) icon right in the app (see **Admin Mode** above). Either way, the sheet stays the single source of truth, so your columns should match the structure below.
 
 To ensure the application works correctly, your Google Sheet should include the following columns:
 
@@ -70,21 +72,70 @@ To ensure the application works correctly, your Google Sheet should include the 
 - [x] Implementation of advanced filtering and searching by the `GroupBy` field.
 - [ ] Wake lock for (IOS, Android).
 
+## 🧰 Development & Build
+
+The project is a React + TypeScript app bundled with **Vite**. Node `^20.x` is required (see `engines` in `package.json`).
+
+1. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+2. **Run the dev server:**
+
+   ```bash
+   npm run dev
+   ```
+
+   Starts Vite's dev server with hot reload. It also binds to `0.0.0.0`, so you can open the printed "Network" URL from another device on the same LAN (e.g. a phone, for testing touch gestures).
+
+3. **Build for production:**
+
+   ```bash
+   npm run build
+   ```
+
+   Type-checks the project (`tsc -b`) and bundles it with Vite. The output is written to `docs/`, which is what GitHub Pages actually serves — it is **committed to the repository**, not generated by CI.
+
+4. **Preview the production build locally:**
+
+   ```bash
+   npm run preview
+   ```
+
+### ⚠️ Important: build before you commit/push
+
+Because GitHub Pages serves the `docs/` folder directly from this repo, **the committed `docs/` output must stay in sync with `src/`**. Before committing and pushing any change:
+
+1. Run `npm run build` to regenerate `docs/` from your latest source changes.
+2. Stage **both** your source changes and the updated `docs/` folder (`git add src docs ...`).
+3. Commit and push as usual.
+
+If you skip the build step, the live site on GitHub Pages will keep serving the old version even though `src/` has changed.
+
 ## 🤝 Contributing
 
 Contributions are welcome! If you have ideas for new features or improvements:
 
 1. Fork the Project.
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the Branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+3. Install dependencies (`npm install`) if you haven't already.
+4. Make your changes in `src/`.
+5. **Build the project** (`npm run build`) so the `docs/` folder reflects your changes.
+6. Commit your changes, including the rebuilt `docs/` folder (`git commit -m 'Add some AmazingFeature'`).
+7. Push to the Branch (`git push origin feature/AmazingFeature`).
+8. Open a Pull Request.
 
 ## Available Scripts
 
-### `npm run dev`
-
-Starts a lightweight development server using `http-server`. This serves the current directory (`./`) with caching disabled and automatically opens the browser. Useful for quickly previewing the project during development.
+| Script                 | Description                                                                 |
+| :--------------------- | :-------------------------------------------------------------------------- |
+| `npm run dev`          | Starts the Vite development server with hot reload.                         |
+| `npm run build`        | Type-checks the project and builds the production bundle into `docs/`.      |
+| `npm run preview`      | Serves the production build from `docs/` locally, for a final sanity check. |
+| `npm run format`       | Formats the codebase with Prettier.                                         |
+| `npm run format:check` | Checks formatting without writing changes.                                  |
 
 ## 📄 License
 
