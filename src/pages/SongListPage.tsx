@@ -66,7 +66,7 @@ export function SongListPage() {
 
   if (!tableId) {
     return (
-      <div className="p-4">
+      <div className="p-4 pb-24">
         <div className="mb-4 flex justify-center">
           <TableIdPrompt initialValue="" onLoad={setTableId} loading={isLoading} />
         </div>
