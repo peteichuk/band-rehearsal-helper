@@ -4,11 +4,11 @@ A lightweight web utility designed for musical bands to manage repertoire, view 
 
 ### 🔗 Live Demo / Example
 
+Website: [https://peteichuk.github.io/band-rehearsal-helper/landing.html](https://peteichuk.github.io/band-rehearsal-helper/landing.html)
+
 Demo: [https://peteichuk.github.io/band-rehearsal-helper/#/?tableId=1v3vPgo1TT92YsecQx-cXwYsEqV-uAmItvrdmZLZqVTQ](https://peteichuk.github.io/band-rehearsal-helper/#/?tableId=1v3vPgo1TT92YsecQx-cXwYsEqV-uAmItvrdmZLZqVTQ)
 
-Website URL: [https://peteichuk.github.io/band-rehearsal-helper/](https://peteichuk.github.io/band-rehearsal-helper/)
-
-Grid URL: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uAmItvrdmZLZqVTQ/edit](https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uAmItvrdmZLZqVTQ/edit?gid=0#gid=0)
+Google Sheets example: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uAmItvrdmZLZqVTQ/edit](https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQx-cXwYsEqV-uAmItvrdmZLZqVTQ/edit?gid=0#gid=0)
 
 ## 🚀 Features
 
