@@ -28,6 +28,7 @@ import { useDarkMode } from '@/hooks/useDarkMode';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useEditAccess } from '@/hooks/useEditAccess';
+import { extractSheetId } from '@/lib/google/sheetId';
 import { useSheetTitle } from '@/hooks/useSheetTitle';
 import { appendSong, updateSong } from '@/lib/google/sheetsWrite';
 import { useEffectivePinsSet } from '@/hooks/useEffectivePins';
@@ -108,7 +109,7 @@ function RootLayout() {
   const setTableId = (next: string) => {
     setSearchParams(prev => {
       const merged = new URLSearchParams(prev);
-      merged.set('tableId', next);
+      merged.set('tableId', extractSheetId(next));
       return merged;
     });
   };
