@@ -66,6 +66,15 @@ export function removeSongGroup(songName: string, label: string) {
   persist();
 }
 
+/** Drops every group label for a song at once (e.g. "remove from cache" in Settings), unlike removeSongGroup which drops just one label. */
+export function deleteSongGroups(songName: string) {
+  if (!(songName in groups)) return;
+  const next = { ...groups };
+  delete next[songName];
+  groups = next;
+  persist();
+}
+
 export function getSongGroups(songName: string): string[] {
   return groups[songName] ?? [];
 }

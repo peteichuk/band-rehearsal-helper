@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { Dialog as DialogPrimitive } from 'radix-ui';
 import { cn } from 'cn';
-import { XIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle, dialogOverlayClassName } from '@/components/ui/dialog';
 import { EngineSwitch, type MetronomeEngine } from '@/components/metronome/EngineSwitch';
 import { LocalMetronomePanel } from '@/components/metronome/LocalMetronomePanel';
 import { IframeMetronomePanel } from '@/components/metronome/IframeMetronomePanel';
@@ -17,6 +15,8 @@ interface MetronomeModalProps {
   bpm: number | null;
   /** Song's time signature from the sheet, e.g. "4/4", "6/8". */
   timeSignature: string | null;
+  /** The song's own name — identifies its saved metronome preset (tempo/time signature/accent). */
+  songName: string | null;
   /** Only fires for the local engine — the iframe engine's playback isn't ours to observe. */
   onPlayingChange?: (isPlaying: boolean) => void;
 }
@@ -28,6 +28,7 @@ export function MetronomeModal({
   resetKey,
   bpm,
   timeSignature,
+  songName,
   onPlayingChange,
 }: MetronomeModalProps) {
   const [engine, setEngine] = useState<MetronomeEngine>('local');
@@ -42,35 +43,31 @@ export function MetronomeModal({
     // mounts, and only releases them on unmount — which never happens for
     // this forceMount'd, always-in-the-DOM dialog. That left the page
     // inert after the first close, so a second open never worked.
-    <DialogPrimitive.Root open={open} onOpenChange={next => !next && onClose()} modal={false}>
-      <DialogPrimitive.Portal forceMount>
-        <DialogPrimitive.Content
-          forceMount
-          // The content never unmounts (forceMount), so Radix's "click outside
-          // closes it" listener stays attached even while hidden. Without this
-          // guard, clicking one of our own trigger buttons to reopen it is seen
-          // as an outside click and immediately dismisses it again.
-          onPointerDownOutside={event => {
-            const target = event.detail.originalEvent.target as Element | null;
-            if (target?.closest('[data-metronome-trigger]')) {
-              event.preventDefault();
-            }
-          }}
-          className={cn(
-            'fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] max-w-md max-h-[90vh] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl bg-popover p-4 text-sm text-popover-foreground shadow-2xl ring-1 ring-foreground/10 outline-none',
-            !open && 'hidden'
-          )}
-        >
-          <DialogPrimitive.Title className="text-base leading-none font-medium">
-            Metronome
-          </DialogPrimitive.Title>
-          <DialogPrimitive.Close asChild>
-            <Button variant="ghost" className="absolute top-2 right-2" size="icon-sm">
-              <XIcon />
-              <span className="sr-only">Close</span>
-            </Button>
-          </DialogPrimitive.Close>
+    <Dialog open={open} onOpenChange={next => !next && onClose()} modal={false}>
+      {/* Radix's own Dialog.Overlay only renders when modal={true} (it's a
+          no-op otherwise), so with modal={false} here we render the backdrop
+          ourselves, reusing the same classes as the modal dialogs' overlay. */}
+      {open && <div className={dialogOverlayClassName} />}
+      <DialogContent
+        forceMount
+        // The content never unmounts (forceMount), so Radix's "click outside
+        // closes it" listener stays attached even while hidden. Without this
+        // guard, clicking one of our own trigger buttons to reopen it is seen
+        // as an outside click and immediately dismisses it again.
+        onPointerDownOutside={event => {
+          const target = event.detail.originalEvent.target as Element | null;
+          if (target?.closest('[data-metronome-trigger]')) {
+            event.preventDefault();
+          }
+        }}
+        className={cn(
+          'max-w-[calc(100%-20px)] sm:max-w-md max-h-[90vh] flex flex-col overflow-hidden shadow-2xl',
+          !open && 'hidden'
+        )}
+      >
+        <DialogTitle>Metronome</DialogTitle>
 
+        <div className="flex flex-col gap-4 min-h-0 overflow-y-auto">
           <EngineSwitch value={engine} onChange={setEngine} />
 
           {engine === 'local' ? (
@@ -78,13 +75,19 @@ export function MetronomeModal({
               key={resetKey}
               bpm={resolvedBpm}
               timeSignatureId={initialTimeSignatureId}
+              songName={songName}
               onPlayingChange={onPlayingChange}
             />
           ) : (
-            <IframeMetronomePanel key={resetKey} bpm={resolvedBpm} />
+            <IframeMetronomePanel
+              key={resetKey}
+              bpm={resolvedBpm}
+              timeSignatureId={initialTimeSignatureId}
+              songName={songName}
+            />
           )}
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

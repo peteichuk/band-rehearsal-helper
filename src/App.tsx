@@ -12,7 +12,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { SongListPage } from '@/pages/SongListPage';
 import { SongDetailPage } from '@/pages/SongDetailPage';
-import { AlbumDetailPage } from '@/pages/AlbumDetailPage';
+import { SetlistDetailPage } from '@/pages/SetlistDetailPage';
 import { Header } from '@/components/layout/Header';
 import { BottomTabBar } from '@/components/layout/BottomTabBar';
 import { Loader } from '@/components/layout/Loader';
@@ -22,6 +22,7 @@ import { MetronomeModal } from '@/components/metronome/MetronomeModal';
 import { ShareModal } from '@/components/modals/ShareModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { SongFormDialog } from '@/components/song-form/SongFormDialog';
+import { Toaster } from '@/components/shared/Toaster';
 import { useSongsQuery } from '@/hooks/useSongsQuery';
 import { useMetronome } from '@/hooks/useMetronome';
 import { useDarkMode } from '@/hooks/useDarkMode';
@@ -35,6 +36,7 @@ import { useEffectivePinsSet } from '@/hooks/useEffectivePins';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { MenuProvider, useSetMenuOpen } from '@/contexts/MenuContext';
 import { sortForDisplay } from '@/lib/songs/sortAndFilter';
+import { showToast } from '@/lib/toast';
 import { DEFAULT_PAGE_ACTIONS, type CatalogViewMode, type PageActions } from '@/types/pageActions';
 import type { Song } from '@/types/song';
 
@@ -88,10 +90,18 @@ function RootLayout() {
   const { data: sheetTitle } = useSheetTitle(tableId, auth.accessToken, canEdit);
 
   const [pageActions, setPageActions] = useState<PageActions>(DEFAULT_PAGE_ACTIONS);
-  const [catalogViewMode, setCatalogViewMode] = useLocalStorageState<CatalogViewMode>(
+  const [rawCatalogViewMode, setCatalogViewMode] = useLocalStorageState<CatalogViewMode>(
     'catalogViewMode',
-    'list'
+    'library'
   );
+  // Normalize a value saved under the pre-rename literals ('list'/'albums')
+  // so returning users land on the same tab they had before, under its new name.
+  const catalogViewMode: CatalogViewMode =
+    (rawCatalogViewMode as unknown) === 'list'
+      ? 'library'
+      : (rawCatalogViewMode as unknown) === 'albums'
+        ? 'setlists'
+        : rawCatalogViewMode;
   const metronome = useMetronome(location.pathname);
   const [isMetronomePlaying, setIsMetronomePlaying] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -102,7 +112,18 @@ function RootLayout() {
   useDarkMode();
   useWakeLock();
 
-  const handlePullToRefresh = useCallback(() => refetch(), [refetch]);
+  const handlePullToRefresh = useCallback(() => {
+    // refetch() resolves either way (React Query doesn't reject here) — a
+    // failed refetch otherwise fails silently when there's already-loaded
+    // data on screen to keep showing, since that path never touches the
+    // page's own inline "Error: ..." state (that one's for a cold load with
+    // no data at all).
+    return refetch().then(result => {
+      if (result.isError) {
+        showToast("Couldn't refresh — check your connection.", 'error');
+      }
+    });
+  }, [refetch]);
   // Drag-reorder/swipe-to-delete suppression lives inside usePullToRefresh
   // itself (a synchronous check against the interaction lock on every touch
   // event) rather than as a `disabled` prop here — see its comment for why.
@@ -113,7 +134,7 @@ function RootLayout() {
 
   const setTableId = (next: string) => {
     const newId = extractSheetId(next);
-    // Loading a new sheet while on a song/album detail page would otherwise
+    // Loading a new sheet while on a song/setlist detail page would otherwise
     // leave the URL pointing at content that no longer exists once the new
     // sheet's songs load — send the user back to the catalog instead.
     if (location.pathname !== '/') {
@@ -230,10 +251,11 @@ function RootLayout() {
         resetKey={location.pathname}
         bpm={currentSong?.BPM ?? null}
         timeSignature={currentSong?.TimeSignature ?? null}
+        songName={currentSong?.Name ?? null}
         onPlayingChange={setIsMetronomePlaying}
       />
       <ShareModal open={isShareOpen} onOpenChange={setIsShareOpen} title={pageActions.shareTitle} />
-      <SettingsModal open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
+      <SettingsModal open={isSettingsOpen} onOpenChange={setIsSettingsOpen} allSongs={allSongs} />
       <SongFormDialog
         open={editingSong !== null}
         onOpenChange={open => !open && setEditingSong(null)}
@@ -241,6 +263,7 @@ function RootLayout() {
         initialSong={editingSong === 'new' ? null : editingSong}
         onSubmit={handleFormSubmit}
       />
+      <Toaster />
     </div>
   );
 }
@@ -253,7 +276,7 @@ function App() {
           <Route element={<RootLayout />}>
             <Route path="/" element={<SongListPage />} />
             <Route path="/song/:songName" element={<SongDetailPage />} />
-            <Route path="/albums/:albumId" element={<AlbumDetailPage />} />
+            <Route path="/setlists/:setlistId" element={<SetlistDetailPage />} />
           </Route>
         </Routes>
       </HashRouter>

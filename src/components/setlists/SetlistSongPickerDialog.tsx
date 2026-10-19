@@ -2,28 +2,28 @@ import { useMemo, useState } from 'react';
 import { Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useLocalAlbums } from '@/hooks/useLocalAlbums';
+import { useLocalSetlists } from '@/hooks/useLocalSetlists';
 import { cn } from '@/lib/utils';
 import type { Song } from '@/types/song';
 
-interface AlbumSongPickerDialogProps {
+interface SetlistSongPickerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  albumId: string;
+  setlistId: string;
   allSongs: Song[];
 }
 
-/** Bulk "add songs to this album" — the inverse of AlbumPickerDialog. */
-export function AlbumSongPickerDialog({
+/** Bulk "add songs to this setlist" — the inverse of SetlistPickerDialog. */
+export function SetlistSongPickerDialog({
   open,
   onOpenChange,
-  albumId,
+  setlistId,
   allSongs,
-}: AlbumSongPickerDialogProps) {
-  const { getAlbum, addSongToAlbum, removeSongFromAlbum } = useLocalAlbums();
+}: SetlistSongPickerDialogProps) {
+  const { getSetlist, addSongToSetlist, removeSongFromSetlist } = useLocalSetlists();
   const [query, setQuery] = useState('');
 
-  const memberNames = new Set((getAlbum(albumId)?.songs ?? []).map(entry => entry.songName));
+  const memberNames = new Set((getSetlist(setlistId)?.songs ?? []).map(entry => entry.songName));
 
   const visibleSongs = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -33,8 +33,8 @@ export function AlbumSongPickerDialog({
   }, [allSongs, query]);
 
   const toggle = (songName: string) => {
-    if (memberNames.has(songName)) removeSongFromAlbum(albumId, songName);
-    else addSongToAlbum(albumId, songName);
+    if (memberNames.has(songName)) removeSongFromSetlist(setlistId, songName);
+    else addSongToSetlist(setlistId, songName);
   };
 
   return (

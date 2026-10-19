@@ -1,4 +1,4 @@
-import { Folder, List } from 'lucide-react';
+import { Library, ListMusic } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { CatalogViewMode } from '@/types/pageActions';
 
@@ -9,11 +9,11 @@ interface BottomTabBarProps {
 }
 
 /**
- * List/Albums switcher — a floating rounded pill inset from the screen
+ * Library/Setlists switcher — a floating rounded pill inset from the screen
  * edges, Telegram-style: translucent/blurred white card, icon-over-label
  * buttons, active tab shown purely via blue icon+label color (no fill).
  * Slides fully below the viewport (rather than unmounting) whenever we're
- * one level deeper — a song, or an album's own song list — where the
+ * one level deeper — a song, or a setlist's own song list — where the
  * catalog view mode doesn't apply.
  */
 export function BottomTabBar({ value, onChange, visible }: BottomTabBarProps) {
@@ -38,40 +38,40 @@ export function BottomTabBar({ value, onChange, visible }: BottomTabBarProps) {
         type="button"
         role="tab"
         tabIndex={visible ? 0 : -1}
-        aria-selected={value === 'list'}
-        onClick={() => onChange('list')}
+        aria-selected={value === 'library'}
+        onClick={() => onChange('library')}
         className="flex-1 flex items-center justify-center py-1.5"
       >
         <span
           className={cn(
             'flex flex-col items-center gap-0.5 px-4 py-1 rounded-2xl text-xs font-medium transition-colors',
-            value === 'list'
+            value === 'library'
               ? 'text-blue-600 dark:text-blue-400'
               : 'text-gray-900 dark:text-gray-100'
           )}
         >
-          <List className="w-6 h-6" />
-          List
+          <Library className="w-6 h-6" />
+          Library
         </span>
       </button>
       <button
         type="button"
         role="tab"
         tabIndex={visible ? 0 : -1}
-        aria-selected={value === 'albums'}
-        onClick={() => onChange('albums')}
+        aria-selected={value === 'setlists'}
+        onClick={() => onChange('setlists')}
         className="flex-1 flex items-center justify-center py-1.5"
       >
         <span
           className={cn(
             'flex flex-col items-center gap-0.5 px-4 py-1 rounded-2xl text-xs font-medium transition-colors',
-            value === 'albums'
+            value === 'setlists'
               ? 'text-blue-600 dark:text-blue-400'
               : 'text-gray-900 dark:text-gray-100'
           )}
         >
-          <Folder className="w-6 h-6" />
-          Albums
+          <ListMusic className="w-6 h-6" />
+          Setlists
         </span>
       </button>
     </nav>

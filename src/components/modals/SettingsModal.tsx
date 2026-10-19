@@ -1,8 +1,17 @@
-import { useRef, useState, useSyncExternalStore } from 'react';
-import { Download, Upload } from 'lucide-react';
+import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Download, HelpCircle, Upload } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { SettingsAppearanceSection } from '@/components/modals/SettingsAppearanceSection';
+import { CachedSongListModal } from '@/components/modals/CachedSongListModal';
+import { TonalityPresetDialog } from '@/components/modals/TonalityPresetDialog';
+import { LineNotesPresetDialog } from '@/components/modals/LineNotesPresetDialog';
+import { GroupEditorDialog } from '@/components/shared/GroupEditorDialog';
+import { AudioOutputButton } from '@/components/shared/AudioOutputButton';
+import { AudioOutputStatus } from '@/components/shared/AudioOutputStatus';
+import { showToast } from '@/lib/toast';
+import { MetronomeModal } from '@/components/metronome/MetronomeModal';
 import {
   getLocalFavorites,
   resetLocalFavorites,
@@ -11,6 +20,7 @@ import {
   getLocalFavoritesSnapshot,
 } from '@/lib/localFavorites';
 import {
+  deletePinOverride,
   getPinOverrides,
   resetPinOverrides,
   setPinOverrides,
@@ -19,6 +29,7 @@ import {
   type PinOverrides,
 } from '@/lib/localPins';
 import {
+  deleteSongGroups,
   getAllLocalGroups,
   resetLocalGroups,
   setAllLocalGroups,
@@ -27,6 +38,8 @@ import {
   type LocalGroups,
 } from '@/lib/localGroups';
 import {
+  applySongTonalityToParams,
+  deleteSongTonalityPref,
   getAllSongTonalityPrefs,
   mergeSongTonalityPrefs,
   resetSongTonalityPrefs,
@@ -34,18 +47,27 @@ import {
   getSongTonalityPrefsSnapshot,
 } from '@/lib/songKeyPrefs';
 import {
+  deleteSongLineNotes,
   mergeSongLineNotes,
   resetSongLineNotes,
   subscribeSongLineNotes,
   getSongLineNotesSnapshot,
 } from '@/lib/songLineNotes';
 import {
-  getAllAlbums,
-  mergeImportedAlbums,
-  subscribeLocalAlbums,
-  getLocalAlbumsSnapshot,
-  type AlbumSongEntry,
-} from '@/lib/localAlbums';
+  deleteMetronomePreset,
+  mergeMetronomePresets,
+  resetMetronomePresets,
+  subscribeMetronomePresets,
+  getMetronomePresetsSnapshot,
+  type MetronomePreset,
+} from '@/lib/metronomePresets';
+import {
+  getAllSetlists,
+  mergeImportedSetlists,
+  subscribeLocalSetlists,
+  getLocalSetlistsSnapshot,
+  type SetlistSongEntry,
+} from '@/lib/localSetlists';
 import {
   getAllGlobalDefaults,
   mergeGlobalDefaults,
@@ -54,14 +76,16 @@ import {
   type Orientation,
   type OrientationDisplayConfig,
 } from '@/lib/songDisplayConfig';
+import type { Song } from '@/types/song';
 
 interface SettingsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  allSongs: Song[];
 }
 
 type AppearanceDefaults = Record<Orientation, OrientationDisplayConfig>;
-type ExportedAlbum = { name: string; songs: AlbumSongEntry[] };
+type ExportedSetlist = { name: string; songs: SetlistSongEntry[] };
 
 interface ExportedSettings {
   version: 2;
@@ -71,8 +95,9 @@ interface ExportedSettings {
   customGroups?: LocalGroups;
   tonalityPrefs?: Record<string, string>;
   lineNotes?: Record<string, Record<string, string>>;
-  albums?: ExportedAlbum[];
+  setlists?: ExportedSetlist[];
   appearanceDefaults?: AppearanceDefaults;
+  metronomePresets?: Record<string, MetronomePreset>;
 }
 
 type BackupCategory =
@@ -81,8 +106,9 @@ type BackupCategory =
   | 'tags'
   | 'tonality'
   | 'lineNotes'
-  | 'albums'
-  | 'appearance';
+  | 'setlists'
+  | 'appearance'
+  | 'metronomePresets';
 
 const BACKUP_CATEGORIES: { key: BackupCategory; label: string }[] = [
   { key: 'favorites', label: 'Favorites' },
@@ -90,8 +116,9 @@ const BACKUP_CATEGORIES: { key: BackupCategory; label: string }[] = [
   { key: 'tags', label: 'Tags (groups)' },
   { key: 'tonality', label: 'Tonality/Capo choices' },
   { key: 'lineNotes', label: 'Line/label notes' },
-  { key: 'albums', label: 'Albums' },
+  { key: 'setlists', label: 'Setlists' },
   { key: 'appearance', label: 'Appearance settings' },
+  { key: 'metronomePresets', label: 'Metronome presets' },
 ];
 
 function selectionOf(value: boolean): Record<BackupCategory, boolean> {
@@ -109,9 +136,37 @@ function presentCategoriesOf(parsed: Partial<ExportedSettings>): Record<BackupCa
     tags: Boolean(parsed.customGroups && typeof parsed.customGroups === 'object'),
     tonality: Boolean(parsed.tonalityPrefs && typeof parsed.tonalityPrefs === 'object'),
     lineNotes: Boolean(parsed.lineNotes && typeof parsed.lineNotes === 'object'),
-    albums: Array.isArray(parsed.albums),
+    setlists: Array.isArray(parsed.setlists),
     appearance: Boolean(parsed.appearanceDefaults),
+    metronomePresets: Boolean(
+      parsed.metronomePresets && typeof parsed.metronomePresets === 'object'
+    ),
   };
+}
+
+/** The per-song categories that get a "?" list (name + edit + remove) — Favorites/Setlists/Appearance aren't per-song caches in the same shape. */
+type SongListCategory = 'pins' | 'tags' | 'tonality' | 'lineNotes' | 'metronomePresets';
+
+const SONG_LIST_TITLES: Record<SongListCategory, string> = {
+  pins: 'Pinned overrides',
+  tags: 'My groups',
+  tonality: 'Tonality/Capo choices',
+  lineNotes: 'Line/label notes',
+  metronomePresets: 'Metronome presets',
+};
+
+/** Next to a count heading — opens the list of exactly which songs it covers. */
+function HelpButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title="Show which songs"
+      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+    >
+      <HelpCircle className="size-3.5" />
+    </button>
+  );
 }
 
 type BackupStep =
@@ -124,9 +179,15 @@ type BackupStep =
       selection: Record<BackupCategory, boolean>;
     };
 
-export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
+export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalProps) {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const songByName = useMemo(() => new Map(allSongs.map(song => [song.Name, song])), [allSongs]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [listCategory, setListCategory] = useState<SongListCategory | null>(null);
+  const [editing, setEditing] = useState<{ category: SongListCategory; songName: string } | null>(
+    null
+  );
   const favorites = useSyncExternalStore(subscribeLocalFavorites, getLocalFavoritesSnapshot);
   const pinOverrides = useSyncExternalStore(subscribePinOverrides, getPinOverridesSnapshot);
   const pinOverrideCount = Object.keys(pinOverrides).length;
@@ -139,7 +200,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const tonalityPrefCount = Object.keys(tonalityPrefs).length;
   const lineNotes = useSyncExternalStore(subscribeSongLineNotes, getSongLineNotesSnapshot);
   const lineNotesSongCount = Object.keys(lineNotes).length;
-  useSyncExternalStore(subscribeLocalAlbums, getLocalAlbumsSnapshot); // keep albums count live
+  const metronomePresets = useSyncExternalStore(
+    subscribeMetronomePresets,
+    getMetronomePresetsSnapshot
+  );
+  const metronomePresetsCount = Object.keys(metronomePresets).length;
+  useSyncExternalStore(subscribeLocalSetlists, getLocalSetlistsSnapshot); // keep setlists count live
   useSyncExternalStore(subscribeSongDisplayConfig, getSongDisplayConfigSnapshot); // keep appearance defaults live
 
   const [backupStep, setBackupStep] = useState<BackupStep>({ kind: 'idle' });
@@ -152,7 +218,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     });
   };
 
-  const startExport = () => setBackupStep({ kind: 'export', selection: selectionOf(true) });
+  const startExport = () =>
+    setBackupStep({ kind: 'export', selection: { ...selectionOf(true), appearance: false } });
   const cancelBackupStep = () => setBackupStep({ kind: 'idle' });
 
   const confirmExport = () => {
@@ -166,10 +233,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       ...(selection.tags && { customGroups: getAllLocalGroups() }),
       ...(selection.tonality && { tonalityPrefs: getAllSongTonalityPrefs() }),
       ...(selection.lineNotes && { lineNotes: getSongLineNotesSnapshot() }),
-      ...(selection.albums && {
-        albums: getAllAlbums().map(album => ({ name: album.name, songs: album.songs })),
+      ...(selection.setlists && {
+        setlists: getAllSetlists().map(setlist => ({ name: setlist.name, songs: setlist.songs })),
       }),
       ...(selection.appearance && { appearanceDefaults: getAllGlobalDefaults() }),
+      ...(selection.metronomePresets && { metronomePresets: getMetronomePresetsSnapshot() }),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -193,7 +261,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       // unchecked AND disabled, so there's nothing to accidentally toggle on.
       setBackupStep({ kind: 'import', parsed, present, selection: { ...present } });
     } catch (err) {
-      setMessage(`Import failed: ${(err as Error).message}`);
+      showToast(`Import failed: ${(err as Error).message}`, 'error');
     }
   };
 
@@ -236,9 +304,9 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       imported.push(`${Object.keys(parsed.lineNotes).length} song(s) with line notes`);
     }
 
-    if (selection.albums && parsed.albums) {
-      const added = mergeImportedAlbums(parsed.albums);
-      imported.push(`${added} new album(s) (existing names skipped)`);
+    if (selection.setlists && parsed.setlists) {
+      const added = mergeImportedSetlists(parsed.setlists);
+      imported.push(`${added} new setlist(s) (existing names skipped)`);
     }
 
     if (selection.appearance && parsed.appearanceDefaults) {
@@ -246,35 +314,43 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       imported.push('appearance defaults');
     }
 
-    setMessage(imported.length > 0 ? `Imported: ${imported.join(', ')}.` : 'Nothing was checked.');
+    if (selection.metronomePresets && parsed.metronomePresets) {
+      mergeMetronomePresets(parsed.metronomePresets);
+      imported.push(`${Object.keys(parsed.metronomePresets).length} metronome preset(s)`);
+    }
+
+    showToast(
+      imported.length > 0 ? `Imported: ${imported.join(', ')}.` : 'Nothing was checked.',
+      imported.length > 0 ? 'success' : 'info'
+    );
     setBackupStep({ kind: 'idle' });
   };
 
   const handleResetFavorites = () => {
     if (window.confirm('Reset all local favorites? This cannot be undone.')) {
       resetLocalFavorites();
-      setMessage('Local favorites reset.');
+      showToast('Local favorites reset.', 'success');
     }
   };
 
   const handleResetPins = () => {
     if (window.confirm('Reset pinned songs back to what the sheet says? This cannot be undone.')) {
       resetPinOverrides();
-      setMessage('Pin overrides reset — back to the sheet’s PinedByDefault.');
+      showToast('Pin overrides reset — back to the sheet’s PinedByDefault.', 'success');
     }
   };
 
   const handleResetGroups = () => {
     if (window.confirm('Remove all your custom groups? This cannot be undone.')) {
       resetLocalGroups();
-      setMessage('Custom groups reset.');
+      showToast('Custom groups reset.', 'success');
     }
   };
 
   const handleResetTonalityPrefs = () => {
     if (window.confirm('Reset your saved tonality/capo choices for every song?')) {
       resetSongTonalityPrefs();
-      setMessage('Tonality/capo choices reset.');
+      showToast('Tonality/capo choices reset.', 'success');
     }
   };
 
@@ -283,22 +359,112 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       window.confirm('Delete all your line/label notes, for every song? This cannot be undone.')
     ) {
       resetSongLineNotes();
-      setMessage('Line notes cleared.');
+      showToast('Line notes cleared.', 'success');
     }
   };
 
+  const handleResetMetronomePresets = () => {
+    if (
+      window.confirm('Delete all saved metronome presets, for every song? This cannot be undone.')
+    ) {
+      resetMetronomePresets();
+      showToast('Metronome presets cleared.', 'success');
+    }
+  };
+
+  const songNamesForList = (category: SongListCategory): string[] => {
+    switch (category) {
+      case 'pins':
+        return Object.keys(pinOverrides);
+      case 'tags':
+        return Object.keys(customGroups);
+      case 'tonality':
+        return Object.keys(tonalityPrefs);
+      case 'lineNotes':
+        return Object.keys(lineNotes);
+      case 'metronomePresets':
+        return Object.keys(metronomePresets);
+    }
+  };
+
+  const removeConfirmTextFor = (category: SongListCategory) => (songName: string) => {
+    switch (category) {
+      case 'pins':
+        return `Remove the pin override for "${songName}"? It'll go back to the sheet's own PinedByDefault.`;
+      case 'tags':
+        return `Remove all groups/tags from "${songName}"?`;
+      case 'tonality':
+        return `Reset the tonality/capo choice for "${songName}"? It'll go back to the song's original key.`;
+      case 'lineNotes':
+        return `Delete all line notes for "${songName}"? This cannot be undone.`;
+      case 'metronomePresets':
+        return `Delete the saved metronome preset for "${songName}"?`;
+    }
+  };
+
+  const handleRemoveFromList = (category: SongListCategory, songName: string) => {
+    switch (category) {
+      case 'pins':
+        deletePinOverride(songName);
+        break;
+      case 'tags':
+        deleteSongGroups(songName);
+        break;
+      case 'tonality':
+        deleteSongTonalityPref(songName);
+        break;
+      case 'lineNotes':
+        deleteSongLineNotes(songName);
+        break;
+      case 'metronomePresets':
+        deleteMetronomePreset(songName);
+        break;
+    }
+  };
+
+  // Pinned overrides has no edit action — its list has no pencil at all,
+  // since the "same control as the song page" would just be a single
+  // instant toggle, not a real editor.
+  const handleEditFromList = (category: Exclude<SongListCategory, 'pins'>, songName: string) => {
+    setEditing({ category, songName });
+  };
+
+  const handleSongClick = (songName: string) => {
+    setListCategory(null);
+    setEditing(null);
+    onOpenChange(false);
+    // Keep the current query string (tableId above all) and only touch
+    // ?tonality=, same as every other in-app "go to this song" navigation.
+    const next = applySongTonalityToParams(searchParams, songName);
+    navigate(`/song/${encodeURIComponent(songName)}?${next.toString()}`, {
+      state: { fromAppNav: true },
+    });
+  };
+
   const sectionTitleClass =
-    'text-xs font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500 pb-1 border-b border-gray-200 dark:border-gray-700';
+    'text-xs font-bold uppercase tracking-wide text-gray-900 dark:text-gray-100 pb-1 border-b border-gray-200 dark:border-gray-700';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100%-20px)] sm:max-w-md max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-[calc(100%-20px)] sm:max-w-md max-h-[80vh] flex flex-col overflow-hidden">
         <DialogTitle>Settings</DialogTitle>
 
-        <div className="space-y-5">
+        <div className="space-y-5 min-h-0 overflow-y-auto pr-2">
           <div className="space-y-3">
             <h2 className={sectionTitleClass}>Appearance</h2>
             <SettingsAppearanceSection />
+          </div>
+
+          <div className="space-y-3">
+            <h2 className={sectionTitleClass}>Audio Output</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Send audio (currently just the metronome) to a specific output device instead of your
+              system default.
+            </p>
+            <div className="flex items-center justify-between gap-2">
+              <AudioOutputStatus />
+              <AudioOutputButton />
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -322,7 +488,10 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold mb-1">Pinned overrides ({pinOverrideCount})</h3>
+              <h3 className="text-sm font-semibold mb-1 flex items-center gap-1">
+                Pinned overrides ({pinOverrideCount})
+                <HelpButton onClick={() => setListCategory('pins')} />
+              </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                 Songs where you've locally overridden the sheet's own PinedByDefault column.
               </p>
@@ -337,8 +506,9 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold mb-1">
+              <h3 className="text-sm font-semibold mb-1 flex items-center gap-1">
                 My groups ({customGroupedSongsCount} songs tagged)
+                <HelpButton onClick={() => setListCategory('tags')} />
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                 Your own local groups (bookmark icon), on top of the sheet's GroupBy column.
@@ -354,8 +524,9 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold mb-1">
+              <h3 className="text-sm font-semibold mb-1 flex items-center gap-1">
                 Tonality/capo choices ({tonalityPrefCount} songs)
+                <HelpButton onClick={() => setListCategory('tonality')} />
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                 The key (and matching capo) you last picked per song, remembered locally so the song
@@ -372,8 +543,9 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold mb-1">
+              <h3 className="text-sm font-semibold mb-1 flex items-center gap-1">
                 Line/label notes ({lineNotesSongCount} songs)
+                <HelpButton onClick={() => setListCategory('lineNotes')} />
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                 Personal cues on lyric/chord lines or section labels, kept purely local.
@@ -385,6 +557,25 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 disabled={lineNotesSongCount === 0}
               >
                 Clear Line Notes
+              </Button>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold mb-1 flex items-center gap-1">
+                Metronome presets ({metronomePresetsCount} songs)
+                <HelpButton onClick={() => setListCategory('metronomePresets')} />
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                Tempo, time signature, and accent pattern, remembered per song so its metronome
+                reopens the way you left it — shared between the local and embedded engines.
+              </p>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleResetMetronomePresets}
+                disabled={metronomePresetsCount === 0}
+              >
+                Reset Metronome Presets
               </Button>
             </div>
 
@@ -469,10 +660,57 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               />
             </div>
           </div>
-
-          {message && <p className="text-xs text-gray-600 dark:text-gray-300">{message}</p>}
         </div>
       </DialogContent>
+
+      {listCategory && (
+        <CachedSongListModal
+          open
+          onClose={() => setListCategory(null)}
+          title={SONG_LIST_TITLES[listCategory]}
+          songNames={songNamesForList(listCategory)}
+          onSongClick={handleSongClick}
+          onEdit={
+            listCategory === 'pins'
+              ? undefined
+              : songName => handleEditFromList(listCategory, songName)
+          }
+          onRemove={songName => handleRemoveFromList(listCategory, songName)}
+          removeConfirmText={removeConfirmTextFor(listCategory)}
+        />
+      )}
+
+      {editing?.category === 'tags' && (
+        <GroupEditorDialog
+          open
+          onOpenChange={next => !next && setEditing(null)}
+          songName={editing.songName}
+        />
+      )}
+
+      {editing?.category === 'tonality' &&
+        (() => {
+          const song = songByName.get(editing.songName);
+          return song ? (
+            <TonalityPresetDialog open onClose={() => setEditing(null)} song={song} />
+          ) : null;
+        })()}
+
+      {editing?.category === 'lineNotes' && (
+        <LineNotesPresetDialog open onClose={() => setEditing(null)} songName={editing.songName} />
+      )}
+
+      {editing?.category === 'metronomePresets' && (
+        <MetronomeModal
+          open
+          onClose={() => setEditing(null)}
+          hasOpenedOnce
+          resetKey={editing.songName}
+          bpm={songByName.get(editing.songName)?.BPM ?? null}
+          timeSignature={songByName.get(editing.songName)?.TimeSignature ?? null}
+          songName={editing.songName}
+        />
+      )}
     </Dialog>
   );
 }

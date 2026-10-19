@@ -23,6 +23,14 @@ function DialogClose({ ...props }: React.ComponentProps<typeof DialogPrimitive.C
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
+/** Shared across DialogOverlay and any custom (e.g. non-modal/forceMount) dialog that can't use DialogContent directly. */
+export const dialogOverlayClassName =
+  'fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0';
+
+/** Shared across DialogContent and any custom (e.g. non-modal/forceMount) dialog that can't use DialogContent directly. */
+export const dialogContentClassName =
+  'fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95';
+
 function DialogOverlay({
   className,
   ...props
@@ -30,10 +38,7 @@ function DialogOverlay({
   return (
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
-      className={cn(
-        'fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0',
-        className
-      )}
+      className={cn(dialogOverlayClassName, className)}
       {...props}
     />
   );
@@ -43,19 +48,22 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  forceMount,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
 }) {
   return (
-    <DialogPortal>
+    // forceMount must also reach Portal: Radix's Dialog.Portal gates every
+    // child behind `Presence present={forceMount || open}` on its own, so
+    // passing forceMount only to Content still unmounts the whole subtree
+    // on close otherwise (needed for dialogs that must stay alive while hidden).
+    <DialogPortal forceMount={forceMount}>
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
-        className={cn(
-          'fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
-          className
-        )}
+        forceMount={forceMount}
+        className={cn(dialogContentClassName, className)}
         {...props}
       >
         {children}
@@ -109,7 +117,9 @@ function DialogTitle({ className, ...props }: React.ComponentProps<typeof Dialog
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn('text-base leading-none font-medium', className)}
+      // pr-8 reserves room for DialogContent's absolutely-positioned close
+      // button (top-2 right-2, size-7) so a long title doesn't run under it.
+      className={cn('text-base leading-none font-medium pr-8', className)}
       {...props}
     />
   );

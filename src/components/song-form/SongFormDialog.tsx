@@ -14,6 +14,7 @@ import { DISPLAY_SCALE } from '@/lib/chords/transpose';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { cn } from '@/lib/utils';
 import { validateSongForm } from '@/lib/validation/songForm';
+import { showToast } from '@/lib/toast';
 import { TIME_SIGNATURES } from '@/components/metronome/timeSignatures';
 import type { Song } from '@/types/song';
 
@@ -113,6 +114,8 @@ export function SongFormDialog({
     try {
       await onSubmit(values);
       onOpenChange(false);
+      const name = String(values.Name ?? '');
+      showToast(initialSong ? `"${name}" updated.` : `"${name}" added.`, 'success');
     } catch (err) {
       setError((err as Error).message);
     } finally {

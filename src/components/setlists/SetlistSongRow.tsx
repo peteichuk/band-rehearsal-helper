@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import type { PointerEventHandler } from 'react';
 import type { Song } from '@/types/song';
 
-interface AlbumSongRowProps {
+interface SetlistSongRowProps {
   song: Song;
   position: number;
   totalCount: number;
@@ -15,12 +15,12 @@ interface AlbumSongRowProps {
   handleProps: { onPointerDown: PointerEventHandler };
   onSelect: (song: Song) => void;
   onPositionCommit: (newPosition: number) => void;
-  onRemoveFromAlbum: () => void;
+  onRemoveFromSetlist: () => void;
   canEdit: boolean;
   onEdit: (song: Song) => void;
 }
 
-export function AlbumSongRow({
+export function SetlistSongRow({
   song,
   position,
   totalCount,
@@ -29,10 +29,10 @@ export function AlbumSongRow({
   handleProps,
   onSelect,
   onPositionCommit,
-  onRemoveFromAlbum,
+  onRemoveFromSetlist,
   canEdit,
   onEdit,
-}: AlbumSongRowProps) {
+}: SetlistSongRowProps) {
   const [positionInput, setPositionInput] = useState(String(position));
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export function AlbumSongRow({
       />
 
       <div className="flex-1 min-w-0">
-        <SwipeToDeleteRow onDelete={onRemoveFromAlbum}>
+        <SwipeToDeleteRow onDelete={onRemoveFromSetlist}>
           <div
             role="button"
             tabIndex={0}
@@ -118,7 +118,7 @@ export function AlbumSongRow({
                 song={song}
                 canEdit={canEdit}
                 onEdit={() => onEdit(song)}
-                albumContext={{ onRemoveFromAlbum }}
+                setlistContext={{ onRemoveFromSetlist }}
               />
             </div>
           </div>

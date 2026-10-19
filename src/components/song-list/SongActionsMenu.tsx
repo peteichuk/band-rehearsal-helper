@@ -8,22 +8,22 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { GroupEditorDialog } from '@/components/shared/GroupEditorDialog';
-import { AlbumPickerDialog } from '@/components/shared/AlbumPickerDialog';
+import { SetlistPickerDialog } from '@/components/shared/SetlistPickerDialog';
 import type { Song } from '@/types/song';
 
 interface SongActionsMenuProps {
   song: Song;
   canEdit: boolean;
   onEdit: () => void;
-  albumContext?: {
-    onRemoveFromAlbum: () => void;
+  setlistContext?: {
+    onRemoveFromSetlist: () => void;
   };
 }
 
-/** The "⋮" menu on a song row: edit, labels, add to album, and (inside an album) remove from it. */
-export function SongActionsMenu({ song, canEdit, onEdit, albumContext }: SongActionsMenuProps) {
+/** The "⋮" menu on a song row: edit, labels, add to setlist, and (inside a setlist) remove from it. */
+export function SongActionsMenu({ song, canEdit, onEdit, setlistContext }: SongActionsMenuProps) {
   const [isLabelsOpen, setIsLabelsOpen] = useState(false);
-  const [isAlbumPickerOpen, setIsAlbumPickerOpen] = useState(false);
+  const [isSetlistPickerOpen, setIsSetlistPickerOpen] = useState(false);
 
   return (
     <>
@@ -60,15 +60,15 @@ export function SongActionsMenu({ song, canEdit, onEdit, albumContext }: SongAct
             Labels
           </DropdownMenuItem>
 
-          <DropdownMenuItem onSelect={() => setIsAlbumPickerOpen(true)}>
+          <DropdownMenuItem onSelect={() => setIsSetlistPickerOpen(true)}>
             <FolderPlus className="w-4 h-4" />
-            Add to album
+            Add to setlist
           </DropdownMenuItem>
 
-          {albumContext && (
+          {setlistContext && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive" onSelect={albumContext.onRemoveFromAlbum}>
+              <DropdownMenuItem variant="destructive" onSelect={setlistContext.onRemoveFromSetlist}>
                 <Trash2 className="w-4 h-4" />
                 Remove
               </DropdownMenuItem>
@@ -87,9 +87,9 @@ export function SongActionsMenu({ song, canEdit, onEdit, albumContext }: SongAct
           onOpenChange={setIsLabelsOpen}
           songName={song.Name}
         />
-        <AlbumPickerDialog
-          open={isAlbumPickerOpen}
-          onOpenChange={setIsAlbumPickerOpen}
+        <SetlistPickerDialog
+          open={isSetlistPickerOpen}
+          onOpenChange={setIsSetlistPickerOpen}
           songName={song.Name}
         />
       </div>

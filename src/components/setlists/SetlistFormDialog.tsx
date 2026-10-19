@@ -2,20 +2,20 @@ import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
-interface AlbumFormDialogProps {
+interface SetlistFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialName?: string;
   onSubmit: (name: string) => void;
 }
 
-/** Create or rename an album — single name field. */
-export function AlbumFormDialog({
+/** Create or rename a setlist — single name field. */
+export function SetlistFormDialog({
   open,
   onOpenChange,
   initialName,
   onSubmit,
-}: AlbumFormDialogProps) {
+}: SetlistFormDialogProps) {
   const [name, setName] = useState(initialName ?? '');
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function AlbumFormDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
-        <DialogTitle>{initialName ? 'Rename album' : 'New album'}</DialogTitle>
+        <DialogTitle>{initialName ? 'Rename setlist' : 'New setlist'}</DialogTitle>
 
         <input
           type="text"
@@ -45,7 +45,7 @@ export function AlbumFormDialog({
               commit();
             }
           }}
-          placeholder="Album name…"
+          placeholder="Setlist name…"
           // text-base (16px), not the dialog's inherited text-sm (14px) —
           // iOS/Android auto-zoom the viewport on focusing any input under
           // 16px, and that zoom can stay stuck after the dialog closes.

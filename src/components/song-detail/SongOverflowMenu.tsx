@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { SongLinks, hasSongLinks } from '@/components/song-detail/SongLinks';
 import { GroupEditorDialog } from '@/components/shared/GroupEditorDialog';
-import { AlbumPickerDialog } from '@/components/shared/AlbumPickerDialog';
+import { SetlistPickerDialog } from '@/components/shared/SetlistPickerDialog';
 import type { Song } from '@/types/song';
 
 interface SongOverflowMenuProps {
@@ -22,7 +22,7 @@ interface SongOverflowMenuProps {
 export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProps) {
   const showLinks = hasSongLinks(song);
   const [isLabelsOpen, setIsLabelsOpen] = useState(false);
-  const [isAlbumPickerOpen, setIsAlbumPickerOpen] = useState(false);
+  const [isSetlistPickerOpen, setIsSetlistPickerOpen] = useState(false);
 
   return (
     <>
@@ -49,9 +49,9 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
             Labels
           </DropdownMenuItem>
 
-          <DropdownMenuItem onSelect={() => setIsAlbumPickerOpen(true)}>
+          <DropdownMenuItem onSelect={() => setIsSetlistPickerOpen(true)}>
             <FolderPlus className="w-4 h-4" />
-            Add to album
+            Add to setlist
           </DropdownMenuItem>
 
           {canEdit && (
@@ -67,9 +67,9 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
       </DropdownMenu>
 
       <GroupEditorDialog open={isLabelsOpen} onOpenChange={setIsLabelsOpen} songName={song.Name} />
-      <AlbumPickerDialog
-        open={isAlbumPickerOpen}
-        onOpenChange={setIsAlbumPickerOpen}
+      <SetlistPickerDialog
+        open={isSetlistPickerOpen}
+        onOpenChange={setIsSetlistPickerOpen}
         songName={song.Name}
       />
     </>

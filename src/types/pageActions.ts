@@ -1,8 +1,8 @@
-export type CatalogViewMode = 'list' | 'albums';
+export type CatalogViewMode = 'library' | 'setlists';
 
 export interface PageActions {
   showBack: boolean;
-  /** Where the header's back arrow goes instead of the catalog root — e.g. the album a song was opened from. */
+  /** Where the header's back arrow goes instead of the catalog root — e.g. the setlist a song was opened from. */
   backTo: string | null;
   showPrint: boolean;
   shareTitle: string | null;

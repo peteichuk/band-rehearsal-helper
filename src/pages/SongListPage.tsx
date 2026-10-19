@@ -7,7 +7,7 @@ import { SearchBar } from '@/components/song-list/SearchBar';
 import { GroupFilterSelect } from '@/components/song-list/GroupFilterSelect';
 import { LanguageFilterSelect } from '@/components/song-list/LanguageFilterSelect';
 import { SongList } from '@/components/song-list/SongList';
-import { AlbumsView } from '@/components/albums/AlbumsView';
+import { SetlistsView } from '@/components/setlists/SetlistsView';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { CollapsiblePanel } from '@/components/shared/CollapsiblePanel';
 import { useSongListContext } from '@/hooks/useSongListContext';
@@ -82,23 +82,23 @@ export function SongListPage() {
   return (
     <div className="p-2 py-4 pb-24 space-y-2">
       {/*
-        Keyed on the view mode so switching List/Albums remounts this
+        Keyed on the view mode so switching Library/Setlists remounts this
         wrapper and replays the entrance animation — a lightweight "content
         switch" effect to match the bottom tab bar driving it. Slide
-        direction mirrors each tab's side (List left, Albums right).
+        direction mirrors each tab's side (Library left, Setlists right).
       */}
       <div
         key={catalogViewMode}
         className={cn(
           'animate-in fade-in duration-200',
-          catalogViewMode === 'albums' ? 'slide-in-from-right-4' : 'slide-in-from-left-4'
+          catalogViewMode === 'setlists' ? 'slide-in-from-right-4' : 'slide-in-from-left-4'
         )}
       >
-        {catalogViewMode === 'albums' ? (
+        {catalogViewMode === 'setlists' ? (
           <>
             {isLoading && <p className="text-center py-4">Loading…</p>}
             {isError && <p className="text-center py-4 text-destructive">Error: {String(error)}</p>}
-            {!isLoading && !isError && <AlbumsView allSongs={allSongs} />}
+            {!isLoading && !isError && <SetlistsView allSongs={allSongs} />}
           </>
         ) : (
           <>

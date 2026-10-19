@@ -18,11 +18,11 @@ export function ShareModal({ open, onOpenChange, title }: ShareModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState(false);
   const location = useLocation();
-  // Albums are local-only (a per-device id, never written anywhere shared),
-  // so a link to /albums/:id is meaningless to whoever opens it — share the
+  // Setlists are local-only (a per-device id, never written anywhere shared),
+  // so a link to /setlists/:id is meaningless to whoever opens it — share the
   // catalog root instead, keeping tableId and every other query param.
-  const isAlbumRoute = location.pathname.startsWith('/albums/');
-  const sharePath = isAlbumRoute ? '/' : location.pathname;
+  const isSetlistRoute = location.pathname.startsWith('/setlists/');
+  const sharePath = isSetlistRoute ? '/' : location.pathname;
   const shareUrl = `${window.location.origin}${window.location.pathname}#${sharePath}${location.search}`;
   const shareText = title || APP_NAME;
 

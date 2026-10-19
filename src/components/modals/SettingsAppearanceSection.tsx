@@ -20,22 +20,22 @@ function OrientationCard({ orientation, label }: OrientationCardProps) {
 
   return (
     <div className="space-y-2 rounded border border-gray-200 dark:border-gray-700 p-2">
-      <h4 className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+      <h4 className="text-xs font-bold uppercase tracking-wide text-gray-900 dark:text-gray-100">
         {label}
       </h4>
 
       <div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Font size</p>
+        <p className="text-xs text-gray-900 dark:text-gray-100 mb-1">Font size</p>
         <ZoomControls fontSize={fontSize} onChange={setFontSize} />
       </div>
 
       <div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Columns</p>
+        <p className="text-xs text-gray-900 dark:text-gray-100 mb-1">Columns</p>
         <ColumnSelect value={columnClass} onChange={setColumnClass} />
       </div>
 
       <div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Preview</p>
+        <p className="text-xs text-gray-900 dark:text-gray-100 mb-1">Preview</p>
         <div className="rounded border border-gray-200 dark:border-gray-700 p-2 overflow-hidden">
           <div
             className={`song-preview font-sans text-gray-800 dark:text-gray-200 ${columnClass}`}

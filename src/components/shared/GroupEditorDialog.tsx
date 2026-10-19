@@ -35,7 +35,7 @@ export function GroupEditorDialog({ open, onOpenChange, songName }: GroupEditorD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-[calc(100%-20px)] sm:max-w-sm">
         <DialogTitle>My groups {songName ? `— ${songName}` : ''}</DialogTitle>
 
         {currentGroups.length > 0 && (

@@ -22,9 +22,9 @@ import { togglePinOverride } from '@/lib/localPins';
 import { isEffectivelyPinned } from '@/lib/songs/effectivePins';
 import { getLocalFavoritesSnapshot, subscribeLocalFavorites } from '@/lib/localFavorites';
 import { useLocalFavorites } from '@/hooks/useLocalFavorites';
-import { songsForNavigation, sortAlbumSongs } from '@/lib/songs/sortAndFilter';
+import { songsForNavigation, sortSetlistSongs } from '@/lib/songs/sortAndFilter';
 import { useLocalGroups } from '@/hooks/useLocalGroups';
-import { useLocalAlbums } from '@/hooks/useLocalAlbums';
+import { useLocalSetlists } from '@/hooks/useLocalSetlists';
 import { GroupEditorDialog } from '@/components/shared/GroupEditorDialog';
 import {
   applySongTonalityToParams,
@@ -49,17 +49,17 @@ export function SongDetailPage() {
   // Set by selectSong/goToSong (list, prev/next, swipe) — anything that's
   // genuinely navigating within the app, as opposed to a cold landing on
   // this song's bare URL (fresh load, refresh, bookmark, external link).
-  const navState = location.state as { fromAppNav?: boolean; albumId?: string } | null;
+  const navState = location.state as { fromAppNav?: boolean; setlistId?: string } | null;
   const cameFromInAppNav = Boolean(navState?.fromAppNav);
   // Only trusted while we actually navigated here in-app — a cold landing
-  // (back button from the album's own back arrow, external link) has no
+  // (back button from the setlist's own back arrow, external link) has no
   // state at all, so this naturally falls back to favorites/pinned below.
-  const albumId = cameFromInAppNav ? navState?.albumId : undefined;
+  const setlistId = cameFromInAppNav ? navState?.setlistId : undefined;
 
   // Prev/next cycles through favorites by default — the "setlist" you're
   // browsing during rehearsal. Until the user curates their own favorites,
-  // fall back to pinned songs. But opened from inside an album, prev/next
-  // instead cycles that album's own full ordered song list, regardless of
+  // fall back to pinned songs. But opened from inside a setlist, prev/next
+  // instead cycles that setlist's own full ordered song list, regardless of
   // favorites/pins.
   const localFavoriteNames = useSyncExternalStore(
     subscribeLocalFavorites,
@@ -67,10 +67,10 @@ export function SongDetailPage() {
   );
   const pinOverrides = usePinOverrides();
   const effectivePinnedNames = useEffectivePinsSet(allSongs);
-  const { getAlbum } = useLocalAlbums();
-  const activeAlbum = albumId ? getAlbum(albumId) : undefined;
-  const navigationList = activeAlbum
-    ? sortAlbumSongs(allSongs, activeAlbum.songs)
+  const { getSetlist } = useLocalSetlists();
+  const activeSetlist = setlistId ? getSetlist(setlistId) : undefined;
+  const navigationList = activeSetlist
+    ? sortSetlistSongs(allSongs, activeSetlist.songs)
     : songsForNavigation(allSongs, localFavoriteNames, effectivePinnedNames);
   const song = allSongs.find(candidate => candidate.Name === decodeURIComponent(songName ?? ''));
   const navigation = useSongNavigation(song ?? null, navigationList);
@@ -100,14 +100,14 @@ export function SongDetailPage() {
     searchParams.get('tonality') ?? (cameFromInAppNav ? songTonalityPref : null);
 
   useEffect(() => {
-    // Reached via an album — however many songs we've swiped/prev-nexted
-    // through since, "back" should jump straight to that album, not step
+    // Reached via a setlist — however many songs we've swiped/prev-nexted
+    // through since, "back" should jump straight to that setlist, not step
     // back through each one or fall all the way out to the catalog root.
     let backTo: string | null = null;
-    if (activeAlbum) {
+    if (activeSetlist) {
       const next = new URLSearchParams(searchParams);
       next.delete('tonality');
-      backTo = `/albums/${encodeURIComponent(activeAlbum.id)}?${next.toString()}`;
+      backTo = `/setlists/${encodeURIComponent(activeSetlist.id)}?${next.toString()}`;
     }
 
     setPageActions({
@@ -117,7 +117,7 @@ export function SongDetailPage() {
       shareTitle: song?.Name ?? null,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setPageActions, text, song?.Name, activeAlbum]);
+  }, [setPageActions, text, song?.Name, activeSetlist]);
 
   // Jump to the top of the song on open, and again every time prev/next swaps
   // to a different song (the route param changes but this page doesn't
@@ -164,7 +164,7 @@ export function SongDetailPage() {
     // actually has one saved. Never carry the song we're leaving's choice.
     const next = applySongTonalityToParams(searchParams, nextSong.Name);
     navigate(`/song/${encodeURIComponent(nextSong.Name)}?${next.toString()}`, {
-      state: { fromAppNav: true, albumId },
+      state: { fromAppNav: true, setlistId },
     });
   };
 

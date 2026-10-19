@@ -43,6 +43,15 @@ export function setPinOverrides(next: PinOverrides) {
   persist();
 }
 
+/** Drops a single song's override (e.g. "remove from cache" in Settings), reverting just that one song to the sheet default. */
+export function deletePinOverride(name: string) {
+  if (!(name in overrides)) return;
+  const next = { ...overrides };
+  delete next[name];
+  overrides = next;
+  persist();
+}
+
 /** Reverts every local pin change, so effective pin state goes back to pure sheet defaults. */
 export function resetPinOverrides() {
   overrides = {};

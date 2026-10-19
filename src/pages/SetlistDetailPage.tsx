@@ -1,28 +1,29 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { Pencil, Plus, Share2, Trash2 } from 'lucide-react';
-import { AlbumSongRow } from '@/components/albums/AlbumSongRow';
-import { AlbumFormDialog } from '@/components/albums/AlbumFormDialog';
-import { AlbumSongPickerDialog } from '@/components/albums/AlbumSongPickerDialog';
+import { SetlistSongRow } from '@/components/setlists/SetlistSongRow';
+import { SetlistFormDialog } from '@/components/setlists/SetlistFormDialog';
+import { SetlistSongPickerDialog } from '@/components/setlists/SetlistSongPickerDialog';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { useLocalAlbums } from '@/hooks/useLocalAlbums';
+import { useLocalSetlists } from '@/hooks/useLocalSetlists';
 import { useDragReorder } from '@/hooks/useDragReorder';
-import { sortAlbumSongs } from '@/lib/songs/sortAndFilter';
-import { downloadAlbumAsFile } from '@/lib/albumFileTransfer';
+import { sortSetlistSongs } from '@/lib/songs/sortAndFilter';
+import { downloadSetlistAsFile } from '@/lib/setlistFileTransfer';
 import { applySongTonalityToParams } from '@/lib/songKeyPrefs';
+import { showToast } from '@/lib/toast';
 import { DEFAULT_PAGE_ACTIONS } from '@/types/pageActions';
 import type { RootOutletContext } from '@/App';
 
-export function AlbumDetailPage() {
+export function SetlistDetailPage() {
   const { allSongs, setPageActions, canEdit, openEditSong } = useOutletContext<RootOutletContext>();
-  const { albumId: rawAlbumId } = useParams<{ albumId: string }>();
-  const albumId = decodeURIComponent(rawAlbumId ?? '');
+  const { setlistId: rawSetlistId } = useParams<{ setlistId: string }>();
+  const setlistId = decodeURIComponent(rawSetlistId ?? '');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const { getAlbum, renameAlbum, deleteAlbum, removeSongFromAlbum, reorderAlbumSongs } =
-    useLocalAlbums();
-  const album = getAlbum(albumId);
+  const { getSetlist, renameSetlist, deleteSetlist, removeSongFromSetlist, reorderSetlistSongs } =
+    useLocalSetlists();
+  const setlist = getSetlist(setlistId);
 
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [isAddSongsOpen, setIsAddSongsOpen] = useState(false);
@@ -31,12 +32,12 @@ export function AlbumDetailPage() {
     setPageActions({ ...DEFAULT_PAGE_ACTIONS, showBack: true });
   }, [setPageActions]);
 
-  const orderedSongs = album ? sortAlbumSongs(allSongs, album.songs) : [];
+  const orderedSongs = setlist ? sortSetlistSongs(allSongs, setlist.songs) : [];
   const orderedNames = orderedSongs.map(song => song.Name);
 
   const dragReorder = useDragReorder({
     items: orderedNames,
-    onReorder: nextOrder => reorderAlbumSongs(albumId, nextOrder),
+    onReorder: nextOrder => reorderSetlistSongs(setlistId, nextOrder),
   });
 
   const songsByName = new Map(orderedSongs.map(song => [song.Name, song]));
@@ -50,28 +51,38 @@ export function AlbumDetailPage() {
     if (from === -1) return;
     current.splice(from, 1);
     current.splice(Math.min(Math.max(0, newPosition - 1), current.length), 0, songName);
-    reorderAlbumSongs(albumId, current);
+    reorderSetlistSongs(setlistId, current);
   };
 
-  const handleDeleteAlbum = () => {
-    if (!album) return;
-    if (window.confirm(`Delete "${album.name}"? This only removes it from this device.`)) {
-      deleteAlbum(albumId);
+  const handleDeleteSetlist = () => {
+    if (!setlist) return;
+    if (window.confirm(`Delete "${setlist.name}"? This only removes it from this device.`)) {
+      deleteSetlist(setlistId);
       navigate(`/?${searchParams.toString()}`);
     }
+  };
+
+  // Swiping-to-reveal-then-tapping is already the confirmation step, same
+  // as deleting a setlist from its list row — a toast afterward is enough.
+  const handleRemoveSong = (songName: string) => {
+    removeSongFromSetlist(setlistId, songName);
+    showToast(`Removed "${songName}" from "${setlist?.name}".`, 'success');
   };
 
   const selectSong = (song: (typeof orderedSongs)[number]) => {
     const next = applySongTonalityToParams(searchParams, song.Name);
     navigate(`/song/${encodeURIComponent(song.Name)}?${next.toString()}`, {
-      state: { fromAppNav: true, albumId },
+      state: { fromAppNav: true, setlistId },
     });
   };
 
-  if (!album) {
+  if (!setlist) {
     return (
       <div className="p-4">
-        <EmptyState title="Album not found" message="This album no longer exists on this device." />
+        <EmptyState
+          title="Setlist not found"
+          message="This setlist no longer exists on this device."
+        />
       </div>
     );
   }
@@ -85,21 +96,21 @@ export function AlbumDetailPage() {
             onClick={() => setIsRenameOpen(true)}
             className="flex items-center gap-1.5 text-xl font-bold min-w-0"
           >
-            <span className="truncate">{album.name}</span>
+            <span className="truncate">{setlist.name}</span>
             <Pencil className="w-4 h-4 shrink-0 text-gray-400" />
           </button>
           <button
             type="button"
-            title="Share album"
-            onClick={() => downloadAlbumAsFile(album)}
+            title="Share setlist"
+            onClick={() => downloadSetlistAsFile(setlist)}
             className="shrink-0 h-7 w-7 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
           >
             <Share2 className="w-4 h-4" />
           </button>
           <button
             type="button"
-            title="Delete album"
-            onClick={handleDeleteAlbum}
+            title="Delete setlist"
+            onClick={handleDeleteSetlist}
             className="shrink-0 h-7 w-7 flex items-center justify-center rounded text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
           >
             <Trash2 className="w-4 h-4" />
@@ -118,13 +129,13 @@ export function AlbumDetailPage() {
 
       {displayedSongs.length === 0 && (
         <EmptyState
-          title="No songs in this album yet"
+          title="No songs in this setlist yet"
           message='Use "Add songs" to pick some from your catalog.'
         />
       )}
 
       {displayedSongs.map((song, index) => (
-        <AlbumSongRow
+        <SetlistSongRow
           key={song.Name}
           song={song}
           position={index + 1}
@@ -134,22 +145,22 @@ export function AlbumDetailPage() {
           handleProps={dragReorder.getHandleProps(song.Name)}
           onSelect={selectSong}
           onPositionCommit={newPosition => movePosition(song.Name, newPosition)}
-          onRemoveFromAlbum={() => removeSongFromAlbum(albumId, song.Name)}
+          onRemoveFromSetlist={() => handleRemoveSong(song.Name)}
           canEdit={canEdit}
           onEdit={openEditSong}
         />
       ))}
 
-      <AlbumFormDialog
+      <SetlistFormDialog
         open={isRenameOpen}
         onOpenChange={setIsRenameOpen}
-        initialName={album.name}
-        onSubmit={name => renameAlbum(albumId, name)}
+        initialName={setlist.name}
+        onSubmit={name => renameSetlist(setlistId, name)}
       />
-      <AlbumSongPickerDialog
+      <SetlistSongPickerDialog
         open={isAddSongsOpen}
         onOpenChange={setIsAddSongsOpen}
-        albumId={albumId}
+        setlistId={setlistId}
         allSongs={allSongs}
       />
     </div>

@@ -1,5 +1,5 @@
 import type { Song } from '@/types/song';
-import type { AlbumSongEntry } from '@/lib/localAlbums';
+import type { SetlistSongEntry } from '@/lib/localSetlists';
 
 /**
  * Effectively-pinned songs first (sheet's `PinedByDefault` column, overridden
@@ -64,17 +64,17 @@ export function filterByLanguages(songs: Song[], languages: string[]): Song[] {
  * soon as at least one song is starred, navigation uses that list instead.
  */
 /**
- * Order for songs inside an album: entries with an explicit `customIndex`
+ * Order for songs inside a setlist: entries with an explicit `customIndex`
  * (set by dragging or typing a position) come first, sorted by it; every
- * other song in the album follows, alphabetically. Sparse by design — most
+ * other song in the setlist follows, alphabetically. Sparse by design — most
  * songs never get a customIndex at all. Songs no longer present in `songs`
  * (e.g. removed from the sheet) are dropped.
  */
-export function sortAlbumSongs(songs: Song[], entries: AlbumSongEntry[]): Song[] {
+export function sortSetlistSongs(songs: Song[], entries: SetlistSongEntry[]): Song[] {
   const byName = new Map(songs.map(song => [song.Name, song]));
   const present = entries
     .map(entry => ({ entry, song: byName.get(entry.songName) }))
-    .filter((x): x is { entry: AlbumSongEntry; song: Song } => Boolean(x.song));
+    .filter((x): x is { entry: SetlistSongEntry; song: Song } => Boolean(x.song));
 
   const withIndex = present.filter(x => x.entry.customIndex != null);
   const withoutIndex = present.filter(x => x.entry.customIndex == null);

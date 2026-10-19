@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadGoogleIdentityServices } from '@/lib/google/gis';
 import { GOOGLE_CLIENT_ID, GOOGLE_SCOPES } from '@/lib/google/config';
 import { clearAuthSession, loadAuthSession, saveAuthSession } from '@/lib/google/authStorage';
+import { showToast } from '@/lib/toast';
 
 export interface GoogleAuthState {
   /** false until the Client ID is configured and the GIS script has loaded. */
@@ -84,6 +85,13 @@ export function useGoogleAuth(): GoogleAuthState {
       if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
     };
   }, []);
+
+  // Sign-in/refresh failures previously only landed in `error`, which no
+  // consumer ever rendered — surfaced here instead, right where it's
+  // produced, so every caller of this hook gets it for free.
+  useEffect(() => {
+    if (error) showToast(error, 'error');
+  }, [error]);
 
   useEffect(() => {
     const clientId = GOOGLE_CLIENT_ID;

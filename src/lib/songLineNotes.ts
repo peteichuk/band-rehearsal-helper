@@ -60,6 +60,15 @@ export function deleteSongLineNote(songName: string, lineKey: string) {
   persist();
 }
 
+/** Drops every note for a song at once (e.g. "remove from cache" in Settings), unlike deleteSongLineNote which drops just one line. */
+export function deleteSongLineNotes(songName: string) {
+  if (!(songName in store)) return;
+  const next = { ...store };
+  delete next[songName];
+  store = next;
+  persist();
+}
+
 export function subscribeSongLineNotes(listener: Listener): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
