@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { useAudioOutputDevice } from '@/hooks/useAudioOutputDevice';
+import { useSyncedMetronomePreset } from '@/hooks/useSyncedMetronomePreset';
 import { useMetronomeEngine } from '@/components/metronome/useMetronomeEngine';
 import { AudioOutputButton } from '@/components/shared/AudioOutputButton';
 import {
+  CUSTOM_PATTERN_ID,
+  cycleBeatLevel,
   getAccentPattern,
   getTimeSignature,
   resolveAccentPatternId,
+  type BeatLevel,
 } from '@/components/metronome/timeSignatures';
-import { getMetronomePreset, setMetronomePreset } from '@/lib/metronomePresets';
+import { setMetronomePreset } from '@/lib/metronomePresets';
 import {
   DEFAULT_CLICK_SOUND_ID,
   previewClickSound,
@@ -20,6 +24,7 @@ import { TimeSignatureSelect } from '@/components/metronome/TimeSignatureSelect'
 import { SoundSelect } from '@/components/metronome/SoundSelect';
 import { AccentPatternSelect } from '@/components/metronome/AccentPatternSelect';
 import { BeatIndicator } from '@/components/metronome/BeatIndicator';
+import { BeatAccentEditor } from '@/components/metronome/BeatAccentEditor';
 import { PlayPauseButton } from '@/components/metronome/PlayPauseButton';
 import { BeatCounter } from '@/components/metronome/BeatCounter';
 
@@ -39,42 +44,68 @@ export function LocalMetronomePanel({
   songName,
   onPlayingChange,
 }: LocalMetronomePanelProps) {
-  const preset = songName ? getMetronomePreset(songName) : null;
-  const [bpm, setBpm] = useState(preset?.bpm ?? initialBpm);
-  const [timeSignatureId, setTimeSignatureId] = useState(
-    preset?.timeSignatureId ?? initialTimeSignatureId
-  );
+  // Picks up an external write to this song's preset — a Settings →
+  // Backup reset/Import, editing the same song's preset from Settings'
+  // own list, etc. — even while this panel is already mounted and just
+  // sitting hidden behind a closed modal (see MetronomeModal's forceMount
+  // comment). `stopIfPlaying` is assigned below once useMetronomeEngine
+  // actually exists — see its own comment for why the indirection.
+  const stopIfPlayingRef = useRef<() => void>(() => {});
+  const { synced, updateSynced, preset } = useSyncedMetronomePreset({
+    songName,
+    sheetDefaults: { bpm: initialBpm, timeSignatureId: initialTimeSignatureId },
+    onExternalChange: () => stopIfPlayingRef.current(),
+  });
+  const { bpm, timeSignatureId, customAccentPatterns: customPatterns } = synced;
   const timeSignature = getTimeSignature(timeSignatureId);
-  // The explicit choice (if any) made this session or restored from the
-  // song's preset — resolveAccentPatternId below falls back to this meter's
-  // own default whenever it isn't one of this meter's own pattern ids
-  // (e.g. the song's saved pattern was for a different meter).
-  const [storedAccentPatternId, setStoredAccentPatternId] = useState(preset?.accentPatternId);
-  const accentPatternId = resolveAccentPatternId(timeSignature, storedAccentPatternId);
-  const [soundId, setSoundId] = useLocalStorageState<ClickSoundId>(
+  // resolveAccentPatternId falls back to this meter's own default whenever
+  // synced.accentPatternId isn't one of this meter's own pattern ids (e.g.
+  // the song's saved pattern was for a different meter).
+  const accentPatternId = resolveAccentPatternId(timeSignature, synced.accentPatternId);
+  const isCustom = accentPatternId === CUSTOM_PATTERN_ID;
+  const { beatsPerBar, beatUnitScale } = timeSignature;
+
+  // A global rolling default (same spirit as useGlobalDisplayDefaults behind
+  // useSongDisplayConfig) — backs any song that's never had its own sound
+  // picked, and keeps tracking whatever was last chosen anywhere.
+  const [globalDefaultSoundId, setGlobalDefaultSoundId] = useLocalStorageState<ClickSoundId>(
     'metronome-sound',
     DEFAULT_CLICK_SOUND_ID
   );
+  const [soundId, setSoundIdState] = useState<ClickSoundId>(
+    preset?.soundId ?? globalDefaultSoundId
+  );
   const audioOutputDevice = useAudioOutputDevice();
 
-  const handleBpmChange = (next: number) => {
-    setBpm(next);
-    if (songName) setMetronomePreset(songName, { bpm: next });
-  };
+  const handleBpmChange = (next: number) => updateSynced({ bpm: next });
 
-  const handleTimeSignatureChange = (id: string) => {
-    setTimeSignatureId(id);
-    if (songName) setMetronomePreset(songName, { timeSignatureId: id });
-  };
+  const handleTimeSignatureChange = (id: string) => updateSynced({ timeSignatureId: id });
 
   const handleAccentPatternChange = (id: string) => {
-    setStoredAccentPatternId(id);
-    if (songName) setMetronomePreset(songName, { accentPatternId: id });
+    // Switching into Custom for a meter that's never had one seeds it from
+    // whatever pattern was just showing, instead of starting blank.
+    if (id === CUSTOM_PATTERN_ID && !customPatterns[timeSignatureId]) {
+      const seed = getAccentPattern(timeSignature, accentPatternId).accents;
+      updateSynced({
+        accentPatternId: id,
+        customAccentPatterns: { ...customPatterns, [timeSignatureId]: seed },
+      });
+      return;
+    }
+    updateSynced({ accentPatternId: id });
   };
 
-  const { beatsPerBar, beatUnitScale } = timeSignature;
-  const accentPattern = getAccentPattern(timeSignature, accentPatternId).accents;
-  const { isPlaying, currentBeat, toggle, restartForDeviceChange } = useMetronomeEngine({
+  const handleBeatLevelChange = (beatIndex: number) => {
+    const current = customPatterns[timeSignatureId] ?? Array(beatsPerBar).fill('normal');
+    const next = [...current];
+    next[beatIndex] = cycleBeatLevel(next[beatIndex] ?? 'normal');
+    updateSynced({ customAccentPatterns: { ...customPatterns, [timeSignatureId]: next } });
+  };
+
+  const accentPattern = isCustom
+    ? (customPatterns[timeSignatureId] ?? (Array(beatsPerBar).fill('normal') as BeatLevel[]))
+    : getAccentPattern(timeSignature, accentPatternId).accents;
+  const { isPlaying, currentBeat, toggle, stop, restartForDeviceChange } = useMetronomeEngine({
     bpm,
     beatsPerBar,
     beatUnitScale,
@@ -82,6 +113,28 @@ export function LocalMetronomePanel({
     soundId,
     audioOutputDevice,
   });
+
+  // useMetronomeEngine now exists, so stopIfPlayingRef (passed to
+  // useSyncedMetronomePreset above, before this was available) can finally
+  // do its job for the rest of this panel's life.
+  stopIfPlayingRef.current = () => {
+    if (isPlaying) stop();
+  };
+
+  // Same idea as useSyncedMetronomePreset's own sync effect, just for
+  // soundId specifically — it isn't part of SyncedPresetFields (no per-song
+  // sheet default to fall back to, see the MetronomePreset interface
+  // comment), so it's kept in step separately rather than folded into that
+  // hook. Also covers the preset being cleared entirely (e.g. a Settings →
+  // Backup reset) — `preset?.soundId` already falls back to the global
+  // default correctly in that case, no separate null-check needed.
+  useEffect(() => {
+    const nextSoundId = preset?.soundId ?? globalDefaultSoundId;
+    if (nextSoundId === soundId) return;
+    setSoundIdState(nextSoundId);
+    if (isPlaying) stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preset]);
 
   // Confirming a new output device (see AudioOutputButton/Dialog) only
   // takes effect on the next AudioContext by default — if the metronome is
@@ -98,7 +151,9 @@ export function LocalMetronomePanel({
   }, [audioOutputDevice]);
 
   const handleSoundChange = (id: ClickSoundId) => {
-    setSoundId(id);
+    setSoundIdState(id);
+    setGlobalDefaultSoundId(id);
+    if (songName) setMetronomePreset(songName, { soundId: id });
     if (!isPlaying) previewClickSound(id);
   };
 
@@ -127,11 +182,20 @@ export function LocalMetronomePanel({
 
       <TempoControl bpm={bpm} onChange={handleBpmChange} />
 
-      <BeatIndicator
-        beatsPerBar={beatsPerBar}
-        currentBeat={currentBeat}
-        accentPattern={accentPattern}
-      />
+      {isCustom ? (
+        <BeatAccentEditor
+          beatsPerBar={beatsPerBar}
+          currentBeat={currentBeat}
+          levels={accentPattern}
+          onLevelChange={handleBeatLevelChange}
+        />
+      ) : (
+        <BeatIndicator
+          beatsPerBar={beatsPerBar}
+          currentBeat={currentBeat}
+          accentPattern={accentPattern}
+        />
+      )}
 
       <div className="relative flex items-center justify-center">
         <PlayPauseButton isPlaying={isPlaying} onToggle={toggle} />

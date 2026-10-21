@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getClickSound, type ClickSoundId } from '@/components/metronome/sounds';
+import type { BeatLevel } from '@/components/metronome/timeSignatures';
 import {
   deviceNoLongerMatches,
   enumerateAudioOutputsAfterChange,
@@ -14,8 +15,8 @@ interface MetronomeEngineOptions {
   beatsPerBar: number;
   /** See TimeSignature.beatUnitScale — 1 for /4 meters, 2 for /8 meters. */
   beatUnitScale: number;
-  /** One entry per beat (see TimeSignature.AccentPattern) — true where that beat is accented. */
-  accentPattern: boolean[];
+  /** One entry per beat (see TimeSignature.AccentPattern). */
+  accentPattern: BeatLevel[];
   soundId: ClickSoundId;
   /** See useAudioOutputDevice — null (the default) just leaves the AudioContext on the system default output. */
   audioOutputDevice: AudioOutputDevice | null;
@@ -63,8 +64,12 @@ export function useMetronomeEngine({
   }, [bpm, beatsPerBar, beatUnitScale, accentPattern, soundId]);
 
   const scheduleClick = (audioCtx: AudioContext, beatNumber: number, time: number) => {
-    const isAccent = paramsRef.current.accentPattern[beatNumber] ?? false;
-    getClickSound(paramsRef.current.soundId).play(audioCtx, time, isAccent);
+    const level = paramsRef.current.accentPattern[beatNumber] ?? 'normal';
+    // A muted beat still gets pushed below so the visual beat indicator
+    // keeps advancing in sync — it just doesn't make any sound.
+    if (level !== 'mute') {
+      getClickSound(paramsRef.current.soundId).play(audioCtx, time, level);
+    }
     scheduledNotesRef.current.push({ beatNumber, time });
   };
 

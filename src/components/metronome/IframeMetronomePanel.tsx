@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import {
+  CUSTOM_PATTERN_ID,
   getAccentPatternIndex,
+  getDefaultAccentPatternId,
   getTimeSignature,
   resolveAccentPatternId,
 } from '@/components/metronome/timeSignatures';
@@ -29,7 +31,14 @@ export function IframeMetronomePanel({
   const effectiveBpm = preset?.bpm ?? bpm;
   const timeSignature = getTimeSignature(preset?.timeSignatureId ?? timeSignatureId);
   const accentPatternId = resolveAccentPatternId(timeSignature, preset?.accentPatternId);
-  const pattern = getAccentPatternIndex(timeSignature, accentPatternId);
+  // guitarapp.com's own embed has no concept of our per-beat Custom pattern
+  // — fall back to this meter's default preset instead of sending it a
+  // meaningless index.
+  const effectivePatternId =
+    accentPatternId === CUSTOM_PATTERN_ID
+      ? getDefaultAccentPatternId(timeSignature)
+      : accentPatternId;
+  const pattern = getAccentPatternIndex(timeSignature, effectivePatternId);
 
   useEffect(() => {
     if (src !== null) return;

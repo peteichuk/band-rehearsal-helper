@@ -1,3 +1,5 @@
+import { deepMerge } from '@/lib/deepMerge';
+
 const STORAGE_KEY = 'songLineNotes';
 
 type Listener = () => void;
@@ -83,11 +85,11 @@ export function resetSongLineNotes() {
   persist();
 }
 
-/** Bulk import — merges per song (an imported note for a line a song already has a note on wins, same as setSongLineNote). */
+/** Bulk import — merges per song via deepMerge (an imported note for a line a song already has a note on wins, same as setSongLineNote; a line the song already has a note on that the import doesn't mention survives). */
 export function mergeSongLineNotes(incoming: Store) {
   const next = { ...store };
   for (const [songName, notes] of Object.entries(incoming)) {
-    next[songName] = { ...next[songName], ...notes };
+    next[songName] = deepMerge(next[songName], notes) ?? notes;
   }
   store = next;
   persist();

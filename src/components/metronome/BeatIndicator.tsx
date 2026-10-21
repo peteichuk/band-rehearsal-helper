@@ -1,18 +1,19 @@
 import { Fragment } from 'react';
 import { cn } from 'cn';
+import type { BeatLevel } from '@/components/metronome/timeSignatures';
 
 interface BeatIndicatorProps {
   beatsPerBar: number;
   currentBeat: number | null;
-  /** See TimeSignature.AccentPattern — one entry per beat, true where that beat is accented. */
-  accentPattern: boolean[];
+  /** See TimeSignature.AccentPattern — one entry per beat. Only ever fed static (non-custom) patterns, so 'mute' never actually appears here. */
+  accentPattern: BeatLevel[];
 }
 
 export function BeatIndicator({ beatsPerBar, currentBeat, accentPattern }: BeatIndicatorProps) {
   return (
     <div className="flex items-center justify-center gap-2" role="presentation">
       {Array.from({ length: beatsPerBar }, (_, beat) => {
-        const isAccent = accentPattern[beat] ?? false;
+        const isAccent = accentPattern[beat] === 'accent';
         const isActive = beat === currentBeat;
         return (
           <Fragment key={beat}>

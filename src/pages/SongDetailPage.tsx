@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom';
 import { Bookmark, Pin, SlidersHorizontal, Star } from 'lucide-react';
 import { SongOverflowMenu } from '@/components/song-detail/SongOverflowMenu';
+import { SongSettingsTransferButtons } from '@/components/song-detail/SongSettingsTransferButtons';
 import { SongControlsPanel } from '@/components/song-detail/SongControlsPanel';
 import { SongContent } from '@/components/song-detail/SongContent';
 import { SongNavigation } from '@/components/song-detail/SongNavigation';
@@ -292,6 +293,8 @@ export function SongDetailPage() {
         </div>
 
         <div className="print:hidden flex items-center gap-2 shrink-0">
+          <SongSettingsTransferButtons songName={song.Name} />
+
           {text && (
             <button
               type="button"

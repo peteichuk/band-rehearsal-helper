@@ -26,7 +26,6 @@ import {
   setPinOverrides,
   subscribePinOverrides,
   getPinOverridesSnapshot,
-  type PinOverrides,
 } from '@/lib/localPins';
 import {
   deleteSongGroups,
@@ -59,45 +58,26 @@ import {
   resetMetronomePresets,
   subscribeMetronomePresets,
   getMetronomePresetsSnapshot,
-  type MetronomePreset,
 } from '@/lib/metronomePresets';
 import {
   getAllSetlists,
   mergeImportedSetlists,
   subscribeLocalSetlists,
   getLocalSetlistsSnapshot,
-  type SetlistSongEntry,
 } from '@/lib/localSetlists';
 import {
   getAllGlobalDefaults,
   mergeGlobalDefaults,
   subscribeSongDisplayConfig,
   getSongDisplayConfigSnapshot,
-  type Orientation,
-  type OrientationDisplayConfig,
 } from '@/lib/songDisplayConfig';
+import type { ExportedSettings } from '@/lib/settingsBackupFormat';
 import type { Song } from '@/types/song';
 
 interface SettingsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   allSongs: Song[];
-}
-
-type AppearanceDefaults = Record<Orientation, OrientationDisplayConfig>;
-type ExportedSetlist = { name: string; songs: SetlistSongEntry[] };
-
-interface ExportedSettings {
-  version: 2;
-  exportedAt: string;
-  favorites?: string[];
-  pinOverrides?: PinOverrides;
-  customGroups?: LocalGroups;
-  tonalityPrefs?: Record<string, string>;
-  lineNotes?: Record<string, Record<string, string>>;
-  setlists?: ExportedSetlist[];
-  appearanceDefaults?: AppearanceDefaults;
-  metronomePresets?: Record<string, MetronomePreset>;
 }
 
 type BackupCategory =

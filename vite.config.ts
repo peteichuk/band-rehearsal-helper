@@ -68,8 +68,40 @@ export default defineConfig({
         ],
       },
       workbox: {
-        navigateFallback: '/band-rehearsal-helper/index.html',
+        // Explicitly undefined, not just omitted — vite-plugin-pwa merges a
+        // `navigateFallback: 'index.html'` default of its own on top of
+        // whatever's (not) set here, so leaving the key out entirely still
+        // left it on. With it set, workbox-build always registers its
+        // NavigationRoute (precache-bound, so cache-first with no network
+        // check) *before* any runtimeCaching route below, meaning it'd win
+        // every navigation and make the NetworkFirst rule right below dead
+        // code. The runtimeCaching entry on its own already covers
+        // navigateFallback's one job (serving the shell for every
+        // navigation) — see its own comment for why that's safe here.
+        navigateFallback: undefined,
         runtimeCaching: [
+          {
+            // The app shell itself (index.html). Precaching alone (the
+            // default for everything generateSW lists) means Workbox serves
+            // whatever got installed at the *last* visit straight from the
+            // cache, with no network check at all — a fresh deploy only
+            // shows up after an extra reload or two. Network-first instead:
+            // online, always fetch the current shell (and refresh the
+            // cache with it); only fall back to the cached one when the
+            // network genuinely fails or is too slow to bother waiting on.
+            // Safe to scope to *every* navigation here specifically because
+            // routing is HashRouter-based (see App.tsx) — the only real
+            // browser navigation/fetch this app ever makes is for this one
+            // shell URL; every in-app "page" is a `#` fragment that never
+            // reaches the network or this service worker at all.
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'app-shell-cache',
+              networkTimeoutSeconds: 3,
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           {
             // Google Sheets song data (gviz) — not same-origin, so Workbox
             // doesn't precache it by default. Network-first with a cached
