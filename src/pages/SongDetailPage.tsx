@@ -1,4 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   useOutletContext,
   useLocation,
@@ -40,6 +41,7 @@ import type { TransposeOption } from '@/lib/chords/transpose';
 import type { Song } from '@/types/song';
 
 export function SongDetailPage() {
+  const { t } = useTranslation();
   const { allSongs, setPageActions, canEdit, openEditSong, onOpenMetronome, isMetronomePlaying } =
     useOutletContext<RootOutletContext>();
   const { songName } = useParams<{ songName: string }>();
@@ -179,7 +181,10 @@ export function SongDetailPage() {
   if (!song) {
     return (
       <div className="p-4">
-        <EmptyState title="Song not found" message="This song is no longer in the loaded list." />
+        <EmptyState
+          title={t('Song not found')}
+          message={t('This song is no longer in the loaded list.')}
+        />
       </div>
     );
   }
@@ -233,11 +238,11 @@ export function SongDetailPage() {
     <div className="p-2 py-4 will-change-transform" {...swipeHandlers}>
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="min-w-0">
-          <h2 className="text-2xl font-bold">{song.Name || 'Untitled'}</h2>
+          <h2 className="text-2xl font-bold">{song.Name || t('Untitled')}</h2>
 
           <div className="print:hidden flex flex-wrap items-center gap-2 mt-1">
             <span className="text-xs text-blue-600 dark:text-blue-400">
-              Tonality:{' '}
+              {t('Tonality:')}{' '}
               {transpose && !transpose.isOriginal ? (
                 <>
                   <span className="line-through text-purple-600 dark:text-purple-400">
@@ -250,12 +255,12 @@ export function SongDetailPage() {
               )}
             </span>
             <span className="text-xs text-orange-600">
-              BPM: <span className="font-semibold">{song.BPM ?? '-'}</span>
+              {t('BPM:')} <span className="font-semibold">{song.BPM ?? '-'}</span>
             </span>
 
             <button
               type="button"
-              title={pinned ? 'Unpin' : 'Pin to top'}
+              title={pinned ? t('Unpin') : t('Pin to top')}
               onClick={() => togglePinOverride(song.Name, pinned)}
               className={cn(
                 'p-1 hover:text-yellow-500 dark:hover:text-yellow-400',
@@ -266,7 +271,7 @@ export function SongDetailPage() {
             </button>
             <button
               type="button"
-              title={isLocalFavorite ? 'Remove from my favorites' : 'Add to my favorites'}
+              title={isLocalFavorite ? t('Remove from my favorites') : t('Add to my favorites')}
               onClick={() => toggleFavorite(song.Name)}
               className={cn(
                 'p-1 hover:text-yellow-500 dark:hover:text-yellow-400',
@@ -277,7 +282,7 @@ export function SongDetailPage() {
             </button>
             <button
               type="button"
-              title={myGroups.length > 0 ? 'Edit my groups' : 'Add to a group'}
+              title={myGroups.length > 0 ? t('Edit my groups') : t('Add to a group')}
               onClick={() => setIsGroupEditorOpen(true)}
               className={cn(
                 'flex items-center gap-1 p-1 hover:text-teal-600 dark:hover:text-teal-400',
@@ -298,7 +303,7 @@ export function SongDetailPage() {
           {text && (
             <button
               type="button"
-              title={isControlsOpen ? 'Hide display controls' : 'Show display controls'}
+              title={isControlsOpen ? t('Hide display controls') : t('Show display controls')}
               onClick={() => setIsControlsOpen(!isControlsOpen)}
               className={cn(
                 'h-9 w-10 shrink-0 flex items-center justify-center rounded',
@@ -351,8 +356,8 @@ export function SongDetailPage() {
         />
       ) : (
         <EmptyState
-          title="Text not found for this song"
-          message="The selected song does not have any text available."
+          title={t('Text not found for this song')}
+          message={t('The selected song does not have any text available.')}
         />
       )}
 

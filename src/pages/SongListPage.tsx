@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { Filter } from 'lucide-react';
 import { TableIdPrompt } from '@/components/song-list/TableIdPrompt';
@@ -19,6 +20,7 @@ import type { RootOutletContext } from '@/App';
 import type { Song } from '@/types/song';
 
 export function SongListPage() {
+  const { t } = useTranslation();
   const {
     allSongs,
     isLoading,
@@ -71,8 +73,8 @@ export function SongListPage() {
           <TableIdPrompt initialValue="" onLoad={setTableId} loading={isLoading} />
         </div>
         <EmptyState
-          title="No table ID provided"
-          message="Please enter a Google Sheets ID or URL to load songs."
+          title={t('No table ID provided')}
+          message={t('Please enter a Google Sheets ID or URL to load songs.')}
         />
         <TableIdHelp />
       </div>
@@ -96,8 +98,12 @@ export function SongListPage() {
       >
         {catalogViewMode === 'setlists' ? (
           <>
-            {isLoading && <p className="text-center py-4">Loading…</p>}
-            {isError && <p className="text-center py-4 text-destructive">Error: {String(error)}</p>}
+            {isLoading && <p className="text-center py-4">{t('Loading…')}</p>}
+            {isError && (
+              <p className="text-center py-4 text-destructive">
+                {t('Error: {{message}}', { message: String(error) })}
+              </p>
+            )}
             {!isLoading && !isError && <SetlistsView allSongs={allSongs} />}
           </>
         ) : (
@@ -128,7 +134,7 @@ export function SongListPage() {
 
                 <button
                   type="button"
-                  title={isFiltersOpen ? 'Hide filters' : 'Show filters'}
+                  title={isFiltersOpen ? t('Hide filters') : t('Show filters')}
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
                   className={cn(
                     'h-9 w-10 shrink-0 flex items-center justify-center rounded',
@@ -177,8 +183,12 @@ export function SongListPage() {
               </CollapsiblePanel>
             </div>
 
-            {isLoading && <p className="text-center py-4">Loading…</p>}
-            {isError && <p className="text-center py-4 text-destructive">Error: {String(error)}</p>}
+            {isLoading && <p className="text-center py-4">{t('Loading…')}</p>}
+            {isError && (
+              <p className="text-center py-4 text-destructive">
+                {t('Error: {{message}}', { message: String(error) })}
+              </p>
+            )}
 
             {!isLoading && !isError && (
               <SongList

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, Info, LogIn, LogOut, Plus, Settings } from 'lucide-react';
 import { TableIdPrompt } from '@/components/song-list/TableIdPrompt';
@@ -92,6 +93,7 @@ export function Header({
   canEdit,
   onAddSong,
 }: HeaderProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const menuOpen = useMenuOpen();
@@ -146,7 +148,7 @@ export function Header({
 
           <button
             type="button"
-            title="Metronome"
+            title={t('Metronome')}
             data-metronome-trigger
             className={METRONOME_BUTTON_CLASS}
             onClick={onOpenMetronome}
@@ -159,7 +161,7 @@ export function Header({
           <ThemeSelect />
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
-              <button type="button" title="Menu" className={PRIMARY_BUTTON_CLASS}>
+              <button type="button" title={t('Menu')} className={PRIMARY_BUTTON_CLASS}>
                 <MenuToggleIcon open={menuOpen} />
               </button>
             </SheetTrigger>
@@ -175,11 +177,11 @@ export function Header({
               onCloseAutoFocus={event => event.preventDefault()}
             >
               <SheetHeader className="justify-end">
-                <SheetTitle className="sr-only">Menu</SheetTitle>
+                <SheetTitle className="sr-only">{t('Menu')}</SheetTitle>
                 <SheetClose asChild>
                   <button
                     type="button"
-                    title="Close"
+                    title={t('Close')}
                     className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     <MenuToggleIcon open />
@@ -192,7 +194,7 @@ export function Header({
                   <SheetClose asChild>
                     <button type="button" className={MENU_ITEM_CLASS} onClick={onAddSong}>
                       <Plus className="w-4 h-4 shrink-0" />
-                      Add Song
+                      {t('Add Song')}
                     </button>
                   </SheetClose>
                 )}
@@ -200,7 +202,7 @@ export function Header({
                 <SheetClose asChild>
                   <button type="button" className={MENU_ITEM_CLASS} onClick={onOpenShare}>
                     <ShareIcon className="w-4 h-4 shrink-0" />
-                    Share
+                    {t('Share')}
                   </button>
                 </SheetClose>
 
@@ -221,13 +223,13 @@ export function Header({
                 <SheetClose asChild>
                   <button type="button" className={MENU_ITEM_CLASS} onClick={onOpenSettings}>
                     <Settings className="w-4 h-4 shrink-0" />
-                    Settings
+                    {t('Settings')}
                   </button>
                 </SheetClose>
 
                 <a href="landing.html" className={MENU_ITEM_CLASS}>
                   <Info className="w-4 h-4 shrink-0" />
-                  About
+                  {t('About')}
                 </a>
 
                 <div className="my-2 border-t border-border" />
@@ -237,7 +239,9 @@ export function Header({
                     <button type="button" className={MENU_ITEM_CLASS} onClick={auth.signOut}>
                       <LogOut className="w-4 h-4 shrink-0" />
                       <span className="truncate">
-                        Sign out{auth.email ? ` (${auth.email})` : ''}
+                        {auth.email
+                          ? t('Sign out ({{email}})', { email: auth.email })
+                          : t('Sign out')}
                       </span>
                     </button>
                   </SheetClose>
@@ -248,10 +252,10 @@ export function Header({
                       className={MENU_ITEM_CLASS}
                       disabled={!auth.isReady}
                       onClick={auth.signIn}
-                      title={auth.isReady ? undefined : 'Google sign-in is not configured'}
+                      title={auth.isReady ? undefined : t('Google sign-in is not configured')}
                     >
                       <LogIn className="w-4 h-4 shrink-0" />
-                      Sign in
+                      {t('Sign in')}
                     </button>
                   </SheetClose>
                 )}

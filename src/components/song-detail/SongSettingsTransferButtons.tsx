@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Download, Upload } from 'lucide-react';
 import {
   applySongSettings,
@@ -20,6 +21,7 @@ const buttonClass =
 
 /** Export/import just this one song's own local data (pin, tags, tonality, line notes, metronome preset, favorite status) — separate from the all-songs Settings → Backup flow. */
 export function SongSettingsTransferButtons({ songName }: SongSettingsTransferButtonsProps) {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingChoice, setPendingChoice] = useState<{
     resolve: (choice: ImportConflictChoice) => void;
@@ -30,7 +32,7 @@ export function SongSettingsTransferButtons({ songName }: SongSettingsTransferBu
 
   const handleExport = () => {
     if (!hasSongSettings(songName)) {
-      showToast('Nothing saved locally for this song yet.', 'info');
+      showToast(t('Nothing saved locally for this song yet.'), 'info');
       return;
     }
     downloadSongSettingsAsFile(songName);
@@ -44,7 +46,7 @@ export function SongSettingsTransferButtons({ songName }: SongSettingsTransferBu
       // at all — checked before anything else, so Replace in particular
       // never gets a chance to clear this song's settings for nothing.
       if (!songHasDataInFile(parsed, songName)) {
-        showToast('Nothing in that file for this song.', 'info');
+        showToast(t('Nothing in that file for this song.'), 'info');
         return;
       }
       // Only asks when there's actually something to conflict with —
@@ -53,15 +55,15 @@ export function SongSettingsTransferButtons({ songName }: SongSettingsTransferBu
       if (hasSongSettings(songName)) {
         const choice = await resolveConflict();
         if (choice === 'cancel') {
-          showToast('Import cancelled.', 'info');
+          showToast(t('Import cancelled.'), 'info');
           return;
         }
         mode = choice;
       }
       const imported = applySongSettings(songName, parsed, mode);
-      showToast(`Imported: ${imported.join(', ')}.`, 'success');
+      showToast(t('Imported: {{list}}.', { list: imported.join(', ') }), 'success');
     } catch (err) {
-      showToast(`Import failed: ${(err as Error).message}`, 'error');
+      showToast(t('Import failed: {{message}}', { message: (err as Error).message }), 'error');
     }
   };
 
@@ -69,7 +71,7 @@ export function SongSettingsTransferButtons({ songName }: SongSettingsTransferBu
     <>
       <button
         type="button"
-        title="Import settings for this song"
+        title={t('Import settings for this song')}
         onClick={() => fileInputRef.current?.click()}
         className={buttonClass}
       >
@@ -77,7 +79,7 @@ export function SongSettingsTransferButtons({ songName }: SongSettingsTransferBu
       </button>
       <button
         type="button"
-        title="Export this song's settings"
+        title={t("Export this song's settings")}
         onClick={handleExport}
         className={buttonClass}
       >

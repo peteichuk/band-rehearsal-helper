@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 
 export type MetronomeEngine = 'local' | 'iframe';
@@ -8,6 +9,7 @@ interface EngineSwitchProps {
 }
 
 export function EngineSwitch({ value, onChange }: EngineSwitchProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-wrap items-center justify-center gap-1">
       <Button
@@ -15,14 +17,14 @@ export function EngineSwitch({ value, onChange }: EngineSwitchProps) {
         variant={value === 'local' ? 'secondary' : 'ghost'}
         onClick={() => onChange('local')}
       >
-        Local
+        {t('Local')}
       </Button>
       <Button
         type="button"
         variant={value === 'iframe' ? 'secondary' : 'ghost'}
         onClick={() => onChange('iframe')}
       >
-        External (guitarapp.com)
+        {t('External (guitarapp.com)')}
       </Button>
     </div>
   );

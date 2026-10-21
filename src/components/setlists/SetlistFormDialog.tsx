@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -16,6 +17,7 @@ export function SetlistFormDialog({
   initialName,
   onSubmit,
 }: SetlistFormDialogProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState(initialName ?? '');
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export function SetlistFormDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
-        <DialogTitle>{initialName ? 'Rename setlist' : 'New setlist'}</DialogTitle>
+        <DialogTitle>{initialName ? t('Rename setlist') : t('New setlist')}</DialogTitle>
 
         <input
           type="text"
@@ -45,7 +47,7 @@ export function SetlistFormDialog({
               commit();
             }
           }}
-          placeholder="Setlist name…"
+          placeholder={t('Setlist name…')}
           // text-base (16px), not the dialog's inherited text-sm (14px) —
           // iOS/Android auto-zoom the viewport on focusing any input under
           // 16px, and that zoom can stay stuck after the dialog closes.
@@ -54,7 +56,7 @@ export function SetlistFormDialog({
 
         <div className="flex justify-end mt-2">
           <Button type="button" onClick={commit} disabled={!name.trim()}>
-            {initialName ? 'Save' : 'Create'}
+            {initialName ? t('Save') : t('Create')}
           </Button>
         </div>
       </DialogContent>

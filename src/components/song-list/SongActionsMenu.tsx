@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FolderPlus, MoreVertical, Pencil, Tag, Trash2 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -22,6 +23,7 @@ interface SongActionsMenuProps {
 
 /** The "⋮" menu on a song row: edit, labels, add to setlist, and (inside a setlist) remove from it. */
 export function SongActionsMenu({ song, canEdit, onEdit, setlistContext }: SongActionsMenuProps) {
+  const { t } = useTranslation();
   const [isLabelsOpen, setIsLabelsOpen] = useState(false);
   const [isSetlistPickerOpen, setIsSetlistPickerOpen] = useState(false);
 
@@ -31,7 +33,7 @@ export function SongActionsMenu({ song, canEdit, onEdit, setlistContext }: SongA
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            title="More options"
+            title={t('More options')}
             onClick={event => event.stopPropagation()}
             className="shrink-0 h-9 w-10 flex items-center justify-center rounded text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200"
           >
@@ -51,18 +53,18 @@ export function SongActionsMenu({ song, canEdit, onEdit, setlistContext }: SongA
           {canEdit && (
             <DropdownMenuItem onSelect={onEdit}>
               <Pencil className="w-4 h-4" />
-              Edit song
+              {t('Edit song')}
             </DropdownMenuItem>
           )}
 
           <DropdownMenuItem onSelect={() => setIsLabelsOpen(true)}>
             <Tag className="w-4 h-4" />
-            Labels
+            {t('Labels')}
           </DropdownMenuItem>
 
           <DropdownMenuItem onSelect={() => setIsSetlistPickerOpen(true)}>
             <FolderPlus className="w-4 h-4" />
-            Add to setlist
+            {t('Add to setlist')}
           </DropdownMenuItem>
 
           {setlistContext && (
@@ -70,7 +72,7 @@ export function SongActionsMenu({ song, canEdit, onEdit, setlistContext }: SongA
               <DropdownMenuSeparator />
               <DropdownMenuItem variant="destructive" onSelect={setlistContext.onRemoveFromSetlist}>
                 <Trash2 className="w-4 h-4" />
-                Remove
+                {t('Remove')}
               </DropdownMenuItem>
             </>
           )}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Select,
   SelectContent,
@@ -14,6 +15,7 @@ interface AccentPatternSelectProps {
 }
 
 export function AccentPatternSelect({ patterns, value, onChange }: AccentPatternSelectProps) {
+  const { t } = useTranslation();
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger>
@@ -22,7 +24,11 @@ export function AccentPatternSelect({ patterns, value, onChange }: AccentPattern
       <SelectContent>
         {patterns.map(pattern => (
           <SelectItem key={pattern.id} value={pattern.id}>
-            {pattern.label}
+            {/* Generated "Accent 1+2" style labels have no translation key —
+                stay as-is, same as time signature labels (musical notation
+                reads fine untranslated); only the fixed Off/On/Custom labels
+                below are real translation targets. */}
+            {t(pattern.label)}
           </SelectItem>
         ))}
       </SelectContent>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FolderPlus, MoreVertical, Pencil, Tag } from 'lucide-react';
 import {
   DropdownMenu,
@@ -20,6 +21,7 @@ interface SongOverflowMenuProps {
 
 /** The "⋮" menu for everything that doesn't need to stay on-screen while reading a song. */
 export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProps) {
+  const { t } = useTranslation();
   const showLinks = hasSongLinks(song);
   const [isLabelsOpen, setIsLabelsOpen] = useState(false);
   const [isSetlistPickerOpen, setIsSetlistPickerOpen] = useState(false);
@@ -30,7 +32,7 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            title="More options"
+            title={t('More options')}
             className="h-9 w-10 shrink-0 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
           >
             <MoreVertical className="w-5 h-5" />
@@ -46,12 +48,12 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
 
           <DropdownMenuItem onSelect={() => setIsLabelsOpen(true)}>
             <Tag className="w-4 h-4" />
-            Labels
+            {t('Labels')}
           </DropdownMenuItem>
 
           <DropdownMenuItem onSelect={() => setIsSetlistPickerOpen(true)}>
             <FolderPlus className="w-4 h-4" />
-            Add to setlist
+            {t('Add to setlist')}
           </DropdownMenuItem>
 
           {canEdit && (
@@ -59,7 +61,7 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={onEdit}>
                 <Pencil className="w-4 h-4" />
-                Edit song
+                {t('Edit song')}
               </DropdownMenuItem>
             </>
           )}

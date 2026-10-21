@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Select,
   SelectContent,
@@ -13,6 +14,7 @@ interface SoundSelectProps {
 }
 
 export function SoundSelect({ value, onChange }: SoundSelectProps) {
+  const { t } = useTranslation();
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger>
@@ -21,7 +23,7 @@ export function SoundSelect({ value, onChange }: SoundSelectProps) {
       <SelectContent>
         {CLICK_SOUNDS.map(sound => (
           <SelectItem key={sound.id} value={sound.id}>
-            {sound.label}
+            {t(sound.label)}
           </SelectItem>
         ))}
       </SelectContent>

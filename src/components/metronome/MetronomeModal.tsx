@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from 'cn';
 import { Dialog, DialogContent, DialogTitle, dialogOverlayClassName } from '@/components/ui/dialog';
 import { EngineSwitch, type MetronomeEngine } from '@/components/metronome/EngineSwitch';
@@ -31,6 +32,7 @@ export function MetronomeModal({
   songName,
   onPlayingChange,
 }: MetronomeModalProps) {
+  const { t } = useTranslation();
   const [engine, setEngine] = useState<MetronomeEngine>('local');
 
   if (!hasOpenedOnce) return null;
@@ -65,7 +67,7 @@ export function MetronomeModal({
           !open && 'hidden'
         )}
       >
-        <DialogTitle>Metronome</DialogTitle>
+        <DialogTitle>{t('Metronome')}</DialogTitle>
 
         <div className="flex flex-col gap-4 min-h-0 overflow-y-auto">
           <EngineSwitch value={engine} onChange={setEngine} />

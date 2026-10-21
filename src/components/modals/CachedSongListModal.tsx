@@ -1,4 +1,5 @@
 import { Pencil, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -30,6 +31,7 @@ export function CachedSongListModal({
   onRemove,
   removeConfirmText,
 }: CachedSongListModalProps) {
+  const { t } = useTranslation();
   const handleRemove = (songName: string) => {
     if (window.confirm(removeConfirmText(songName))) onRemove(songName);
   };
@@ -40,7 +42,7 @@ export function CachedSongListModal({
         <DialogTitle>{title}</DialogTitle>
 
         {songNames.length === 0 ? (
-          <p className="text-xs text-gray-500 dark:text-gray-400">Nothing cached yet.</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{t('Nothing cached yet.')}</p>
         ) : (
           <ul className="min-h-0 space-y-1 overflow-y-auto">
             {songNames.map(songName => (
@@ -62,7 +64,7 @@ export function CachedSongListModal({
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => onEdit(songName)}
-                      title="Edit"
+                      title={t('Edit')}
                     >
                       <Pencil className="size-4" />
                     </Button>
@@ -72,7 +74,7 @@ export function CachedSongListModal({
                     variant="ghost"
                     size="icon-sm"
                     onClick={() => handleRemove(songName)}
-                    title="Remove from cache"
+                    title={t('Remove from cache')}
                   >
                     <Trash2 className="size-4 text-destructive" />
                   </Button>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GripVertical } from 'lucide-react';
 import { SwipeToDeleteRow } from '@/components/shared/SwipeToDeleteRow';
 import { SongActionsMenu } from '@/components/song-list/SongActionsMenu';
@@ -33,6 +34,7 @@ export function SetlistSongRow({
   canEdit,
   onEdit,
 }: SetlistSongRowProps) {
+  const { t } = useTranslation();
   const [positionInput, setPositionInput] = useState(String(position));
 
   useEffect(() => {
@@ -60,7 +62,7 @@ export function SetlistSongRow({
     >
       <button
         type="button"
-        title="Drag to reorder"
+        title={t('Drag to reorder')}
         onPointerDown={handleProps.onPointerDown}
         className={cn(
           'shrink-0 h-9 w-7 flex items-center justify-center text-gray-400 touch-none',
@@ -92,7 +94,7 @@ export function SetlistSongRow({
           <div
             role="button"
             tabIndex={0}
-            title={song.Text ? '' : 'Text not available for this song'}
+            title={song.Text ? '' : t('Text not available for this song')}
             onClick={() => onSelect(song)}
             onKeyDown={event => {
               if (event.key === 'Enter' || event.key === ' ') {
@@ -103,7 +105,9 @@ export function SetlistSongRow({
             className="w-full px-2 py-1 rounded cursor-pointer bg-blue-100 dark:bg-gray-800 hover:bg-blue-300 dark:hover:bg-gray-700 transition-colors"
           >
             <div className="flex items-center gap-1">
-              <div className="flex-1 min-w-0 font-medium truncate">{song.Name || 'Untitled'}</div>
+              <div className="flex-1 min-w-0 font-medium truncate">
+                {song.Name || t('Untitled')}
+              </div>
               {song.Tonality && (
                 <span className="shrink-0 text-xs text-blue-600 dark:text-blue-400">
                   {song.Tonality}

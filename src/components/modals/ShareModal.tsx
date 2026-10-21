@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ interface ShareModalProps {
 const APP_NAME = 'Band Rehearsal helper app';
 
 export function ShareModal({ open, onOpenChange, title }: ShareModalProps) {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState(false);
   const location = useLocation();
@@ -45,7 +47,7 @@ export function ShareModal({ open, onOpenChange, title }: ShareModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
-        <DialogTitle>{title || 'Share this link:'}</DialogTitle>
+        <DialogTitle>{title || t('Share this link:')}</DialogTitle>
 
         <div className="flex gap-2">
           <input
@@ -54,12 +56,14 @@ export function ShareModal({ open, onOpenChange, title }: ShareModalProps) {
             value={shareUrl}
             className="flex-1 px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
           />
-          <Button type="button" onClick={copyLink} title="Copy link">
+          <Button type="button" onClick={copyLink} title={t('Copy link')}>
             <CopyIcon className="w-4 h-4" />
           </Button>
         </div>
         {copied && (
-          <p className="text-xs text-green-600 dark:text-green-400">Link copied to clipboard!</p>
+          <p className="text-xs text-green-600 dark:text-green-400">
+            {t('Link copied to clipboard!')}
+          </p>
         )}
 
         <div className="flex gap-2 mt-2">

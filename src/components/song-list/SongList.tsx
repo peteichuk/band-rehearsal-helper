@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { SongListItem } from '@/components/song-list/SongListItem';
 import type { Song } from '@/types/song';
@@ -11,8 +12,9 @@ interface SongListProps {
 }
 
 export function SongList({ songs, selectedSong, onSelect, canEdit, onEdit }: SongListProps) {
+  const { t } = useTranslation();
   if (songs.length === 0) {
-    return <EmptyState title="No songs found" />;
+    return <EmptyState title={t('No songs found')} />;
   }
 
   return (

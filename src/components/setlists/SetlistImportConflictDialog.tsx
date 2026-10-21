@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -19,6 +20,7 @@ export function SetlistImportConflictDialog({
   setlistName,
   onChoice,
 }: SetlistImportConflictDialogProps) {
+  const { t } = useTranslation();
   const [applyToAll, setApplyToAll] = useState(true);
 
   // Defaults back to checked for every new collision shown, rather than
@@ -30,10 +32,12 @@ export function SetlistImportConflictDialog({
   return (
     <Dialog open={setlistName !== null} onOpenChange={open => !open && onChoice('cancel', false)}>
       <DialogContent className="max-w-sm">
-        <DialogTitle>Setlist already exists</DialogTitle>
+        <DialogTitle>{t('Setlist already exists')}</DialogTitle>
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          A setlist named "{setlistName}" already exists. Merge adds the imported songs into it;
-          replace overwrites it completely.
+          {t(
+            'A setlist named "{{setlistName}}" already exists. Merge adds the imported songs into it; replace overwrites it completely.',
+            { setlistName }
+          )}
         </p>
         <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
           <input
@@ -42,21 +46,21 @@ export function SetlistImportConflictDialog({
             onChange={e => setApplyToAll(e.target.checked)}
             className="h-4 w-4 accent-blue-600"
           />
-          Apply for all
+          {t('Apply for all')}
         </label>
         <div className="flex justify-end gap-2 mt-2">
           <Button type="button" variant="outline" onClick={() => onChoice('cancel', applyToAll)}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button type="button" onClick={() => onChoice('merge', applyToAll)}>
-            Merge
+            {t('Merge')}
           </Button>
           <Button
             type="button"
             variant="destructive"
             onClick={() => onChoice('replace', applyToAll)}
           >
-            Replace
+            {t('Replace')}
           </Button>
         </div>
       </DialogContent>

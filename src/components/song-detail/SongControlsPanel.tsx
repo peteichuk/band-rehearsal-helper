@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { MetronomeIcon } from '@/components/metronome/MetronomeIcon';
 import { ZoomControls } from '@/components/song-detail/ZoomControls';
 import { TransposeControls } from '@/components/song-detail/TransposeControls';
@@ -56,6 +57,7 @@ export function SongControlsPanel({
   isMetronomePlaying,
   canPrint,
 }: SongControlsPanelProps) {
+  const { t } = useTranslation();
   return (
     <CollapsiblePanel open={open} className="print:hidden">
       <div className="flex flex-wrap items-center gap-3 mb-2 pt-1">
@@ -79,7 +81,7 @@ export function SongControlsPanel({
         {DIVIDER}
         <button
           type="button"
-          title="Metronome"
+          title={t('Metronome')}
           data-metronome-trigger
           onClick={onOpenMetronome}
           className="h-9 w-10 shrink-0 flex items-center justify-center bg-orange-600 hover:bg-orange-700 text-white rounded"
@@ -89,7 +91,7 @@ export function SongControlsPanel({
         {canPrint && (
           <button
             type="button"
-            title="Print"
+            title={t('Print')}
             onClick={() => window.print()}
             className="h-9 w-10 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
           >

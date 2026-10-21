@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bookmark, FileCheck2, Pin, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocalFavorites } from '@/hooks/useLocalFavorites';
@@ -19,6 +20,7 @@ interface SongListItemProps {
 }
 
 export function SongListItem({ song, isSelected, onSelect, canEdit, onEdit }: SongListItemProps) {
+  const { t } = useTranslation();
   const hasText = Boolean(song.Text);
   const { isFavorite, toggleFavorite } = useLocalFavorites();
   const isLocalFavorite = isFavorite(song.Name);
@@ -33,7 +35,7 @@ export function SongListItem({ song, isSelected, onSelect, canEdit, onEdit }: So
       <div
         role="button"
         tabIndex={0}
-        title={hasText ? '' : 'Text not available for this song'}
+        title={hasText ? '' : t('Text not available for this song')}
         onClick={() => onSelect(song)}
         onKeyDown={event => {
           if (event.key === 'Enter' || event.key === ' ') {
@@ -58,7 +60,7 @@ export function SongListItem({ song, isSelected, onSelect, canEdit, onEdit }: So
                     event.stopPropagation();
                     togglePinOverride(song.Name, isPinned);
                   }}
-                  title={isPinned ? 'Unpin' : 'Pin to top'}
+                  title={isPinned ? t('Unpin') : t('Pin to top')}
                   className="shrink-0 text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400"
                 >
                   <Pin
@@ -73,7 +75,7 @@ export function SongListItem({ song, isSelected, onSelect, canEdit, onEdit }: So
                     event.stopPropagation();
                     toggleFavorite(song.Name);
                   }}
-                  title={isLocalFavorite ? 'Remove from my favorites' : 'Add to my favorites'}
+                  title={isLocalFavorite ? t('Remove from my favorites') : t('Add to my favorites')}
                   className="shrink-0 text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400"
                 >
                   <Star
@@ -93,7 +95,7 @@ export function SongListItem({ song, isSelected, onSelect, canEdit, onEdit }: So
                     !hasText && 'text-red-900 dark:text-red-300 underline decoration-wavy'
                   )}
                 >
-                  {song.Name || 'Untitled'}
+                  {song.Name || t('Untitled')}
                 </span>
                 {hasText && (
                   <span className="text-xs text-green-600 dark:text-green-700 mt-1">
@@ -116,7 +118,7 @@ export function SongListItem({ song, isSelected, onSelect, canEdit, onEdit }: So
                 event.stopPropagation();
                 setIsGroupEditorOpen(true);
               }}
-              title={myGroups.length > 0 ? 'Edit my groups' : 'Add to a group'}
+              title={myGroups.length > 0 ? t('Edit my groups') : t('Add to a group')}
               className={cn(
                 'self-start inline-flex items-start gap-1 text-left text-xs px-0.5',
                 myGroups.length > 0

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Speaker } from 'lucide-react';
 import { cn } from 'cn';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { useAudioOutputConnectivity } from '@/hooks/useAudioOutputConnectivity';
  * site. Currently only used from the metronome, but not metronome-specific.
  */
 export function AudioOutputButton() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { device, notConnected } = useAudioOutputConnectivity();
 
@@ -22,7 +24,7 @@ export function AudioOutputButton() {
           variant="outline"
           size="icon"
           onClick={() => setOpen(true)}
-          title="Audio output device"
+          title={t('Audio output device')}
           className="border-orange-600 dark:border-orange-400"
         >
           <Speaker className="size-4 text-orange-600 dark:text-orange-400" />

@@ -1,4 +1,5 @@
 import { Check, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAudioOutputConnectivity } from '@/hooks/useAudioOutputConnectivity';
 
 /**
@@ -8,6 +9,7 @@ import { useAudioOutputConnectivity } from '@/hooks/useAudioOutputConnectivity';
  * AudioOutputButton anywhere without any extra wiring.
  */
 export function AudioOutputStatus() {
+  const { t } = useTranslation();
   const { supported, device, status, notConnected } = useAudioOutputConnectivity();
 
   if (!supported) return null;
@@ -15,7 +17,8 @@ export function AudioOutputStatus() {
   return (
     <div>
       <p className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-        Currently: <span className="font-semibold">{device?.label ?? 'System default'}</span>
+        {t('Currently:')}{' '}
+        <span className="font-semibold">{device?.label ?? t('System default')}</span>
         {device &&
           status === 'loaded' &&
           (notConnected ? (
@@ -27,7 +30,7 @@ export function AudioOutputStatus() {
 
       {notConnected && (
         <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
-          Selected device isn't connected — audio is going to the system default instead.
+          {t("Selected device isn't connected — audio is going to the system default instead.")}
         </p>
       )}
     </div>

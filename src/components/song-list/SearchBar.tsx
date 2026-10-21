@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, X } from 'lucide-react';
 
 interface SearchBarProps {
@@ -18,6 +19,7 @@ const DEBOUNCE_MS = 300;
  * after the user stops typing.
  */
 export function SearchBar({ value, onChange, disabled }: SearchBarProps) {
+  const { t } = useTranslation();
   const [localValue, setLocalValue] = useState(value);
   const timeoutRef = useRef<number | null>(null);
 
@@ -50,7 +52,7 @@ export function SearchBar({ value, onChange, disabled }: SearchBarProps) {
     <div className="relative">
       <input
         type="text"
-        placeholder="Search songs..."
+        placeholder={t('Search songs…')}
         value={localValue}
         disabled={disabled}
         onChange={e => scheduleChange(e.target.value)}
@@ -63,7 +65,7 @@ export function SearchBar({ value, onChange, disabled }: SearchBarProps) {
       {localValue ? (
         <button
           type="button"
-          aria-label="Clear search"
+          aria-label={t('Clear search')}
           onClick={clear}
           className="absolute right-0 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
         >

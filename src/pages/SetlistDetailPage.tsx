@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { Pencil, Plus, Share2, Trash2 } from 'lucide-react';
 import { SetlistSongRow } from '@/components/setlists/SetlistSongRow';
@@ -15,6 +16,7 @@ import { DEFAULT_PAGE_ACTIONS } from '@/types/pageActions';
 import type { RootOutletContext } from '@/App';
 
 export function SetlistDetailPage() {
+  const { t } = useTranslation();
   const { allSongs, setPageActions, canEdit, openEditSong } = useOutletContext<RootOutletContext>();
   const { setlistId: rawSetlistId } = useParams<{ setlistId: string }>();
   const setlistId = decodeURIComponent(rawSetlistId ?? '');
@@ -56,7 +58,11 @@ export function SetlistDetailPage() {
 
   const handleDeleteSetlist = () => {
     if (!setlist) return;
-    if (window.confirm(`Delete "${setlist.name}"? This only removes it from this device.`)) {
+    if (
+      window.confirm(
+        t('Delete "{{name}}"? This only removes it from this device.', { name: setlist.name })
+      )
+    ) {
       deleteSetlist(setlistId);
       navigate(`/?${searchParams.toString()}`);
     }
@@ -66,7 +72,13 @@ export function SetlistDetailPage() {
   // as deleting a setlist from its list row — a toast afterward is enough.
   const handleRemoveSong = (songName: string) => {
     removeSongFromSetlist(setlistId, songName);
-    showToast(`Removed "${songName}" from "${setlist?.name}".`, 'success');
+    showToast(
+      t('Removed "{{songName}}" from "{{setlistName}}".', {
+        songName,
+        setlistName: setlist?.name,
+      }),
+      'success'
+    );
   };
 
   const selectSong = (song: (typeof orderedSongs)[number]) => {
@@ -80,8 +92,8 @@ export function SetlistDetailPage() {
     return (
       <div className="p-4">
         <EmptyState
-          title="Setlist not found"
-          message="This setlist no longer exists on this device."
+          title={t('Setlist not found')}
+          message={t('This setlist no longer exists on this device.')}
         />
       </div>
     );
@@ -101,7 +113,7 @@ export function SetlistDetailPage() {
           </button>
           <button
             type="button"
-            title="Share setlist"
+            title={t('Share setlist')}
             onClick={() => downloadSetlistAsFile(setlist)}
             className="shrink-0 h-9 w-10 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
           >
@@ -109,7 +121,7 @@ export function SetlistDetailPage() {
           </button>
           <button
             type="button"
-            title="Delete setlist"
+            title={t('Delete setlist')}
             onClick={handleDeleteSetlist}
             className="shrink-0 h-9 w-10 flex items-center justify-center rounded text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
           >
@@ -123,14 +135,14 @@ export function SetlistDetailPage() {
           className="h-9 px-3 flex items-center gap-1.5 shrink-0 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
-          Add songs
+          {t('Add songs')}
         </button>
       </div>
 
       {displayedSongs.length === 0 && (
         <EmptyState
-          title="No songs in this setlist yet"
-          message='Use "Add songs" to pick some from your catalog.'
+          title={t('No songs in this setlist yet')}
+          message={t('Use "Add songs" to pick some from your catalog.')}
         />
       )}
 

@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import YoutubeIcon from '@/assets/icons/youtube.svg?react';
 import HolychordsIcon from '@/assets/icons/holychords.svg?react';
@@ -15,13 +16,14 @@ export function hasSongLinks(song: Song): boolean {
 
 /** Renders the resource links as overflow-menu items (no wrapper — caller owns layout/separators). */
 export function SongLinks({ song }: SongLinksProps) {
+  const { t } = useTranslation();
   return (
     <Fragment>
       {song.YouTube && (
         <DropdownMenuItem asChild>
           <a href={song.YouTube} target="_blank" rel="noopener noreferrer">
             <YoutubeIcon className="w-4 h-4" />
-            Watch on YouTube
+            {t('Watch on YouTube')}
           </a>
         </DropdownMenuItem>
       )}
@@ -30,7 +32,7 @@ export function SongLinks({ song }: SongLinksProps) {
         <DropdownMenuItem asChild>
           <a href={song.Holychords} target="_blank" rel="noopener noreferrer">
             <HolychordsIcon className="w-4 h-4" />
-            View on HolyChords
+            {t('View on HolyChords')}
           </a>
         </DropdownMenuItem>
       )}
@@ -39,7 +41,7 @@ export function SongLinks({ song }: SongLinksProps) {
         <DropdownMenuItem asChild>
           <a href={song.Chordify} target="_blank" rel="noopener noreferrer">
             <ChordifyIcon className="w-4 h-4" />
-            View on Chordify
+            {t('View on Chordify')}
           </a>
         </DropdownMenuItem>
       )}

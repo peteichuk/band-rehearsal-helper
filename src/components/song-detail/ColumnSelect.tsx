@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Select,
   SelectContent,
@@ -23,6 +24,7 @@ interface ColumnSelectProps {
 }
 
 export function ColumnSelect({ value, onChange }: ColumnSelectProps) {
+  const { t } = useTranslation();
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger className="h-9! w-auto gap-2">
@@ -33,7 +35,7 @@ export function ColumnSelect({ value, onChange }: ColumnSelectProps) {
           <SelectItem key={option.value} value={option.value}>
             <span className="flex items-center gap-2">
               <ColIcon className="w-5 h-5" />
-              {option.label}
+              {t(option.label)}
             </span>
           </SelectItem>
         ))}

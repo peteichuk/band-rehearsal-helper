@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import HideTextIcon from '@/assets/icons/hide-text.svg?react';
 import HideChordsIcon from '@/assets/icons/hide-chords.svg?react';
@@ -15,6 +16,7 @@ export function LineToggleButtons({
   onToggleTextLine,
   onToggleChordLine,
 }: LineToggleButtonsProps) {
+  const { t } = useTranslation();
   const buttonClass = (active: boolean) =>
     cn(
       'h-9 w-10 shrink-0 flex items-center justify-center rounded text-white',
@@ -27,7 +29,7 @@ export function LineToggleButtons({
     <div className="flex items-center gap-2 h-9">
       <button
         type="button"
-        title="Toggle Text Lines"
+        title={t('Toggle Text Lines')}
         className={buttonClass(hideTextLine)}
         onClick={onToggleTextLine}
       >
@@ -35,7 +37,7 @@ export function LineToggleButtons({
       </button>
       <button
         type="button"
-        title="Toggle Chord Lines"
+        title={t('Toggle Chord Lines')}
         className={buttonClass(hideChordLine)}
         onClick={onToggleChordLine}
       >

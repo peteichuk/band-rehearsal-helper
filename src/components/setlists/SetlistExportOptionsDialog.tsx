@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -30,6 +31,7 @@ export function SetlistExportOptionsDialog({
   onOpenChange,
   onExport,
 }: SetlistExportOptionsDialogProps) {
+  const { t } = useTranslation();
   const [selection, setSelection] = useState<SetlistExportExtrasSelection>(DEFAULT_SELECTION);
 
   const toggle = (key: keyof SetlistExportExtrasSelection) =>
@@ -44,9 +46,11 @@ export function SetlistExportOptionsDialog({
       }}
     >
       <DialogContent className="max-w-sm">
-        <DialogTitle>Export options</DialogTitle>
+        <DialogTitle>{t('Export options')}</DialogTitle>
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          Also include this per-song data, limited to the songs in the setlist(s) you selected:
+          {t(
+            'Also include this per-song data, limited to the songs in the setlist(s) you selected:'
+          )}
         </p>
         <div className="flex flex-col gap-2">
           <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
@@ -56,7 +60,7 @@ export function SetlistExportOptionsDialog({
               onChange={() => toggle('lineNotes')}
               className="h-4 w-4 accent-blue-600"
             />
-            Line/label notes
+            {t('Line/label notes')}
           </label>
           <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
             <input
@@ -65,7 +69,7 @@ export function SetlistExportOptionsDialog({
               onChange={() => toggle('tonality')}
               className="h-4 w-4 accent-blue-600"
             />
-            Tonality/Capo choices
+            {t('Tonality/Capo choices')}
           </label>
           <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
             <input
@@ -74,15 +78,15 @@ export function SetlistExportOptionsDialog({
               onChange={() => toggle('metronomePresets')}
               className="h-4 w-4 accent-blue-600"
             />
-            Metronome presets
+            {t('Metronome presets')}
           </label>
         </div>
         <div className="flex justify-end gap-2 mt-2">
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button type="button" onClick={() => onExport(selection)}>
-            Export
+            {t('Export')}
           </Button>
         </div>
       </DialogContent>

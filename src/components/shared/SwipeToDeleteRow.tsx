@@ -1,4 +1,5 @@
 import { Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useSwipeToReveal } from '@/hooks/useSwipeToReveal';
 import type { ReactNode } from 'react';
 
@@ -9,18 +10,16 @@ interface SwipeToDeleteRowProps {
 }
 
 /** Telegram-style swipe-left-to-reveal-delete. First swipe reveals the button; tapping it deletes. */
-export function SwipeToDeleteRow({
-  children,
-  onDelete,
-  deleteLabel = 'Delete',
-}: SwipeToDeleteRowProps) {
+export function SwipeToDeleteRow({ children, onDelete, deleteLabel }: SwipeToDeleteRowProps) {
+  const { t } = useTranslation();
+  const label = deleteLabel ?? t('Delete');
   const swipe = useSwipeToReveal();
 
   return (
     <div className="relative overflow-hidden rounded">
       <button
         type="button"
-        title={deleteLabel}
+        title={label}
         onClick={() => {
           swipe.close();
           onDelete();
@@ -29,7 +28,7 @@ export function SwipeToDeleteRow({
         className="absolute inset-y-0 right-0 flex items-center justify-center gap-1 bg-red-600 text-white text-xs font-medium"
       >
         <Trash2 className="w-4 h-4" />
-        {deleteLabel}
+        {label}
       </button>
 
       <div

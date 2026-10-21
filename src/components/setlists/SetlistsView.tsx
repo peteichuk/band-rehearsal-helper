@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Download, LayoutGrid, List, ListMusic, Plus, Share2, Trash2, Upload } from 'lucide-react';
 import { ToggleButtonPair } from '@/components/shared/ToggleButtonPair';
@@ -38,6 +39,7 @@ interface SetlistsViewProps {
 }
 
 export function SetlistsView({ allSongs }: SetlistsViewProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const {
@@ -81,9 +83,13 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
   };
 
   const confirmDeleteSetlist = (setlist: Setlist) => {
-    if (window.confirm(`Delete "${setlist.name}"? This only removes it from this device.`)) {
+    if (
+      window.confirm(
+        t('Delete "{{name}}"? This only removes it from this device.', { name: setlist.name })
+      )
+    ) {
       deleteSetlist(setlist.id);
-      showToast(`Setlist "${setlist.name}" deleted.`, 'success');
+      showToast(t('Setlist "{{name}}" deleted.', { name: setlist.name }), 'success');
     }
   };
 
@@ -93,7 +99,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
   // of a notice after the fact.
   const handleSwipeDelete = (setlist: Setlist) => {
     deleteSetlist(setlist.id);
-    showToast(`Setlist "${setlist.name}" deleted.`, 'success');
+    showToast(t('Setlist "{{name}}" deleted.', { name: setlist.name }), 'success');
   };
 
   const startExportMode = () => {
@@ -143,7 +149,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
     };
 
     downloadSetlistsAsFile(selected, extras);
-    showToast(`Exported ${selected.length} setlist${selected.length === 1 ? '' : 's'}.`, 'success');
+    showToast(t('Exported {{count}} setlist(s).', { count: selected.length }), 'success');
     setShowExportOptions(false);
     cancelExportMode();
   };
@@ -211,12 +217,12 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
       }
 
       if (importedCount > 0) {
-        showToast(`Imported ${importedCount} setlist${importedCount === 1 ? '' : 's'}.`, 'success');
+        showToast(t('Imported {{count}} setlist(s).', { count: importedCount }), 'success');
       } else if (cancelled) {
-        showToast('Import cancelled.', 'info');
+        showToast(t('Import cancelled.'), 'info');
       }
     } catch (err) {
-      showToast(`Import failed: ${(err as Error).message}`, 'error');
+      showToast(t('Import failed: {{message}}', { message: (err as Error).message }), 'error');
     }
   };
 
@@ -233,14 +239,14 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                   onChange={toggleSelectAllForExport}
                   className="h-4 w-4 accent-blue-600"
                 />
-                Select all
+                {t('Select all')}
               </label>
               <button
                 type="button"
                 onClick={cancelExportMode}
                 className="h-9 px-3 flex items-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium"
               >
-                Cancel
+                {t('Cancel')}
               </button>
             </div>
             <button
@@ -250,7 +256,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
               className="h-9 px-3 flex items-center gap-1.5 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-50 disabled:pointer-events-none"
             >
               <Upload className="w-4 h-4" />
-              Export
+              {t('Export')}
             </button>
           </>
         ) : (
@@ -261,15 +267,15 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
               activeClassName="bg-blue-700 dark:bg-blue-600 text-white"
               inactiveClassName="text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
               options={[
-                { value: 'tiles', label: 'Tiles', icon: <LayoutGrid className="w-4 h-4" /> },
-                { value: 'list', label: 'List', icon: <List className="w-4 h-4" /> },
+                { value: 'tiles', label: t('Tiles'), icon: <LayoutGrid className="w-4 h-4" /> },
+                { value: 'list', label: t('List'), icon: <List className="w-4 h-4" /> },
               ]}
             />
 
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                title="Import setlist"
+                title={t('Import setlist')}
                 onClick={() => fileInputRef.current?.click()}
                 className="h-9 w-10 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
@@ -277,7 +283,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
               </button>
               <button
                 type="button"
-                title="Export setlists"
+                title={t('Export setlists')}
                 onClick={startExportMode}
                 disabled={allSetlists.length === 0}
                 className="h-9 w-10 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:pointer-events-none"
@@ -290,7 +296,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                 className="h-9 px-3 flex items-center gap-1.5 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium"
               >
                 <Plus className="w-4 h-4" />
-                New setlist
+                {t('New setlist')}
               </button>
               <input
                 ref={fileInputRef}
@@ -310,8 +316,8 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
 
       {allSetlists.length === 0 && (
         <EmptyState
-          title="No setlists yet"
-          message='Create one with "New setlist", or add a song to a setlist from its ⋮ menu.'
+          title={t('No setlists yet')}
+          message={t('Create one with "New setlist", or add a song to a setlist from its ⋮ menu.')}
         />
       )}
 
@@ -334,7 +340,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
               <div className="absolute top-1 right-1 flex items-center gap-0.5">
                 <button
                   type="button"
-                  title="Share setlist"
+                  title={t('Share setlist')}
                   onClick={event => {
                     event.stopPropagation();
                     downloadSetlistAsFile(setlist);
@@ -345,7 +351,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                 </button>
                 <button
                   type="button"
-                  title="Delete setlist"
+                  title={t('Delete setlist')}
                   onClick={event => {
                     event.stopPropagation();
                     confirmDeleteSetlist(setlist);
@@ -358,7 +364,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
               <ListMusic className="w-10 h-10 text-blue-600 dark:text-blue-400" />
               <span className="text-sm font-medium break-words">{setlist.name}</span>
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                {songCount(setlist.id)} song{songCount(setlist.id) === 1 ? '' : 's'}
+                {t('{{count}} song(s)', { count: songCount(setlist.id) })}
               </span>
             </div>
           ))}
@@ -397,12 +403,12 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                 <ListMusic className="w-5 h-5 shrink-0 text-blue-600 dark:text-blue-400" />
                 <span className="flex-1 min-w-0 truncate font-medium">{setlist.name}</span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
-                  {songCount(setlist.id)} song{songCount(setlist.id) === 1 ? '' : 's'}
+                  {t('{{count}} song(s)', { count: songCount(setlist.id) })}
                 </span>
                 {!isExportMode && (
                   <button
                     type="button"
-                    title="Share setlist"
+                    title={t('Share setlist')}
                     onClick={event => {
                       event.stopPropagation();
                       downloadSetlistAsFile(setlist);

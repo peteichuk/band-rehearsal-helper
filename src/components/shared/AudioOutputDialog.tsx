@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,6 +32,7 @@ interface AudioOutputDialogProps {
  * (desktop or Android) — see src/lib/audioOutputDevice.ts.
  */
 export function AudioOutputDialog({ open, onClose }: AudioOutputDialogProps) {
+  const { t } = useTranslation();
   const supported = isAudioOutputSelectionSupported();
   const device = useAudioOutputDevice();
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
@@ -111,19 +113,21 @@ export function AudioOutputDialog({ open, onClose }: AudioOutputDialogProps) {
   return (
     <Dialog open={open} onOpenChange={next => !next && onClose()}>
       <DialogContent className="max-w-[calc(100%-20px)] sm:max-w-sm">
-        <DialogTitle>Audio Output</DialogTitle>
+        <DialogTitle>{t('Audio Output')}</DialogTitle>
 
         {supported ? (
           <div className="space-y-3">
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Send audio to a specific output device — e.g. a USB audio interface or a Bluetooth
-              speaker — instead of your system's default. The browser may ask for microphone access
-              just to unlock device names; nothing is recorded.
+              {t(
+                "Send audio to a specific output device — e.g. a USB audio interface or a Bluetooth speaker — instead of your system's default. The browser may ask for microphone access just to unlock device names; nothing is recorded."
+              )}
             </p>
 
             {status === 'error' ? (
               <p className="text-xs text-destructive">
-                Couldn't list output devices. Try again, or allow microphone access if prompted.
+                {t(
+                  "Couldn't list output devices. Try again, or allow microphone access if prompted."
+                )}
               </p>
             ) : (
               <>
@@ -135,13 +139,16 @@ export function AudioOutputDialog({ open, onClose }: AudioOutputDialogProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={SYSTEM_DEFAULT_VALUE}>System default</SelectItem>
+                    <SelectItem value={SYSTEM_DEFAULT_VALUE}>{t('System default')}</SelectItem>
                     {draftIdMissing && draft && (
-                      <SelectItem value={draft.deviceId}>{draft.label} (not connected)</SelectItem>
+                      <SelectItem value={draft.deviceId}>
+                        {t('{{label}} (not connected)', { label: draft.label })}
+                      </SelectItem>
                     )}
                     {devices.map(d => (
                       <SelectItem key={d.deviceId} value={d.deviceId}>
-                        {d.label || `Output device (${d.deviceId.slice(0, 8)})`}
+                        {d.label ||
+                          t('Output device ({{idPrefix}})', { idPrefix: d.deviceId.slice(0, 8) })}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -149,24 +156,24 @@ export function AudioOutputDialog({ open, onClose }: AudioOutputDialogProps) {
 
                 {savedDeviceMissing && device && (
                   <p className="text-xs text-amber-600 dark:text-amber-400">
-                    Your saved output, "{device.label}", isn't active right now — the system default
-                    will be used instead until it's reconnected. Pick a device below to update your
-                    saved choice.
+                    {t(
+                      'Your saved output, "{{label}}", isn\'t active right now — the system default will be used instead until it\'s reconnected. Pick a device below to update your saved choice.',
+                      { label: device.label }
+                    )}
                   </p>
                 )}
 
                 <Button type="button" onClick={handleConfirm} className="w-full">
-                  OK
+                  {t('OK')}
                 </Button>
               </>
             )}
           </div>
         ) : (
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Choosing an audio output device isn't supported on this browser/device. It's a
-            Chromium-only feature (Chrome or Edge, on desktop or Android) — it works there, just not
-            in Safari, Firefox, or on iOS. The metronome still plays normally through your device's
-            default output either way.
+            {t(
+              "Choosing an audio output device isn't supported on this browser/device. It's a Chromium-only feature (Chrome or Edge, on desktop or Android) — it works there, just not in Safari, Firefox, or on iOS. The metronome still plays normally through your device's default output either way."
+            )}
           </p>
         )}
       </DialogContent>

@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   HashRouter,
   Outlet,
@@ -21,11 +22,14 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { MetronomeModal } from '@/components/metronome/MetronomeModal';
 import { ShareModal } from '@/components/modals/ShareModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
+import { LocalePromptModal } from '@/components/modals/LocalePromptModal';
 import { SongFormDialog } from '@/components/song-form/SongFormDialog';
 import { Toaster } from '@/components/shared/Toaster';
 import { useSongsQuery } from '@/hooks/useSongsQuery';
 import { useMetronome } from '@/hooks/useMetronome';
 import { useDarkMode } from '@/hooks/useDarkMode';
+import { useLocale } from '@/hooks/useLocale';
+import { isAmbiguousSystemLocale } from '@/lib/locale';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useEditAccess } from '@/hooks/useEditAccess';
@@ -58,6 +62,7 @@ export interface RootOutletContext {
 }
 
 function RootLayout() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -90,7 +95,7 @@ function RootLayout() {
   const { data: sheetTitle } = useSheetTitle(tableId, auth.accessToken, canEdit);
 
   const [pageActions, setPageActions] = useState<PageActions>(DEFAULT_PAGE_ACTIONS);
-  const { catalogViewMode } = useAppPreferences();
+  const { catalogViewMode, localePromptSeen } = useAppPreferences();
   const metronome = useMetronome(location.pathname);
   const [isMetronomePlaying, setIsMetronomePlaying] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -99,6 +104,7 @@ function RootLayout() {
   const setMenuOpen = useSetMenuOpen();
 
   useDarkMode();
+  useLocale();
   useWakeLock();
 
   const handlePullToRefresh = useCallback(() => {
@@ -109,7 +115,7 @@ function RootLayout() {
     // no data at all).
     return refetch().then(result => {
       if (result.isError) {
-        showToast("Couldn't refresh — check your connection.", 'error');
+        showToast(t("Couldn't refresh — check your connection."), 'error');
       }
     });
   }, [refetch]);
@@ -144,7 +150,7 @@ function RootLayout() {
 
   const handleFormSubmit = async (values: Record<string, unknown>) => {
     if (!tableId || !auth.accessToken || !sheetTitle) {
-      throw new Error('Not ready to save yet — try again in a moment.');
+      throw new Error(t('Not ready to save yet — try again in a moment.'));
     }
     if (editingSong === 'new') {
       await appendSong(tableId, auth.accessToken, sheetTitle, headers, values);
@@ -253,6 +259,7 @@ function RootLayout() {
         onSubmit={handleFormSubmit}
       />
       <Toaster />
+      <LocalePromptModal open={!localePromptSeen && isAmbiguousSystemLocale()} />
     </div>
   );
 }

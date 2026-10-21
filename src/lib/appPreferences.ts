@@ -3,6 +3,7 @@ import type { CatalogViewMode } from '@/types/pageActions';
 import type { Orientation, OrientationDisplayConfig } from '@/lib/songDisplayConfig';
 
 export type ThemePreference = 'light' | 'dark' | 'auto';
+export type LocalePreference = 'auto' | 'en' | 'uk' | 'pl';
 
 /**
  * Small, low-volume "how does the UI look" preferences, kept in one key
@@ -16,6 +17,9 @@ export interface AppPreferences {
   songFormTextFontSize: number;
   songDisplayDefaults: Record<Orientation, OrientationDisplayConfig>;
   theme: ThemePreference;
+  locale: LocalePreference;
+  /** Whether the first-run "pick your language" prompt has been shown/dismissed once. */
+  localePromptSeen: boolean;
 }
 
 const STORAGE_KEY = 'appPreferences';
@@ -29,6 +33,8 @@ const DEFAULT_PREFERENCES: AppPreferences = {
     landscape: { ...BASE_DISPLAY_CONFIG },
   },
   theme: 'auto',
+  locale: 'auto',
+  localePromptSeen: false,
 };
 
 type Listener = () => void;
@@ -131,6 +137,14 @@ export function setSongDisplayDefaults(
 
 export function setTheme(theme: ThemePreference) {
   update({ theme });
+}
+
+export function setLocale(locale: LocalePreference) {
+  update({ locale });
+}
+
+export function setLocalePromptSeen(localePromptSeen: boolean) {
+  update({ localePromptSeen });
 }
 
 export function subscribeAppPreferences(listener: Listener): () => void {

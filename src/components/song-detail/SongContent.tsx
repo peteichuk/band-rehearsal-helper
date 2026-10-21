@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { splitIntoSections } from '@/lib/chords/parseLine';
 import { ChordLine } from '@/components/song-detail/ChordLine';
@@ -35,6 +36,7 @@ export function SongContent({
   hideChordLine = false,
   fontSize,
 }: SongContentProps) {
+  const { t } = useTranslation();
   const sections = useMemo(() => splitIntoSections(text), [text]);
   const { notes, setNote, deleteNote } = useSongLineNotes(songName);
   const [editingKey, setEditingKey] = useState<string | null>(null);
@@ -116,7 +118,7 @@ export function SongContent({
       <Dialog open={editingKey !== null} onOpenChange={open => !open && closeEditor()}>
         <DialogContent className="max-w-[calc(100%-20px)]">
           <DialogHeader>
-            <DialogTitle>Note</DialogTitle>
+            <DialogTitle>{t('Note')}</DialogTitle>
           </DialogHeader>
           <textarea
             autoFocus
@@ -130,7 +132,7 @@ export function SongContent({
                 saveNote();
               }
             }}
-            placeholder="e.g. I come in here"
+            placeholder={t('e.g. I come in here')}
             // text-base (16px), not the dialog's inherited text-sm (14px) —
             // iOS/Android auto-zoom the viewport on focusing any input under
             // 16px, and that zoom can stay stuck after the dialog closes.
@@ -139,10 +141,10 @@ export function SongContent({
           <DialogFooter>
             {editingKey && notes[editingKey] && (
               <Button variant="outline" onClick={removeNote}>
-                Delete
+                {t('Delete')}
               </Button>
             )}
-            <Button onClick={saveNote}>Save</Button>
+            <Button onClick={saveNote}>{t('Save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

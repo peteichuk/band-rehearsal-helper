@@ -1,4 +1,5 @@
 import { ZoomIn, ZoomOut } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import ReloadIcon from '@/assets/icons/reload.svg?react';
 
 const DEFAULT_FONT_SIZE = 16;
@@ -17,6 +18,7 @@ export function ZoomControls({
   onChange,
   resetValue = DEFAULT_FONT_SIZE,
 }: ZoomControlsProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-2 h-9">
       <button
@@ -28,7 +30,7 @@ export function ZoomControls({
       </button>
       <button
         type="button"
-        title="Reset font size"
+        title={t('Reset font size')}
         className="h-9 px-3 shrink-0 flex items-center gap-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded font-semibold"
         onClick={() => onChange(resetValue)}
       >

@@ -1,4 +1,5 @@
 import { Library, ListMusic } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import type { CatalogViewMode } from '@/types/pageActions';
 
@@ -17,10 +18,11 @@ interface BottomTabBarProps {
  * catalog view mode doesn't apply.
  */
 export function BottomTabBar({ value, onChange, visible }: BottomTabBarProps) {
+  const { t } = useTranslation();
   return (
     <nav
       role="tablist"
-      aria-label="Catalog view"
+      aria-label={t('Catalog view')}
       aria-hidden={!visible}
       className={cn(
         'print:hidden fixed inset-x-4 bottom-4 z-40 flex rounded-full',
@@ -51,7 +53,7 @@ export function BottomTabBar({ value, onChange, visible }: BottomTabBarProps) {
           )}
         >
           <Library className="w-6 h-6" />
-          Library
+          {t('Library')}
         </span>
       </button>
       <button
@@ -71,7 +73,7 @@ export function BottomTabBar({ value, onChange, visible }: BottomTabBarProps) {
           )}
         >
           <ListMusic className="w-6 h-6" />
-          Setlists
+          {t('Setlists')}
         </span>
       </button>
     </nav>

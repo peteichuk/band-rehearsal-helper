@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Hand } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -12,6 +13,7 @@ interface TapTempoButtonProps {
 }
 
 export function TapTempoButton({ onChange }: TapTempoButtonProps) {
+  const { t } = useTranslation();
   const tapTimesRef = useRef<number[]>([]);
 
   const handleTap = () => {
@@ -36,7 +38,7 @@ export function TapTempoButton({ onChange }: TapTempoButtonProps) {
   return (
     <Button type="button" variant="outline" onClick={handleTap}>
       <Hand data-icon="inline-start" />
-      Tap
+      {t('Tap')}
     </Button>
   );
 }

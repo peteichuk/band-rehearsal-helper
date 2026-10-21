@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
@@ -18,6 +19,7 @@ interface LanguageFilterSelectProps {
 }
 
 export function LanguageFilterSelect({ songs, value, onChange }: LanguageFilterSelectProps) {
+  const { t } = useTranslation();
   const languages = useMemo(() => {
     const set = new Set<string>();
     songs.forEach(song => {
@@ -33,7 +35,8 @@ export function LanguageFilterSelect({ songs, value, onChange }: LanguageFilterS
     else onChange([...value, language]);
   };
 
-  const label = value.length === 0 ? 'All languages' : `Languages (${value.length})`;
+  const label =
+    value.length === 0 ? t('All languages') : t('Languages ({{count}})', { count: value.length });
 
   return (
     <DropdownMenu>
@@ -50,7 +53,7 @@ export function LanguageFilterSelect({ songs, value, onChange }: LanguageFilterS
       <DropdownMenuContent align="start" className="w-48">
         {value.length > 0 && (
           <>
-            <DropdownMenuItem onSelect={() => onChange([])}>Clear</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => onChange([])}>{t('Clear')}</DropdownMenuItem>
             <DropdownMenuSeparator />
           </>
         )}

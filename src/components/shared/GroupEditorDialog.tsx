@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ interface GroupEditorDialogProps {
 }
 
 export function GroupEditorDialog({ open, onOpenChange, songName }: GroupEditorDialogProps) {
+  const { t } = useTranslation();
   const { getGroups, addGroup, removeGroup, allGroupNames } = useLocalGroups();
   const [input, setInput] = useState('');
 
@@ -36,7 +38,9 @@ export function GroupEditorDialog({ open, onOpenChange, songName }: GroupEditorD
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[calc(100%-20px)] sm:max-w-sm">
-        <DialogTitle>My groups {songName ? `— ${songName}` : ''}</DialogTitle>
+        <DialogTitle>
+          {songName ? t('My groups — {{songName}}', { songName }) : t('My groups')}
+        </DialogTitle>
 
         {currentGroups.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
@@ -50,7 +54,7 @@ export function GroupEditorDialog({ open, onOpenChange, songName }: GroupEditorD
                   type="button"
                   onClick={() => songName && removeGroup(songName, group)}
                   className="hover:text-destructive"
-                  title={`Remove "${group}"`}
+                  title={t('Remove "{{name}}"', { name: group })}
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -70,7 +74,7 @@ export function GroupEditorDialog({ open, onOpenChange, songName }: GroupEditorD
                 commitInput();
               }
             }}
-            placeholder="Add a group…"
+            placeholder={t('Add a group…')}
             className="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
 
@@ -104,10 +108,10 @@ export function GroupEditorDialog({ open, onOpenChange, songName }: GroupEditorD
             onClick={commitInput}
             disabled={!input.trim()}
           >
-            Add "{input.trim() || '…'}"
+            {t('Add "{{value}}"', { value: input.trim() || '…' })}
           </Button>
           <Button type="button" onClick={() => onOpenChange(false)}>
-            Done
+            {t('Done')}
           </Button>
         </div>
       </DialogContent>

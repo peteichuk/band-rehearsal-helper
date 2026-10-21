@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ interface SetlistPickerDialogProps {
 
 /** Per-song "which setlists is this in" — same chips + search-suggestions UI as GroupEditorDialog. */
 export function SetlistPickerDialog({ open, onOpenChange, songName }: SetlistPickerDialogProps) {
+  const { t } = useTranslation();
   const {
     allSetlists,
     getSetlistsForSong,
@@ -50,7 +52,9 @@ export function SetlistPickerDialog({ open, onOpenChange, songName }: SetlistPic
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
-        <DialogTitle>Setlists {songName ? `— ${songName}` : ''}</DialogTitle>
+        <DialogTitle>
+          {songName ? t('Setlists — {{songName}}', { songName }) : t('Setlists')}
+        </DialogTitle>
 
         {currentSetlists.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
@@ -64,7 +68,7 @@ export function SetlistPickerDialog({ open, onOpenChange, songName }: SetlistPic
                   type="button"
                   onClick={() => songName && removeSongFromSetlist(setlist.id, songName)}
                   className="hover:text-destructive"
-                  title={`Remove from "${setlist.name}"`}
+                  title={t('Remove from "{{name}}"', { name: setlist.name })}
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -84,7 +88,7 @@ export function SetlistPickerDialog({ open, onOpenChange, songName }: SetlistPic
                 commitInput();
               }
             }}
-            placeholder="Add a setlist…"
+            placeholder={t('Add a setlist…')}
             className="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
 
@@ -118,10 +122,10 @@ export function SetlistPickerDialog({ open, onOpenChange, songName }: SetlistPic
             onClick={commitInput}
             disabled={!input.trim()}
           >
-            Add "{input.trim() || '…'}"
+            {t('Add "{{value}}"', { value: input.trim() || '…' })}
           </Button>
           <Button type="button" onClick={() => onOpenChange(false)}>
-            Done
+            {t('Done')}
           </Button>
         </div>
       </DialogContent>

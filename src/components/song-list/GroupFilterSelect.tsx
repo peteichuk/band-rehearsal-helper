@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Select,
   SelectContent,
@@ -18,6 +19,7 @@ interface GroupFilterSelectProps {
 }
 
 export function GroupFilterSelect({ songs, value, onChange }: GroupFilterSelectProps) {
+  const { t } = useTranslation();
   const { allGroupNames } = useLocalGroups();
 
   const groups = useMemo(() => {
@@ -36,10 +38,10 @@ export function GroupFilterSelect({ songs, value, onChange }: GroupFilterSelectP
       onValueChange={next => onChange(next === ALL_GROUPS ? null : next)}
     >
       <SelectTrigger className="h-9! w-full sm:w-48">
-        <SelectValue placeholder="All groups" />
+        <SelectValue placeholder={t('All groups')} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value={ALL_GROUPS}>All groups</SelectItem>
+        <SelectItem value={ALL_GROUPS}>{t('All groups')}</SelectItem>
         {groups.map(group => (
           <SelectItem key={group} value={group}>
             {group}

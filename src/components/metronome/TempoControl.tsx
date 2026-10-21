@@ -1,4 +1,5 @@
 import { useCallback, useId, useRef, type KeyboardEvent, type PointerEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const MIN_BPM = 20;
 const MAX_BPM = 280;
@@ -41,6 +42,7 @@ function pointerToFraction(dx: number, dy: number) {
 }
 
 export function TempoControl({ bpm, onChange }: TempoControlProps) {
+  const { t } = useTranslation();
   const svgRef = useRef<SVGSVGElement>(null);
   const labelId = useId();
 
@@ -129,7 +131,7 @@ export function TempoControl({ bpm, onChange }: TempoControlProps) {
       <div className="pointer-events-none absolute inset-x-0 top-[58%] flex flex-col items-center">
         <span className="text-5xl font-bold tabular-nums leading-none">{bpm}</span>
         <span id={labelId} className="mt-1 text-xs text-muted-foreground">
-          BPM
+          {t('BPM')}
         </span>
       </div>
     </div>

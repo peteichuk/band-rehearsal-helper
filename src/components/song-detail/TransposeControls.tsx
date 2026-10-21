@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -21,6 +22,7 @@ export function TransposeControls({
   targetTonality,
   onTransposeChange,
 }: TransposeControlsProps) {
+  const { t } = useTranslation();
   const options = useMemo(() => getTransposeOptions(originalTonality), [originalTonality]);
 
   const initialIndex = useMemo(() => {
@@ -80,7 +82,9 @@ export function TransposeControls({
         <SelectContent>
           {options.map((option, index) => (
             <SelectItem key={option.tonalityName + index} value={String(index)}>
-              {option.label}
+              {option.isOriginal
+                ? t('{{tonality}} (Original)', { tonality: option.tonalityName })
+                : option.tonalityName}
             </SelectItem>
           ))}
         </SelectContent>

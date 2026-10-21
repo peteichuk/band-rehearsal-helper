@@ -15,6 +15,7 @@ import { setSongFormTextFontSize, useAppPreferences } from '@/lib/appPreferences
 import { cn } from '@/lib/utils';
 import { validateSongForm } from '@/lib/validation/songForm';
 import { showToast } from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
 import { TIME_SIGNATURES } from '@/components/metronome/timeSignatures';
 import type { Song } from '@/types/song';
 
@@ -81,6 +82,7 @@ export function SongFormDialog({
   initialSong,
   onSubmit,
 }: SongFormDialogProps) {
+  const { t } = useTranslation();
   const [values, setValues] = useState<FormValues>(() => valuesFromSong(initialSong, headers));
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -113,7 +115,10 @@ export function SongFormDialog({
       await onSubmit(values);
       onOpenChange(false);
       const name = String(values.Name ?? '');
-      showToast(initialSong ? `"${name}" updated.` : `"${name}" added.`, 'success');
+      showToast(
+        initialSong ? t('"{{name}}" updated.', { name }) : t('"{{name}}" added.', { name }),
+        'success'
+      );
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -145,7 +150,9 @@ export function SongFormDialog({
           if (target instanceof HTMLTextAreaElement) target.setSelectionRange(0, 0);
         }}
       >
-        <DialogTitle>{initialSong ? `Edit "${initialSong.Name}"` : 'Add Song'}</DialogTitle>
+        <DialogTitle>
+          {initialSong ? t('Edit "{{name}}"', { name: initialSong.Name }) : t('Add Song')}
+        </DialogTitle>
 
         <div className="space-y-3">
           {lead.map(header => (
@@ -189,10 +196,10 @@ export function SongFormDialog({
             onClick={() => onOpenChange(false)}
             disabled={isSaving}
           >
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button type="button" onClick={handleSubmit} disabled={isSaving}>
-            {isSaving ? 'Saving…' : 'Save'}
+            {isSaving ? t('Saving…') : t('Save')}
           </Button>
         </div>
       </DialogContent>
@@ -217,6 +224,8 @@ function FieldRow({
   onTextFontSizeChange: (next: number) => void;
   fieldRef?: RefObject<HTMLInputElement | null> | RefObject<HTMLTextAreaElement | null>;
 }) {
+  // `header` is the sheet's own column name (Name, Text, Tonality, BPM, …) —
+  // schema, not UI prose, so it's deliberately not run through t().
   return (
     <div>
       <div className="flex items-center justify-between gap-2 mb-1">
@@ -250,7 +259,7 @@ function FieldRow({
   );
 }
 
-const TEXT_PLACEHOLDER = `Intro (Guitar):
+const TEXT_PLACEHOLDER_KEY = `Intro (Guitar):
 Dm Am E Am
 
 Verse 1:
@@ -300,6 +309,7 @@ function Field({
   textFontSize: number;
   fieldRef?: RefObject<HTMLInputElement | null> | RefObject<HTMLTextAreaElement | null>;
 }) {
+  const { t } = useTranslation();
   const value = values[header];
   const update = (next: unknown) => setValues(prev => ({ ...prev, [header]: next }));
 
@@ -320,7 +330,7 @@ function Field({
         ref={fieldRef as RefObject<HTMLTextAreaElement | null>}
         value={String(value ?? '')}
         onChange={e => update(e.target.value)}
-        placeholder={TEXT_PLACEHOLDER}
+        placeholder={t(TEXT_PLACEHOLDER_KEY)}
         style={{ fontSize: `${textFontSize}px` }}
         className={cn(
           inputClass,
@@ -347,7 +357,7 @@ function Field({
         onChange={e => update(e.target.value)}
         className={cn(inputClass, hasError && inputErrorClass)}
       >
-        <option value="">Select tonality…</option>
+        <option value="">{t('Select tonality…')}</option>
         {DISPLAY_SCALE.map(note => (
           <option key={note} value={note}>
             {note}
@@ -364,7 +374,7 @@ function Field({
         onChange={e => update(e.target.value)}
         className={cn(inputClass, hasError && inputErrorClass)}
       >
-        <option value="">Time signature, e.g. 3/4, 4/4…</option>
+        <option value="">{t('Time signature, e.g. 3/4, 4/4…')}</option>
         {TIME_SIGNATURES.map(signature => (
           <option key={signature.id} value={signature.label}>
             {signature.label}
@@ -380,7 +390,7 @@ function Field({
         type="number"
         value={value === '' || value == null ? '' : String(value)}
         onChange={e => update(e.target.value === '' ? '' : Number(e.target.value))}
-        placeholder={FIELD_PLACEHOLDERS[header]}
+        placeholder={t(FIELD_PLACEHOLDERS[header])}
         className={cn(inputClass, hasError && inputErrorClass)}
       />
     );
@@ -392,7 +402,7 @@ function Field({
       type="text"
       value={String(value ?? '')}
       onChange={e => update(e.target.value)}
-      placeholder={FIELD_PLACEHOLDERS[header]}
+      placeholder={t(FIELD_PLACEHOLDERS[header])}
       className={cn(inputClass, hasError && inputErrorClass)}
     />
   );

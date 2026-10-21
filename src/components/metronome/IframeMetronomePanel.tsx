@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import {
   CUSTOM_PATTERN_ID,
@@ -23,6 +24,7 @@ export function IframeMetronomePanel({
   timeSignatureId,
   songName,
 }: IframeMetronomePanelProps) {
+  const { t } = useTranslation();
   const isDark = useDarkMode();
   const [src, setSrc] = useState<string | null>(null);
   // Same per-song preset LocalMetronomePanel reads/writes, so switching
@@ -50,5 +52,5 @@ export function IframeMetronomePanel({
 
   if (src === null) return null;
 
-  return <iframe src={src} title="Metronome" className="w-full h-[500px] border-0 rounded" />;
+  return <iframe src={src} title={t('Metronome')} className="w-full h-[500px] border-0 rounded" />;
 }

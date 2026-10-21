@@ -1,4 +1,5 @@
 import { Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useSongLineNotes } from '@/hooks/useSongLineNotes';
@@ -16,16 +17,19 @@ interface LineNotesPresetDialogProps {
  * out-of-context editor has no rendering of.
  */
 export function LineNotesPresetDialog({ open, onClose, songName }: LineNotesPresetDialogProps) {
+  const { t } = useTranslation();
   const { notes, setNote, deleteNote } = useSongLineNotes(songName);
   const lineKeys = Object.keys(notes);
 
   return (
     <Dialog open={open} onOpenChange={next => !next && onClose()}>
       <DialogContent className="max-w-[calc(100%-20px)] sm:max-w-sm max-h-[70vh] flex flex-col overflow-hidden">
-        <DialogTitle>Line notes — {songName}</DialogTitle>
+        <DialogTitle>{t('Line notes — {{songName}}', { songName })}</DialogTitle>
 
         {lineKeys.length === 0 ? (
-          <p className="text-xs text-gray-500 dark:text-gray-400">No notes left for this song.</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {t('No notes left for this song.')}
+          </p>
         ) : (
           <div className="min-h-0 space-y-2 overflow-y-auto">
             {lineKeys.map(lineKey => (
@@ -41,7 +45,7 @@ export function LineNotesPresetDialog({ open, onClose, songName }: LineNotesPres
                   variant="ghost"
                   size="icon-sm"
                   onClick={() => deleteNote(lineKey)}
-                  title="Delete this note"
+                  title={t('Delete this note')}
                 >
                   <Trash2 className="size-4 text-destructive" />
                 </Button>
@@ -51,7 +55,7 @@ export function LineNotesPresetDialog({ open, onClose, songName }: LineNotesPres
         )}
 
         <Button type="button" onClick={onClose}>
-          Done
+          {t('Done')}
         </Button>
       </DialogContent>
     </Dialog>
