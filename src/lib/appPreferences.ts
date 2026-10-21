@@ -3,7 +3,7 @@ import type { CatalogViewMode } from '@/types/pageActions';
 import type { Orientation, OrientationDisplayConfig } from '@/lib/songDisplayConfig';
 
 export type ThemePreference = 'light' | 'dark' | 'auto';
-export type LocalePreference = 'auto' | 'en' | 'uk' | 'pl';
+export type LocalePreference = 'auto' | 'en' | 'uk' | 'pl' | 'ja' | 'es' | 'pt' | 'hi' | 'bn';
 
 /**
  * Small, low-volume "how does the UI look" preferences, kept in one key

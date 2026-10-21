@@ -1,7 +1,10 @@
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { setLocale, setLocalePromptSeen } from '@/lib/appPreferences';
 import { LOCALE_OPTIONS, resolveSystemLocale, type Locale } from '@/lib/locale';
+import { useIsLocaleLoading } from '@/hooks/useLocale';
 
 interface LocalePromptModalProps {
   open: boolean;
@@ -19,8 +22,14 @@ interface LocalePromptModalProps {
  */
 export function LocalePromptModal({ open }: LocalePromptModalProps) {
   const recommended: Locale = resolveSystemLocale();
+  const isLoading = useIsLocaleLoading();
+  // Which button to spin — picking one locale shouldn't spin every button,
+  // and the dialog stays mounted (closes via `open`, not unmount) through
+  // the brief window where the chunk is still loading.
+  const [picked, setPicked] = useState<Locale | null>(null);
 
   const choose = (value: Locale) => {
+    setPicked(value);
     setLocale(value);
     setLocalePromptSeen(true);
   };
@@ -41,9 +50,14 @@ export function LocalePromptModal({ open }: LocalePromptModalProps) {
               type="button"
               variant={option.value === recommended ? 'default' : 'outline'}
               className="justify-start gap-2"
+              disabled={isLoading}
               onClick={() => choose(option.value)}
             >
-              <span>{option.flag}</span>
+              {isLoading && picked === option.value ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <span>{option.flag}</span>
+              )}
               <span>{option.label}</span>
             </Button>
           ))}

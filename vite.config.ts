@@ -14,6 +14,19 @@ export default defineConfig({
   },
   build: {
     outDir: 'docs',
+    rollupOptions: {
+      output: {
+        // Gives each lazy-loaded locale JSON its own predictably-named chunk
+        // (`locale-uk-*.js` etc.) instead of Rollup's default hash-only
+        // naming, so the service worker's runtimeCaching rule below can
+        // recognize and lazily cache them separately from the rest of the
+        // precached app shell (see the VitePWA workbox config).
+        manualChunks(id) {
+          const match = /[/\\]src[/\\]locales[/\\]([a-z]+)\.json$/.exec(id);
+          if (match) return `locale-${match[1]}`;
+        },
+      },
+    },
   },
   // Binds to 0.0.0.0 instead of just localhost, so the dev server is also
   // reachable from other devices on the LAN (e.g. a phone, for testing
@@ -79,7 +92,25 @@ export default defineConfig({
         // navigateFallback's one job (serving the shell for every
         // navigation) — see its own comment for why that's safe here.
         navigateFallback: undefined,
+        // Locale chunks (locale-uk-*.js etc., see manualChunks above) are
+        // deliberately NOT force-precached with the rest of the app shell —
+        // that would defeat the point of lazy-loading them (every visitor
+        // downloading all 7 non-English bundles upfront). The runtimeCaching
+        // CacheFirst rule below caches each one only once it's actually
+        // requested, which is also all a hashed filename ever needs: a
+        // cache hit is permanently valid, since any future translation
+        // change ships under a brand new hash/URL instead of overwriting
+        // this one.
+        globIgnores: ['**/locale-*.js'],
         runtimeCaching: [
+          {
+            urlPattern: ({ url }) => /\/locale-[a-z]+-[\w-]+\.js$/.test(url.pathname),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'locale-cache',
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           {
             // The app shell itself (index.html). Precaching alone (the
             // default for everything generateSW lists) means Workbox serves

@@ -1,13 +1,30 @@
 import type { LocalePreference } from '@/lib/appPreferences';
 
-export const SUPPORTED_LOCALES = ['en', 'uk', 'pl'] as const;
+export const SUPPORTED_LOCALES = ['en', 'uk', 'pl', 'ja', 'es', 'pt', 'hi', 'bn'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
-/** Each language written in its own name — shown as-is in a picker so it reads correctly before any locale is even chosen. */
-export const LOCALE_OPTIONS: { value: Locale; flag: string; code: string; label: string }[] = [
+/**
+ * Each language written in its own name — shown as-is in a picker so it
+ * reads correctly before any locale is even chosen. Ordered alphabetically
+ * by English language name (the usual convention for a flat language list),
+ * not grouped by script/region.
+ */
+export interface LocaleOption {
+  value: Locale;
+  flag: string;
+  code: string;
+  label: string;
+}
+
+export const LOCALE_OPTIONS: LocaleOption[] = [
+  { value: 'bn', flag: '🇧🇩', code: 'BN', label: 'বাংলা' },
   { value: 'en', flag: '🇺🇸', code: 'EN', label: 'English' },
-  { value: 'uk', flag: '🇺🇦', code: 'UK', label: 'Українська' },
+  { value: 'hi', flag: '🇮🇳', code: 'HI', label: 'हिन्दी' },
+  { value: 'ja', flag: '🇯🇵', code: 'JA', label: '日本語' },
   { value: 'pl', flag: '🇵🇱', code: 'PL', label: 'Polski' },
+  { value: 'pt', flag: '🇧🇷', code: 'PT', label: 'Português (Brasil)' },
+  { value: 'es', flag: '🇪🇸', code: 'ES', label: 'Español' },
+  { value: 'uk', flag: '🇺🇦', code: 'UK', label: 'Українська' },
 ];
 
 function isSupportedLocale(value: string): value is Locale {
