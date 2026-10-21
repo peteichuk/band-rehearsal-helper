@@ -20,7 +20,7 @@ export function AudioOutputButton() {
         <Button
           type="button"
           variant="outline"
-          size="icon-sm"
+          size="icon"
           onClick={() => setOpen(true)}
           title="Audio output device"
           className="border-orange-600 dark:border-orange-400"

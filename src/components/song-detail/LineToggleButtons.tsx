@@ -17,7 +17,7 @@ export function LineToggleButtons({
 }: LineToggleButtonsProps) {
   const buttonClass = (active: boolean) =>
     cn(
-      'h-9 w-9 shrink-0 flex items-center justify-center rounded text-white',
+      'h-9 w-10 shrink-0 flex items-center justify-center rounded text-white',
       active
         ? 'bg-red-600 dark:bg-red-800 hover:bg-red-500 dark:hover:bg-red-700'
         : 'bg-green-600 dark:bg-green-800 hover:bg-green-500 dark:hover:bg-green-700'

@@ -9,9 +9,9 @@ import {
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Pin } from 'lucide-react';
-import { ZoomControls, DEFAULT_FONT_SIZE } from '@/components/song-detail/ZoomControls';
+import { ZoomControls } from '@/components/song-detail/ZoomControls';
 import { DISPLAY_SCALE } from '@/lib/chords/transpose';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { setSongFormTextFontSize, useAppPreferences } from '@/lib/appPreferences';
 import { cn } from '@/lib/utils';
 import { validateSongForm } from '@/lib/validation/songForm';
 import { showToast } from '@/lib/toast';
@@ -88,10 +88,8 @@ export function SongFormDialog({
   // Separate from the song-view zoom — a song's Text can mix lyrics and
   // chords in whatever font the sheet's author likes, so editing deserves
   // its own remembered size.
-  const [textFontSize, setTextFontSize] = useLocalStorageState(
-    'songFormTextFontSize',
-    DEFAULT_FONT_SIZE
-  );
+  const { songFormTextFontSize: textFontSize } = useAppPreferences();
+  const setTextFontSize = setSongFormTextFontSize;
   const nameInputRef = useRef<HTMLInputElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 

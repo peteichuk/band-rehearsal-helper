@@ -21,7 +21,7 @@ export function ZoomControls({
     <div className="flex items-center gap-2 h-9">
       <button
         type="button"
-        className="h-9 w-9 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
+        className="h-9 w-10 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
         onClick={() => onChange(Math.max(MIN_FONT_SIZE, fontSize - STEP))}
       >
         <ZoomOut className="w-4 h-4" />
@@ -37,7 +37,7 @@ export function ZoomControls({
       </button>
       <button
         type="button"
-        className="h-9 w-9 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
+        className="h-9 w-10 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
         onClick={() => onChange(fontSize + STEP)}
       >
         <ZoomIn className="w-4 h-4" />

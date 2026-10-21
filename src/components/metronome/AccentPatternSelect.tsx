@@ -16,7 +16,7 @@ interface AccentPatternSelectProps {
 export function AccentPatternSelect({ patterns, value, onChange }: AccentPatternSelectProps) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger size="sm">
+      <SelectTrigger>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

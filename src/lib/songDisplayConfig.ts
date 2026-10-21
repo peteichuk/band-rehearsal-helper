@@ -1,3 +1,10 @@
+import {
+  getAppPreferencesSnapshot,
+  getSongDisplayDefaults,
+  setSongDisplayDefaults,
+  subscribeAppPreferences,
+} from '@/lib/appPreferences';
+
 export type Orientation = 'portrait' | 'landscape';
 
 export interface OrientationDisplayConfig {
@@ -10,7 +17,6 @@ type Defaults = Record<Orientation, OrientationDisplayConfig>;
 // songName -> orientation -> whichever fields this song overrides
 type Overrides = Record<string, Partial<Record<Orientation, PartialOrientationConfig>>>;
 
-const DEFAULTS_STORAGE_KEY = 'songDisplayDefaults';
 const OVERRIDES_STORAGE_KEY = 'songDisplayOverrides';
 
 export const BASE_DISPLAY_CONFIG: OrientationDisplayConfig = {
@@ -25,19 +31,6 @@ const BASE_DEFAULTS: Defaults = {
 
 type Listener = () => void;
 
-function loadDefaults(): Defaults {
-  try {
-    const raw = localStorage.getItem(DEFAULTS_STORAGE_KEY);
-    const parsed = raw ? (JSON.parse(raw) as Partial<Defaults>) : {};
-    return {
-      portrait: { ...BASE_DISPLAY_CONFIG, ...parsed.portrait },
-      landscape: { ...BASE_DISPLAY_CONFIG, ...parsed.landscape },
-    };
-  } catch {
-    return { ...BASE_DEFAULTS };
-  }
-}
-
 function loadOverrides(): Overrides {
   try {
     const raw = localStorage.getItem(OVERRIDES_STORAGE_KEY);
@@ -47,7 +40,11 @@ function loadOverrides(): Overrides {
   }
 }
 
-let defaults = loadDefaults();
+// The global per-orientation defaults now actually live in appPreferences.ts
+// (folded in alongside catalogViewMode/songFormTextFontSize/theme — all
+// small, low-volume UI preferences kept in one key). `defaults` here just
+// mirrors that store's current value, kept fresh by the subscription below.
+let defaults = getSongDisplayDefaults();
 let overrides = loadOverrides();
 // useSyncExternalStore compares snapshots by reference (Object.is) — this
 // must only get a new identity when defaults/overrides actually change, or
@@ -59,12 +56,22 @@ function notify() {
   listeners.forEach(listener => listener());
 }
 
+// Safety net for `defaults` getting written some other way than through
+// setGlobalFontSize/setGlobalColumnClass/persistDefaults below (e.g. a
+// future Settings → Backup import touching appPreferences directly). The
+// reference check skips the redundant update+notify for the *normal* path
+// below, which already does both itself before this subscription even
+// fires.
+subscribeAppPreferences(() => {
+  const next = getAppPreferencesSnapshot().songDisplayDefaults;
+  if (next === defaults) return;
+  defaults = next;
+  snapshot = { defaults, overrides };
+  notify();
+});
+
 function persistDefaults() {
-  try {
-    localStorage.setItem(DEFAULTS_STORAGE_KEY, JSON.stringify(defaults));
-  } catch {
-    // ignore (e.g. storage disabled/full)
-  }
+  setSongDisplayDefaults(defaults);
   snapshot = { defaults, overrides };
   notify();
 }

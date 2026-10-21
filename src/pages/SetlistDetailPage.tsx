@@ -103,7 +103,7 @@ export function SetlistDetailPage() {
             type="button"
             title="Share setlist"
             onClick={() => downloadSetlistAsFile(setlist)}
-            className="shrink-0 h-7 w-7 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
+            className="shrink-0 h-9 w-10 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
           >
             <Share2 className="w-4 h-4" />
           </button>
@@ -111,7 +111,7 @@ export function SetlistDetailPage() {
             type="button"
             title="Delete setlist"
             onClick={handleDeleteSetlist}
-            className="shrink-0 h-7 w-7 flex items-center justify-center rounded text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
+            className="shrink-0 h-9 w-10 flex items-center justify-center rounded text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
           >
             <Trash2 className="w-4 h-4" />
           </button>

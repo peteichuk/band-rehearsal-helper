@@ -34,7 +34,7 @@ export function TapTempoButton({ onChange }: TapTempoButtonProps) {
   };
 
   return (
-    <Button type="button" variant="outline" size="sm" onClick={handleTap}>
+    <Button type="button" variant="outline" onClick={handleTap}>
       <Hand data-icon="inline-start" />
       Tap
     </Button>

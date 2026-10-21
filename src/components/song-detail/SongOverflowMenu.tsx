@@ -31,7 +31,7 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
           <button
             type="button"
             title="More options"
-            className="h-9 w-9 shrink-0 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+            className="h-9 w-10 shrink-0 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
           >
             <MoreVertical className="w-5 h-5" />
           </button>

@@ -82,7 +82,7 @@ export function SongControlsPanel({
           title="Metronome"
           data-metronome-trigger
           onClick={onOpenMetronome}
-          className="h-9 w-9 shrink-0 flex items-center justify-center bg-orange-600 hover:bg-orange-700 text-white rounded"
+          className="h-9 w-10 shrink-0 flex items-center justify-center bg-orange-600 hover:bg-orange-700 text-white rounded"
         >
           <MetronomeIcon playing={isMetronomePlaying} className="w-4 h-4" />
         </button>
@@ -91,7 +91,7 @@ export function SongControlsPanel({
             type="button"
             title="Print"
             onClick={() => window.print()}
-            className="h-9 w-9 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
+            className="h-9 w-10 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
           >
             <PrintIcon className="w-4 h-4" />
           </button>

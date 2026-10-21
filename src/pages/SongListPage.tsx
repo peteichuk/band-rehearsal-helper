@@ -131,7 +131,7 @@ export function SongListPage() {
                   title={isFiltersOpen ? 'Hide filters' : 'Show filters'}
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
                   className={cn(
-                    'h-9 w-9 shrink-0 flex items-center justify-center rounded',
+                    'h-9 w-10 shrink-0 flex items-center justify-center rounded',
                     isFiltersOpen || hasActiveFilters
                       ? 'bg-blue-700 dark:bg-blue-600 text-white hover:bg-blue-800 dark:hover:bg-blue-700'
                       : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'

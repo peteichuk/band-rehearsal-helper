@@ -33,7 +33,7 @@ export function SongActionsMenu({ song, canEdit, onEdit, setlistContext }: SongA
             type="button"
             title="More options"
             onClick={event => event.stopPropagation()}
-            className="shrink-0 h-7 w-7 flex items-center justify-center rounded text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200"
+            className="shrink-0 h-9 w-10 flex items-center justify-center rounded text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200"
           >
             <MoreVertical className="w-4 h-4" />
           </button>

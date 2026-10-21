@@ -88,6 +88,26 @@
 
 html {
   touch-action: manipulation;
+  /* Reserves the scrollbar's gutter permanently, so toggling the page's
+     real scrollbar (e.g. Radix locking background scroll while a
+     Select/Dialog is open) never changes the available content width —
+     without this, fixed-position elements anchored to the viewport edge
+     (like BottomTabBar) visibly shift sideways every time one opens/closes. */
+  scrollbar-gutter: stable;
+}
+
+/* react-remove-scroll (used internally by every Radix Dialog/Select to lock
+   background scroll while open — see node_modules/react-remove-scroll-bar)
+   independently measures the scrollbar gap itself and adds its own
+   `margin-right` to <body> to compensate — redundant now that
+   `scrollbar-gutter: stable` above already reserves that space permanently,
+   and it was adding a second, visible 15px shift on top of that. `html` in
+   the selector is just there to out-specificity Radix's own injected
+   `body[data-scroll-locked]` rule (same selector, `!important` on both —
+   without the extra specificity this would lose if Radix's <style> tag
+   happens to be inserted after this stylesheet). */
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
 }
 
 @keyframes metronome-swing {

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, Info, LogIn, LogOut, Plus, Settings } from 'lucide-react';
 import { TableIdPrompt } from '@/components/song-list/TableIdPrompt';
+import { ThemeSelect } from '@/components/layout/ThemeSelect';
 import { MetronomeIcon } from '@/components/metronome/MetronomeIcon';
 import { useMenuOpen, useSetMenuOpen } from '@/contexts/MenuContext';
 import { extractSheetId } from '@/lib/google/sheetId';
@@ -154,7 +155,8 @@ export function Header({
           </button>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex items-center justify-end gap-2">
+          <ThemeSelect />
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
               <button type="button" title="Menu" className={PRIMARY_BUTTON_CLASS}>

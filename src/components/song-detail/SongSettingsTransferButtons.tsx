@@ -16,7 +16,7 @@ interface SongSettingsTransferButtonsProps {
 }
 
 const buttonClass =
-  'h-9 w-9 shrink-0 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600';
+  'h-9 w-10 shrink-0 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600';
 
 /** Export/import just this one song's own local data (pin, tags, tonality, line notes, metronome preset, favorite status) — separate from the all-songs Settings → Backup flow. */
 export function SongSettingsTransferButtons({ songName }: SongSettingsTransferButtonsProps) {

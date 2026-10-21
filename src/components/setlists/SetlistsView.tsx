@@ -271,7 +271,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                 type="button"
                 title="Import setlist"
                 onClick={() => fileInputRef.current?.click()}
-                className="h-9 w-9 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="h-9 w-10 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <Download className="w-4 h-4" />
               </button>
@@ -280,7 +280,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                 title="Export setlists"
                 onClick={startExportMode}
                 disabled={allSetlists.length === 0}
-                className="h-9 w-9 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:pointer-events-none"
+                className="h-9 w-10 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:pointer-events-none"
               >
                 <Upload className="w-4 h-4" />
               </button>
@@ -407,7 +407,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                       event.stopPropagation();
                       downloadSetlistAsFile(setlist);
                     }}
-                    className="shrink-0 h-7 w-7 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
+                    className="shrink-0 h-9 w-10 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
                   >
                     <Share2 className="w-4 h-4" />
                   </button>

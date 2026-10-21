@@ -33,7 +33,7 @@ import { extractSheetId } from '@/lib/google/sheetId';
 import { useSheetTitle } from '@/hooks/useSheetTitle';
 import { appendSong, updateSong } from '@/lib/google/sheetsWrite';
 import { useEffectivePinsSet } from '@/hooks/useEffectivePins';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { setCatalogViewMode, useAppPreferences } from '@/lib/appPreferences';
 import { MenuProvider, useSetMenuOpen } from '@/contexts/MenuContext';
 import { sortForDisplay } from '@/lib/songs/sortAndFilter';
 import { showToast } from '@/lib/toast';
@@ -90,18 +90,7 @@ function RootLayout() {
   const { data: sheetTitle } = useSheetTitle(tableId, auth.accessToken, canEdit);
 
   const [pageActions, setPageActions] = useState<PageActions>(DEFAULT_PAGE_ACTIONS);
-  const [rawCatalogViewMode, setCatalogViewMode] = useLocalStorageState<CatalogViewMode>(
-    'catalogViewMode',
-    'library'
-  );
-  // Normalize a value saved under the pre-rename literals ('list'/'albums')
-  // so returning users land on the same tab they had before, under its new name.
-  const catalogViewMode: CatalogViewMode =
-    (rawCatalogViewMode as unknown) === 'list'
-      ? 'library'
-      : (rawCatalogViewMode as unknown) === 'albums'
-        ? 'setlists'
-        : rawCatalogViewMode;
+  const { catalogViewMode } = useAppPreferences();
   const metronome = useMetronome(location.pathname);
   const [isMetronomePlaying, setIsMetronomePlaying] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);

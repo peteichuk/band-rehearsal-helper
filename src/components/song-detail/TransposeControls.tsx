@@ -70,7 +70,7 @@ export function TransposeControls({
 
   return (
     <div className="flex items-center justify-center gap-2 h-9">
-      <Button type="button" className="h-9 w-9 p-0 text-white" onClick={() => step(-1)}>
+      <Button type="button" className="h-9 w-10 p-0 text-white" onClick={() => step(-1)}>
         -
       </Button>
       <Select value={String(selectedIndex)} onValueChange={value => select(Number(value))}>
@@ -85,7 +85,7 @@ export function TransposeControls({
           ))}
         </SelectContent>
       </Select>
-      <Button type="button" className="h-9 w-9 p-0 text-white" onClick={() => step(1)}>
+      <Button type="button" className="h-9 w-10 p-0 text-white" onClick={() => step(1)}>
         +
       </Button>
     </div>

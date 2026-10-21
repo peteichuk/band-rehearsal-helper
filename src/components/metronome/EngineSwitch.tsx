@@ -9,10 +9,9 @@ interface EngineSwitchProps {
 
 export function EngineSwitch({ value, onChange }: EngineSwitchProps) {
   return (
-    <div className="flex items-center justify-center gap-1">
+    <div className="flex flex-wrap items-center justify-center gap-1">
       <Button
         type="button"
-        size="xs"
         variant={value === 'local' ? 'secondary' : 'ghost'}
         onClick={() => onChange('local')}
       >
@@ -20,7 +19,6 @@ export function EngineSwitch({ value, onChange }: EngineSwitchProps) {
       </Button>
       <Button
         type="button"
-        size="xs"
         variant={value === 'iframe' ? 'secondary' : 'ghost'}
         onClick={() => onChange('iframe')}
       >

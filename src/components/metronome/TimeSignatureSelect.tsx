@@ -15,7 +15,7 @@ interface TimeSignatureSelectProps {
 export function TimeSignatureSelect({ value, onChange }: TimeSignatureSelectProps) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger size="sm">
+      <SelectTrigger>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
