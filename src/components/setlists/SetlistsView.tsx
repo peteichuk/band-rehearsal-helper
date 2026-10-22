@@ -244,7 +244,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
               <button
                 type="button"
                 onClick={cancelExportMode}
-                className="h-9 px-3 flex items-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium"
+                className="py-[9px] px-4 flex items-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium"
               >
                 {t('Cancel')}
               </button>
@@ -253,9 +253,9 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
               type="button"
               onClick={() => setShowExportOptions(true)}
               disabled={selectedForExport.size === 0}
-              className="h-9 px-3 flex items-center gap-1.5 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-50 disabled:pointer-events-none"
+              className="py-2.5 px-4 flex items-center gap-1.5 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-50 disabled:pointer-events-none"
             >
-              <Upload className="w-4 h-4" />
+              <Upload className="w-5 h-5" />
               {t('Export')}
             </button>
           </>
@@ -267,8 +267,8 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
               activeClassName="bg-blue-700 dark:bg-blue-600 text-white"
               inactiveClassName="text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
               options={[
-                { value: 'tiles', label: t('Tiles'), icon: <LayoutGrid className="w-4 h-4" /> },
-                { value: 'list', label: t('List'), icon: <List className="w-4 h-4" /> },
+                { value: 'tiles', label: t('Tiles'), icon: <LayoutGrid className="w-5 h-5" /> },
+                { value: 'list', label: t('List'), icon: <List className="w-5 h-5" /> },
               ]}
             />
 
@@ -277,25 +277,25 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                 type="button"
                 title={t('Import setlist')}
                 onClick={() => fileInputRef.current?.click()}
-                className="h-9 w-10 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="p-[9px] flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-5 h-5" />
               </button>
               <button
                 type="button"
                 title={t('Export setlists')}
                 onClick={startExportMode}
                 disabled={allSetlists.length === 0}
-                className="h-9 w-10 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:pointer-events-none"
+                className="p-[9px] flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:pointer-events-none"
               >
-                <Upload className="w-4 h-4" />
+                <Upload className="w-5 h-5" />
               </button>
               <button
                 type="button"
                 onClick={() => setIsCreateOpen(true)}
-                className="h-9 px-3 flex items-center gap-1.5 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium"
+                className="py-2.5 px-4 flex items-center gap-1.5 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-5 h-5" />
                 {t('New setlist')}
               </button>
               <input
@@ -345,7 +345,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                     event.stopPropagation();
                     downloadSetlistAsFile(setlist);
                   }}
-                  className="h-6 w-6 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
+                  className="p-1.5 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
                 >
                   <Share2 className="w-3.5 h-3.5" />
                 </button>
@@ -356,7 +356,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                     event.stopPropagation();
                     confirmDeleteSetlist(setlist);
                   }}
-                  className="h-6 w-6 flex items-center justify-center rounded text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
+                  className="p-1.5 flex items-center justify-center rounded text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -413,7 +413,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                       event.stopPropagation();
                       downloadSetlistAsFile(setlist);
                     }}
-                    className="shrink-0 h-9 w-10 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
+                    className="shrink-0 p-2.5 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
                   >
                     <Share2 className="w-4 h-4" />
                   </button>

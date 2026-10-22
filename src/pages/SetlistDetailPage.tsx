@@ -115,26 +115,26 @@ export function SetlistDetailPage() {
             type="button"
             title={t('Share setlist')}
             onClick={() => downloadSetlistAsFile(setlist)}
-            className="shrink-0 h-9 w-10 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
+            className="shrink-0 p-2.5 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
           >
-            <Share2 className="w-4 h-4" />
+            <Share2 className="w-5 h-5" />
           </button>
           <button
             type="button"
             title={t('Delete setlist')}
             onClick={handleDeleteSetlist}
-            className="shrink-0 h-9 w-10 flex items-center justify-center rounded text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
+            className="shrink-0 p-2.5 flex items-center justify-center rounded text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-5 h-5" />
           </button>
         </div>
 
         <button
           type="button"
           onClick={() => setIsAddSongsOpen(true)}
-          className="h-9 px-3 flex items-center gap-1.5 shrink-0 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium"
+          className="py-2.5 px-4 flex items-center gap-1.5 shrink-0 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-5 h-5" />
           {t('Add songs')}
         </button>
       </div>

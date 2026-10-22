@@ -31,10 +31,10 @@ export function ThemeSelect() {
     <Select value={theme} onValueChange={value => setTheme(value as ThemePreference)}>
       <SelectTrigger
         title={t('Theme: {{theme}}', { theme: t(THEME_LABEL_KEY[theme]) })}
-        className="h-9 w-9 shrink-0 justify-center gap-0 rounded border-0 bg-blue-700 p-0 text-white hover:bg-blue-800 focus-visible:ring-0 dark:bg-blue-600 dark:hover:bg-blue-700 [&>svg:last-child]:hidden"
+        className="shrink-0 justify-center gap-0 rounded border-0 bg-blue-700 p-2.5 text-white hover:bg-blue-800 focus-visible:ring-0 dark:bg-blue-600 dark:hover:bg-blue-700 [&>svg:last-child]:hidden"
       >
         <SelectValue>
-          <Icon className="w-4 h-4" />
+          <Icon className="size-5" />
         </SelectValue>
       </SelectTrigger>
       {/* position="popper" (not the shared component's default

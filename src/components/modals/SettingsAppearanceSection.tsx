@@ -11,7 +11,7 @@ const PREVIEW_LINES = [
 ];
 
 // Same divider used between controls on the song page itself (SongControlsPanel).
-const DIVIDER = <div className="h-9 w-px shrink-0 bg-gray-300 dark:bg-gray-600" />;
+const DIVIDER = <div className="self-stretch w-px shrink-0 bg-gray-300 dark:bg-gray-600" />;
 
 interface OrientationCardProps {
   orientation: Orientation;

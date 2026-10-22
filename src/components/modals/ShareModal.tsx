@@ -57,7 +57,7 @@ export function ShareModal({ open, onOpenChange, title }: ShareModalProps) {
             className="flex-1 px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
           />
           <Button type="button" onClick={copyLink} title={t('Copy link')}>
-            <CopyIcon className="w-4 h-4" />
+            <CopyIcon />
           </Button>
         </div>
         {copied && (
@@ -76,7 +76,7 @@ export function ShareModal({ open, onOpenChange, title }: ShareModalProps) {
               )
             }
           >
-            <TelegramIcon className="w-4 h-4" /> Telegram
+            <TelegramIcon /> Telegram
           </Button>
           <Button
             type="button"
@@ -87,7 +87,7 @@ export function ShareModal({ open, onOpenChange, title }: ShareModalProps) {
               )
             }
           >
-            <WhatsappIcon className="w-4 h-4" /> WhatsApp
+            <WhatsappIcon /> WhatsApp
           </Button>
         </div>
       </DialogContent>

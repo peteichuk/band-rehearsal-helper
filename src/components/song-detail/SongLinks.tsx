@@ -22,7 +22,7 @@ export function SongLinks({ song }: SongLinksProps) {
       {song.YouTube && (
         <DropdownMenuItem asChild>
           <a href={song.YouTube} target="_blank" rel="noopener noreferrer">
-            <YoutubeIcon className="w-4 h-4" />
+            <YoutubeIcon className="size-5" />
             {t('Watch on YouTube')}
           </a>
         </DropdownMenuItem>
@@ -31,7 +31,7 @@ export function SongLinks({ song }: SongLinksProps) {
       {song.Holychords && (
         <DropdownMenuItem asChild>
           <a href={song.Holychords} target="_blank" rel="noopener noreferrer">
-            <HolychordsIcon className="w-4 h-4" />
+            <HolychordsIcon className="size-5" />
             {t('View on HolyChords')}
           </a>
         </DropdownMenuItem>
@@ -40,7 +40,7 @@ export function SongLinks({ song }: SongLinksProps) {
       {song.Chordify && (
         <DropdownMenuItem asChild>
           <a href={song.Chordify} target="_blank" rel="noopener noreferrer">
-            <ChordifyIcon className="w-4 h-4" />
+            <ChordifyIcon className="size-5" />
             {t('View on Chordify')}
           </a>
         </DropdownMenuItem>

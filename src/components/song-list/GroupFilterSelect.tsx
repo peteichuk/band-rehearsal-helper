@@ -37,7 +37,7 @@ export function GroupFilterSelect({ songs, value, onChange }: GroupFilterSelectP
       value={value ?? ALL_GROUPS}
       onValueChange={next => onChange(next === ALL_GROUPS ? null : next)}
     >
-      <SelectTrigger className="h-9! w-full sm:w-48">
+      <SelectTrigger className="w-full sm:w-48">
         <SelectValue placeholder={t('All groups')} />
       </SelectTrigger>
       <SelectContent>

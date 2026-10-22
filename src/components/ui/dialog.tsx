@@ -117,9 +117,9 @@ function DialogTitle({ className, ...props }: React.ComponentProps<typeof Dialog
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      // pr-8 reserves room for DialogContent's absolutely-positioned close
-      // button (top-2 right-2, size-7) so a long title doesn't run under it.
-      className={cn('text-base leading-none font-medium pr-8', className)}
+      // pr-10 reserves room for DialogContent's absolutely-positioned close
+      // button (top-2 right-2, size="icon-sm") so a long title doesn't run under it.
+      className={cn('text-base leading-none font-medium pr-10', className)}
       {...props}
     />
   );

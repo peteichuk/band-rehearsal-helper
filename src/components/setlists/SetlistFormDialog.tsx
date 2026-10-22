@@ -51,7 +51,7 @@ export function SetlistFormDialog({
           // text-base (16px), not the dialog's inherited text-sm (14px) —
           // iOS/Android auto-zoom the viewport on focusing any input under
           // 16px, and that zoom can stay stuck after the dialog closes.
-          className="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-base text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full py-[7px] px-3 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-base text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
         <div className="flex justify-end mt-2">

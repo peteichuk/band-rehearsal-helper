@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Download, HelpCircle, Upload } from 'lucide-react';
+import { Download, Pencil, Upload } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { SettingsAppearanceSection } from '@/components/modals/SettingsAppearanceSection';
@@ -126,21 +126,22 @@ function presentCategoriesOf(parsed: Partial<ExportedSettings>): Record<BackupCa
   };
 }
 
-/** The per-song categories that get a "?" list (name + edit + remove) — Favorites/Setlists/Appearance aren't per-song caches in the same shape. */
+/** The per-song categories that get an edit list (name + edit + remove) — Favorites/Setlists/Appearance aren't per-song caches in the same shape. */
 type SongListCategory = 'pins' | 'tags' | 'tonality' | 'lineNotes' | 'metronomePresets';
 
-/** Next to a count heading — opens the list of exactly which songs it covers. */
-function HelpButton({ onClick }: { onClick: () => void }) {
+/** Next to a reset button — opens the list of exactly which songs it covers, for editing/removing individually. */
+function EditListButton({ onClick }: { onClick: () => void }) {
   const { t } = useTranslation();
   return (
-    <button
+    <Button
       type="button"
+      variant="default"
+      size="icon"
       onClick={onClick}
-      title={t('Show which songs')}
-      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+      title={t('Edit which songs')}
     >
-      <HelpCircle className="size-3.5" />
-    </button>
+      <Pencil className="size-5" />
+    </Button>
   );
 }
 
@@ -517,97 +518,107 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold mb-1 flex items-center gap-1">
+              <h3 className="text-sm font-semibold mb-1">
                 {t('Pinned overrides ({{count}})', { count: pinOverrideCount })}
-                <HelpButton onClick={() => setListCategory('pins')} />
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                 {t("Songs where you've locally overridden the sheet's own PinedByDefault column.")}
               </p>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleResetPins}
-                disabled={pinOverrideCount === 0}
-              >
-                {t('Reset Pinned by Default')}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleResetPins}
+                  disabled={pinOverrideCount === 0}
+                >
+                  {t('Reset Pinned by Default')}
+                </Button>
+                <EditListButton onClick={() => setListCategory('pins')} />
+              </div>
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold mb-1 flex items-center gap-1">
+              <h3 className="text-sm font-semibold mb-1">
                 {t('My groups ({{count}} songs tagged)', { count: customGroupedSongsCount })}
-                <HelpButton onClick={() => setListCategory('tags')} />
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                 {t("Your own local groups (bookmark icon), on top of the sheet's GroupBy column.")}
               </p>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleResetGroups}
-                disabled={customGroupedSongsCount === 0}
-              >
-                {t('Reset My Groups')}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleResetGroups}
+                  disabled={customGroupedSongsCount === 0}
+                >
+                  {t('Reset My Groups')}
+                </Button>
+                <EditListButton onClick={() => setListCategory('tags')} />
+              </div>
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold mb-1 flex items-center gap-1">
+              <h3 className="text-sm font-semibold mb-1">
                 {t('Tonality/capo choices ({{count}} songs)', { count: tonalityPrefCount })}
-                <HelpButton onClick={() => setListCategory('tonality')} />
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                 {t(
                   'The key (and matching capo) you last picked per song, remembered locally so the song reopens the way you left it.'
                 )}
               </p>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleResetTonalityPrefs}
-                disabled={tonalityPrefCount === 0}
-              >
-                {t('Reset Tonality/Capo Choices')}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleResetTonalityPrefs}
+                  disabled={tonalityPrefCount === 0}
+                >
+                  {t('Reset Tonality/Capo Choices')}
+                </Button>
+                <EditListButton onClick={() => setListCategory('tonality')} />
+              </div>
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold mb-1 flex items-center gap-1">
+              <h3 className="text-sm font-semibold mb-1">
                 {t('Line/label notes ({{count}} songs)', { count: lineNotesSongCount })}
-                <HelpButton onClick={() => setListCategory('lineNotes')} />
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                 {t('Personal cues on lyric/chord lines or section labels, kept purely local.')}
               </p>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleResetLineNotes}
-                disabled={lineNotesSongCount === 0}
-              >
-                {t('Clear Line Notes')}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleResetLineNotes}
+                  disabled={lineNotesSongCount === 0}
+                >
+                  {t('Clear Line Notes')}
+                </Button>
+                <EditListButton onClick={() => setListCategory('lineNotes')} />
+              </div>
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold mb-1 flex items-center gap-1">
+              <h3 className="text-sm font-semibold mb-1">
                 {t('Metronome presets ({{count}} songs)', { count: metronomePresetsCount })}
-                <HelpButton onClick={() => setListCategory('metronomePresets')} />
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                 {t(
                   'Tempo, time signature, and accent pattern, remembered per song so its metronome reopens the way you left it — shared between the local and embedded engines.'
                 )}
               </p>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleResetMetronomePresets}
-                disabled={metronomePresetsCount === 0}
-              >
-                {t('Reset Metronome Presets')}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleResetMetronomePresets}
+                  disabled={metronomePresetsCount === 0}
+                >
+                  {t('Reset Metronome Presets')}
+                </Button>
+                <EditListButton onClick={() => setListCategory('metronomePresets')} />
+              </div>
             </div>
 
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
@@ -622,7 +633,7 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
                   </p>
                   <div className="flex gap-2">
                     <Button type="button" variant="outline" onClick={startExport}>
-                      <Upload className="w-4 h-4" />
+                      <Upload />
                       {t('Export')}
                     </Button>
                     <Button
@@ -630,7 +641,7 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
                       variant="outline"
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      <Download className="w-4 h-4" />
+                      <Download />
                       {t('Import')}
                     </Button>
                   </div>

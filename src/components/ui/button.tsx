@@ -3,8 +3,26 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'cn';
 import { Slot } from 'radix-ui';
 
+// --- Sizing formula (the one rule every size below follows) -------------
+// Every size targets a round total height T. A button always reserves a 1px
+// border on each side (`border border-transparent` below, so filled variants
+// don't shift size relative to `outline`), and its content is always 20px —
+// either text-sm's own line-height, or an icon explicitly matched to it
+// (size-5, see the base `svg` rule), so a label and an icon-only button of
+// the same size are always identical heights, never off by a few px because
+// one happened to inherit a different ambient font size. That leaves one
+// unknown, the padding, solved from content(20) + 2*padding + border(2) = T:
+//   xs: T=32 -> padding 5    sm: T=36 -> padding 7
+//   default: T=40 -> padding 9    lg: T=44 -> padding 9, but with a bigger
+//   (24px) icon on icon-lg specifically, for a visually larger primary
+//   control — still solved from the same equation, just a different content.
+// The padding values are each a couple px off the nearest clean Tailwind
+// step, which is why they're written as arbitrary values (py-[9px], not
+// py-2) — that's intentional, not a workaround; it's what the equation above
+// actually requires. Horizontal padding (px-*) is unconstrained by this and
+// free to vary per size for a label's breathing room.
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
   {
     variants: {
       variant: {
@@ -21,19 +39,16 @@ const buttonVariants = cva(
       },
       size: {
         default:
-          'h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
-        xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-        lg: 'h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
-        // Deliberately not a tight square (see headerButtonStyles.ts's icon
-        // buttons, the reference size for "big enough to tap comfortably")
-        // — 40 wide reads as more tappable without looking obviously stretched.
-        icon: 'h-9 w-10',
+          'gap-1.5 py-[9px] px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3',
+        xs: 'gap-1 rounded-[min(var(--radius-md),10px)] py-[5px] px-2.5 in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
+        sm: 'gap-1 rounded-[min(var(--radius-md),12px)] py-[7px] px-3 in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
+        lg: 'gap-1.5 py-[11px] px-5 has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4',
+        icon: 'p-[9px]',
         'icon-xs':
-          "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+          'p-[5px] rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg',
         'icon-sm':
-          'size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg',
-        'icon-lg': 'size-9',
+          'p-[7px] rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg',
+        'icon-lg': "p-[9px] [&_svg:not([class*='size-'])]:size-6",
       },
     },
     defaultVariants: {

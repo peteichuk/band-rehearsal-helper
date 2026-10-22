@@ -47,7 +47,7 @@ export function LineNotesPresetDialog({ open, onClose, songName }: LineNotesPres
                   onClick={() => deleteNote(lineKey)}
                   title={t('Delete this note')}
                 >
-                  <Trash2 className="size-4 text-destructive" />
+                  <Trash2 className="size-5 text-destructive" />
                 </Button>
               </div>
             ))}

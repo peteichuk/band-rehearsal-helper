@@ -71,12 +71,12 @@ export function TransposeControls({
   };
 
   return (
-    <div className="flex items-center justify-center gap-2 h-9">
-      <Button type="button" className="h-9 w-10 p-0 text-white" onClick={() => step(-1)}>
+    <div className="flex items-center justify-center gap-2">
+      <Button type="button" size="icon" className="min-w-10 text-white" onClick={() => step(-1)}>
         -
       </Button>
       <Select value={String(selectedIndex)} onValueChange={value => select(Number(value))}>
-        <SelectTrigger className="h-9! min-w-24 bg-primary text-white border-transparent hover:bg-primary/80 dark:bg-primary dark:hover:bg-primary/80 [&_svg]:text-white">
+        <SelectTrigger className="min-w-24 bg-primary text-white border-transparent hover:bg-primary/80 dark:bg-primary dark:hover:bg-primary/80 [&_svg]:text-white">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -89,7 +89,7 @@ export function TransposeControls({
           ))}
         </SelectContent>
       </Select>
-      <Button type="button" className="h-9 w-10 p-0 text-white" onClick={() => step(1)}>
+      <Button type="button" size="icon" className="min-w-10 text-white" onClick={() => step(1)}>
         +
       </Button>
     </div>

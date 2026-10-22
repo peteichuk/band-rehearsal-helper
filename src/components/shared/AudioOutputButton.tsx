@@ -27,7 +27,7 @@ export function AudioOutputButton() {
           title={t('Audio output device')}
           className="border-orange-600 dark:border-orange-400"
         >
-          <Speaker className="size-4 text-orange-600 dark:text-orange-400" />
+          <Speaker className="size-5 text-orange-600 dark:text-orange-400" />
         </Button>
         {/* Only present once a non-default device is actually saved —
             color flags whether it's currently connected (green) or not

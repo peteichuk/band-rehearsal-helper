@@ -9,7 +9,7 @@ import { CollapsiblePanel } from '@/components/shared/CollapsiblePanel';
 import PrintIcon from '@/assets/icons/print.svg?react';
 import type { TransposeOption } from '@/lib/chords/transpose';
 
-const DIVIDER = <div className="h-9 w-px shrink-0 bg-gray-300 dark:bg-gray-600" />;
+const DIVIDER = <div className="self-stretch w-px shrink-0 bg-gray-300 dark:bg-gray-600" />;
 
 interface SongControlsPanelProps {
   open: boolean;
@@ -63,14 +63,14 @@ export function SongControlsPanel({
       <div className="flex flex-wrap items-center gap-3 mb-2 pt-1">
         <ZoomControls fontSize={fontSize} onChange={onFontSizeChange} resetValue={resetFontSize} />
         {DIVIDER}
+        <ColumnSelect value={columnClass} onChange={onColumnClassChange} />
+        {DIVIDER}
         <TransposeControls
           originalTonality={originalTonality}
           targetTonality={targetTonality}
           onTransposeChange={onTransposeChange}
         />
         <CapoSelect value={capo} onChange={onCapoChange} />
-        {DIVIDER}
-        <ColumnSelect value={columnClass} onChange={onColumnClassChange} />
         {DIVIDER}
         <LineToggleButtons
           hideTextLine={hideTextLine}
@@ -84,18 +84,18 @@ export function SongControlsPanel({
           title={t('Metronome')}
           data-metronome-trigger
           onClick={onOpenMetronome}
-          className="h-9 w-10 shrink-0 flex items-center justify-center bg-orange-600 hover:bg-orange-700 text-white rounded"
+          className="p-2.5 shrink-0 flex items-center justify-center bg-orange-600 hover:bg-orange-700 text-white rounded"
         >
-          <MetronomeIcon playing={isMetronomePlaying} className="w-4 h-4" />
+          <MetronomeIcon playing={isMetronomePlaying} className="w-5 h-5" />
         </button>
         {canPrint && (
           <button
             type="button"
             title={t('Print')}
             onClick={() => window.print()}
-            className="h-9 w-10 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
+            className="p-2.5 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
           >
-            <PrintIcon className="w-4 h-4" />
+            <PrintIcon className="w-5 h-5" />
           </button>
         )}
       </div>

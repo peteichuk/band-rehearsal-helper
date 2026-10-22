@@ -137,13 +137,13 @@ export function SongListPage() {
                   title={isFiltersOpen ? t('Hide filters') : t('Show filters')}
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
                   className={cn(
-                    'h-9 w-10 shrink-0 flex items-center justify-center rounded',
+                    'p-2.5 shrink-0 flex items-center justify-center rounded',
                     isFiltersOpen || hasActiveFilters
                       ? 'bg-blue-700 dark:bg-blue-600 text-white hover:bg-blue-800 dark:hover:bg-blue-700'
                       : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
                   )}
                 >
-                  <Filter className="w-4 h-4" />
+                  <Filter className="w-5 h-5" />
                 </button>
               </div>
 

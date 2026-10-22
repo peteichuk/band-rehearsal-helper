@@ -17,7 +17,7 @@ interface SongSettingsTransferButtonsProps {
 }
 
 const buttonClass =
-  'h-9 w-10 shrink-0 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600';
+  'p-2.5 shrink-0 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600';
 
 /** Export/import just this one song's own local data (pin, tags, tonality, line notes, metronome preset, favorite status) — separate from the all-songs Settings → Backup flow. */
 export function SongSettingsTransferButtons({ songName }: SongSettingsTransferButtonsProps) {
@@ -75,7 +75,7 @@ export function SongSettingsTransferButtons({ songName }: SongSettingsTransferBu
         onClick={() => fileInputRef.current?.click()}
         className={buttonClass}
       >
-        <Download className="w-4 h-4" />
+        <Download className="w-5 h-5" />
       </button>
       <button
         type="button"
@@ -83,7 +83,7 @@ export function SongSettingsTransferButtons({ songName }: SongSettingsTransferBu
         onClick={handleExport}
         className={buttonClass}
       >
-        <Upload className="w-4 h-4" />
+        <Upload className="w-5 h-5" />
       </button>
       <input
         ref={fileInputRef}

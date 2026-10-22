@@ -20,29 +20,29 @@ export function ZoomControls({
 }: ZoomControlsProps) {
   const { t } = useTranslation();
   return (
-    <div className="flex items-center gap-2 h-9">
+    <div className="flex items-center gap-2">
       <button
         type="button"
-        className="h-9 w-10 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
+        className="p-2.5 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
         onClick={() => onChange(Math.max(MIN_FONT_SIZE, fontSize - STEP))}
       >
-        <ZoomOut className="w-4 h-4" />
+        <ZoomOut className="w-5 h-5" />
       </button>
       <button
         type="button"
         title={t('Reset font size')}
-        className="h-9 px-3 shrink-0 flex items-center gap-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded font-semibold"
+        className="py-2.5 px-4 shrink-0 flex items-center gap-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded text-sm font-semibold"
         onClick={() => onChange(resetValue)}
       >
-        <ReloadIcon className="w-4 h-4" />
+        <ReloadIcon className="w-5 h-5" />
         Aa
       </button>
       <button
         type="button"
-        className="h-9 w-10 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
+        className="p-2.5 shrink-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
         onClick={() => onChange(fontSize + STEP)}
       >
-        <ZoomIn className="w-4 h-4" />
+        <ZoomIn className="w-5 h-5" />
       </button>
     </div>
   );

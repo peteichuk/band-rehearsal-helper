@@ -33,12 +33,12 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
           <button
             type="button"
             title={t('More options')}
-            className="h-9 w-10 shrink-0 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+            className="p-2.5 shrink-0 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
           >
             <MoreVertical className="w-5 h-5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuContent align="end">
           {showLinks && (
             <>
               <SongLinks song={song} />
@@ -47,12 +47,12 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
           )}
 
           <DropdownMenuItem onSelect={() => setIsLabelsOpen(true)}>
-            <Tag className="w-4 h-4" />
+            <Tag className="size-5" />
             {t('Labels')}
           </DropdownMenuItem>
 
           <DropdownMenuItem onSelect={() => setIsSetlistPickerOpen(true)}>
-            <FolderPlus className="w-4 h-4" />
+            <FolderPlus className="size-5" />
             {t('Add to setlist')}
           </DropdownMenuItem>
 
@@ -60,7 +60,7 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={onEdit}>
-                <Pencil className="w-4 h-4" />
+                <Pencil className="size-5" />
                 {t('Edit song')}
               </DropdownMenuItem>
             </>

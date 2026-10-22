@@ -66,7 +66,7 @@ export function CachedSongListModal({
                       onClick={() => onEdit(songName)}
                       title={t('Edit')}
                     >
-                      <Pencil className="size-4" />
+                      <Pencil className="size-5" />
                     </Button>
                   )}
                   <Button
@@ -76,7 +76,7 @@ export function CachedSongListModal({
                     onClick={() => handleRemove(songName)}
                     title={t('Remove from cache')}
                   >
-                    <Trash2 className="size-4 text-destructive" />
+                    <Trash2 className="size-5 text-destructive" />
                   </Button>
                 </div>
               </li>

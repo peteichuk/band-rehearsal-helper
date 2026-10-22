@@ -49,7 +49,10 @@ export function SetlistSongPickerDialog({
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder={t('Search songs…')}
-          className="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          // text-base (16px) is deliberate — iOS Safari auto-zooms the
+          // page on focus for any input with a computed font-size under
+          // 16px.
+          className="w-full py-[7px] px-3 rounded text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
         <ul className="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">

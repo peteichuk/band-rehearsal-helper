@@ -36,7 +36,7 @@ export function ToggleButtonPair<T extends string>({
             title={option.label}
             onClick={() => onChange(option.value)}
             className={cn(
-              'h-9 w-10 flex items-center justify-center rounded transition-colors',
+              'p-2.5 flex items-center justify-center rounded transition-colors',
               isActive ? activeClassName : inactiveClassName
             )}
           >

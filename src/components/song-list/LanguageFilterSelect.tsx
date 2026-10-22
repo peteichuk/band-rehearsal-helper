@@ -44,10 +44,10 @@ export function LanguageFilterSelect({ songs, value, onChange }: LanguageFilterS
         <Button
           type="button"
           variant="outline"
-          className="h-9 w-full sm:w-48 justify-between font-normal"
+          className="w-full sm:w-48 justify-between font-normal"
         >
           {label}
-          <ChevronDown className="w-4 h-4 opacity-50" />
+          <ChevronDown className="size-4 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-48">

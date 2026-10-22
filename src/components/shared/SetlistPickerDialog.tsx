@@ -89,7 +89,10 @@ export function SetlistPickerDialog({ open, onOpenChange, songName }: SetlistPic
               }
             }}
             placeholder={t('Add a setlist…')}
-            className="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            // text-base (16px) is deliberate — iOS Safari auto-zooms the
+            // page on focus for any input with a computed font-size under
+            // 16px.
+            className="w-full py-[7px] px-3 rounded text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
 
           {suggestions.length > 0 && (
@@ -115,13 +118,7 @@ export function SetlistPickerDialog({ open, onOpenChange, songName }: SetlistPic
         </div>
 
         <div className="flex justify-between items-center mt-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={commitInput}
-            disabled={!input.trim()}
-          >
+          <Button type="button" variant="outline" onClick={commitInput} disabled={!input.trim()}>
             {t('Add "{{value}}"', { value: input.trim() || '…' })}
           </Button>
           <Button type="button" onClick={() => onOpenChange(false)}>

@@ -29,26 +29,33 @@ import type { GoogleAuthState } from '@/hooks/useGoogleAuth';
 const MENU_ITEM_CLASS =
   'flex items-center gap-3 w-full rounded-lg px-3 py-3 text-base font-medium text-left hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none';
 
-/** Hamburger icon that morphs into an X as `open` toggles. */
+/**
+ * Hamburger icon that morphs into an X as `open` toggles. Always a 20px
+ * glyph — this app's one standard icon size (it's what matches text-sm's own
+ * line-height, so an icon-only button ends up the same height as a text
+ * button; see button.tsx's sizing-formula comment) — so both the header
+ * trigger and the sheet's own close button stay consistent with every other
+ * icon in the app; only their surrounding padding differs.
+ */
 function MenuToggleIcon({ open }: { open: boolean }) {
   return (
-    <span className="relative flex h-4 w-4 items-center justify-center">
+    <span className="relative flex h-5 w-5 items-center justify-center">
       <span
         className={cn(
-          'absolute block h-0.5 w-4 rounded-full bg-current transition-transform duration-200',
-          open ? 'translate-y-0 rotate-45' : '-translate-y-[5px]'
+          'absolute block h-0.5 w-5 rounded-full bg-current transition-transform duration-200',
+          open ? 'translate-y-0 rotate-45' : '-translate-y-[6px]'
         )}
       />
       <span
         className={cn(
-          'absolute block h-0.5 w-4 rounded-full bg-current transition-opacity duration-150',
+          'absolute block h-0.5 w-5 rounded-full bg-current transition-opacity duration-150',
           open && 'opacity-0'
         )}
       />
       <span
         className={cn(
-          'absolute block h-0.5 w-4 rounded-full bg-current transition-transform duration-200',
-          open ? 'translate-y-0 -rotate-45' : 'translate-y-[5px]'
+          'absolute block h-0.5 w-5 rounded-full bg-current transition-transform duration-200',
+          open ? 'translate-y-0 -rotate-45' : 'translate-y-[6px]'
         )}
       />
     </span>
@@ -132,7 +139,7 @@ export function Header({
               <ChevronLeft className="w-5 h-5" />
             </button>
           )}
-          <div className="w-9 h-9 shrink-0">
+          <div className="w-10 h-10 shrink-0">
             <FaviconWhite className="w-full h-full" />
           </div>
         </div>
@@ -143,7 +150,7 @@ export function Header({
             className={PRIMARY_BUTTON_CLASS}
             onClick={() => window.location.reload()}
           >
-            <ReloadIcon className="w-4 h-4" />
+            <ReloadIcon className="w-5 h-5" />
           </button>
 
           <button
@@ -153,7 +160,7 @@ export function Header({
             className={METRONOME_BUTTON_CLASS}
             onClick={onOpenMetronome}
           >
-            <MetronomeIcon playing={isMetronomePlaying} className="w-4 h-4" />
+            <MetronomeIcon playing={isMetronomePlaying} className="w-5 h-5" />
           </button>
         </div>
 
@@ -182,7 +189,7 @@ export function Header({
                   <button
                     type="button"
                     title={t('Close')}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="flex p-1.5 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     <MenuToggleIcon open />
                   </button>
