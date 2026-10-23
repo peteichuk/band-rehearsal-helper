@@ -6,6 +6,8 @@ Guidance for AI coding agents (Claude Code, Codex, Cursor, etc.) working in this
 
 Band Rehearsal Helper — a React + TypeScript + Vite static web app for musical bands. No backend: a public Google Sheet is the database, read via the Sheets API (`src/lib/sheets`, `src/lib/google`). See `README.md` for the full feature list and Google Sheet column schema.
 
+@.claude/CLAUDE.md
+
 ## Setup & commands
 
 - Node `^20.x` required (see `engines` in `package.json`).
