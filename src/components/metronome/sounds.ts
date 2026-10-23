@@ -1,4 +1,4 @@
-export type ClickSoundId = 'beep' | 'woodblock' | 'cowbell' | 'clave';
+export type ClickSoundId = 'beep' | 'woodblock' | 'cowbell' | 'clave' | 'tick';
 
 /** The 3 audible beat strengths — a muted beat never reaches `play` at all. */
 export type ClickStrength = 'normal' | 'medium' | 'accent';
@@ -97,14 +97,31 @@ function playClave(audioCtx: AudioContext, time: number, strength: ClickStrength
   oscillator.stop(time + duration);
 }
 
+/** Plain sine "tick" — the same oscillator frequencies (1000 Hz normal, 2000 Hz accent) and linear fade-in/out envelope as guitarapp.com's own metronome click. */
+function playTick(audioCtx: AudioContext, time: number, strength: ClickStrength) {
+  const attack = 0.001;
+  const noteLength = 0.04;
+  const oscillator = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  oscillator.frequency.value = lerp(1000, 2000, STRENGTH_T[strength]);
+  gain.gain.setValueAtTime(0, time);
+  gain.gain.linearRampToValueAtTime(0.9, time + attack);
+  gain.gain.linearRampToValueAtTime(0, time + attack + noteLength);
+  oscillator.connect(gain);
+  gain.connect(audioCtx.destination);
+  oscillator.start(time);
+  oscillator.stop(time + attack + noteLength);
+}
+
 export const CLICK_SOUNDS: ClickSound[] = [
+  { id: 'tick', label: 'Tick', play: playTick },
   { id: 'beep', label: 'Beep', play: playBeep },
   { id: 'woodblock', label: 'Woodblock', play: playWoodblock },
   { id: 'cowbell', label: 'Cowbell', play: playCowbell },
   { id: 'clave', label: 'Clave', play: playClave },
 ];
 
-export const DEFAULT_CLICK_SOUND_ID: ClickSoundId = 'beep';
+export const DEFAULT_CLICK_SOUND_ID: ClickSoundId = 'tick';
 
 export function getClickSound(id: ClickSoundId): ClickSound {
   return CLICK_SOUNDS.find(sound => sound.id === id) ?? CLICK_SOUNDS[0];

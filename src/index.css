@@ -84,6 +84,14 @@
   body {
     @apply bg-background text-foreground font-sans;
   }
+  /* Every clickable control gets a pointer cursor by default — browsers
+     don't do this for <button> on their own (unlike <a>). One rule here
+     instead of a `cursor-pointer` utility on every single button/toggle
+     across the app, raw or through the shared Button component alike. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
 }
 
 html {

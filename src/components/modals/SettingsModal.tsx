@@ -605,7 +605,7 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                 {t(
-                  'Tempo, time signature, and accent pattern, remembered per song so its metronome reopens the way you left it — shared between the local and embedded engines.'
+                  'Tempo, time signature, and accent pattern, remembered per song so its metronome reopens the way you left it.'
                 )}
               </p>
               <div className="flex items-center gap-2">

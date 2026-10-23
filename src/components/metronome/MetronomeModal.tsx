@@ -1,10 +1,7 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from 'cn';
 import { Dialog, DialogContent, DialogTitle, dialogOverlayClassName } from '@/components/ui/dialog';
-import { EngineSwitch, type MetronomeEngine } from '@/components/metronome/EngineSwitch';
 import { LocalMetronomePanel } from '@/components/metronome/LocalMetronomePanel';
-import { IframeMetronomePanel } from '@/components/metronome/IframeMetronomePanel';
 import { getTimeSignatureIdFromLabel } from '@/components/metronome/timeSignatures';
 
 interface MetronomeModalProps {
@@ -18,7 +15,6 @@ interface MetronomeModalProps {
   timeSignature: string | null;
   /** The song's own name — identifies its saved metronome preset (tempo/time signature/accent). */
   songName: string | null;
-  /** Only fires for the local engine — the iframe engine's playback isn't ours to observe. */
   onPlayingChange?: (isPlaying: boolean) => void;
 }
 
@@ -33,7 +29,6 @@ export function MetronomeModal({
   onPlayingChange,
 }: MetronomeModalProps) {
   const { t } = useTranslation();
-  const [engine, setEngine] = useState<MetronomeEngine>('local');
 
   if (!hasOpenedOnce) return null;
   const resolvedBpm = bpm || 120;
@@ -63,31 +58,23 @@ export function MetronomeModal({
           }
         }}
         className={cn(
-          'max-w-[calc(100%-20px)] sm:max-w-md max-h-[90vh] flex flex-col overflow-hidden shadow-2xl',
+          // w-auto (overriding the shared dialog's own w-full) so the modal
+          // shrink-wraps to its content — e.g. a longer accent pattern or
+          // sound label — instead of always sitting at the same fixed width.
+          'w-auto max-w-[calc(100%-20px)] sm:max-w-[560px] max-h-[90vh] flex flex-col overflow-hidden shadow-2xl',
           !open && 'hidden'
         )}
       >
-        <DialogTitle>{t('Metronome')}</DialogTitle>
+        <DialogTitle className="pl-10 text-center">{t('Metronome')}</DialogTitle>
 
         <div className="flex flex-col gap-4 min-h-0 overflow-y-auto">
-          <EngineSwitch value={engine} onChange={setEngine} />
-
-          {engine === 'local' ? (
-            <LocalMetronomePanel
-              key={resetKey}
-              bpm={resolvedBpm}
-              timeSignatureId={initialTimeSignatureId}
-              songName={songName}
-              onPlayingChange={onPlayingChange}
-            />
-          ) : (
-            <IframeMetronomePanel
-              key={resetKey}
-              bpm={resolvedBpm}
-              timeSignatureId={initialTimeSignatureId}
-              songName={songName}
-            />
-          )}
+          <LocalMetronomePanel
+            key={resetKey}
+            bpm={resolvedBpm}
+            timeSignatureId={initialTimeSignatureId}
+            songName={songName}
+            onPlayingChange={onPlayingChange}
+          />
         </div>
       </DialogContent>
     </Dialog>

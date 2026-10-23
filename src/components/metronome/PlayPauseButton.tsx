@@ -8,7 +8,13 @@ interface PlayPauseButtonProps {
 
 export function PlayPauseButton({ isPlaying, onToggle }: PlayPauseButtonProps) {
   return (
-    <Button type="button" size="icon-lg" variant="secondary" onClick={onToggle}>
+    <Button
+      type="button"
+      size="icon-lg"
+      variant="outline"
+      className="py-3.5 px-6 text-orange-500 hover:text-orange-500 dark:text-orange-400 dark:hover:text-orange-400"
+      onClick={onToggle}
+    >
       {isPlaying ? <Pause /> : <Play />}
       <span className="sr-only">{isPlaying ? 'Pause' : 'Play'}</span>
     </Button>

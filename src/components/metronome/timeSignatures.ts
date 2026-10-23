@@ -37,21 +37,9 @@ export interface TimeSignature {
    */
   beatUnitScale: number;
   /**
-   * The matching `timeSignature` option value for the guitarapp.com embed
-   * (see IframeMetronomePanel). Its own <select> also lists a "♩." variant
-   * for each compound meter (6/8 ♩., 9/8 ♩., 12/8 ♩.) — same beatsPerBar as
-   * the plain meter (so identical on our own local engine), but on their
-   * embed it defaults to a triplet-grouped accent (e.g. 3+3+3+3 for 12/8)
-   * instead of a plain first-beat accent. Modeled here as separate entries
-   * so a song can ask for that default explicitly.
-   */
-  guitarappValue: string;
-  /**
    * Which beat(s) get accented — always has 'off' and, except for the "♩."
    * compound meters, 'on' (first beat only), plus any meter-specific
-   * groupings (e.g. 3+3+3+3 for 12/8). Sourced from the same accent-pattern
-   * data guitarapp.com's own embed uses, so picking one here and switching
-   * to the iframe engine lines up with what it would offer too.
+   * groupings (e.g. 3+3+3+3 for 12/8).
    */
   accentPatterns: AccentPattern[];
 }
@@ -101,7 +89,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '2/4',
     beatsPerBar: 2,
     beatUnitScale: 1,
-    guitarappValue: '0',
     accentPatterns: withCustom(2, [OFF(2), ON(2)]),
   },
   {
@@ -109,7 +96,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '3/4',
     beatsPerBar: 3,
     beatUnitScale: 1,
-    guitarappValue: '1',
     accentPatterns: withCustom(3, [OFF(3), ON(3)]),
   },
   {
@@ -117,7 +103,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '4/4',
     beatsPerBar: 4,
     beatUnitScale: 1,
-    guitarappValue: '2',
     accentPatterns: withCustom(4, [OFF(4), ON(4)]),
   },
   {
@@ -125,7 +110,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '5/4',
     beatsPerBar: 5,
     beatUnitScale: 1,
-    guitarappValue: '3',
     accentPatterns: withCustom(5, [OFF(5), ON(5), grouping([3, 2]), grouping([2, 3])]),
   },
   {
@@ -133,7 +117,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '5/8',
     beatsPerBar: 5,
     beatUnitScale: 2,
-    guitarappValue: '4',
     accentPatterns: withCustom(5, [OFF(5), ON(5), grouping([3, 2]), grouping([2, 3])]),
   },
   {
@@ -141,7 +124,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '6/8',
     beatsPerBar: 6,
     beatUnitScale: 2,
-    guitarappValue: '5',
     accentPatterns: withCustom(6, [OFF(6), ON(6), grouping([3, 3]), grouping([2, 2, 2])]),
   },
   {
@@ -149,7 +131,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '6/8 ♩.',
     beatsPerBar: 6,
     beatUnitScale: 2,
-    guitarappValue: '13',
     accentPatterns: withCustom(6, [OFF(6), grouping([3, 3])]),
   },
   {
@@ -157,7 +138,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '7/8',
     beatsPerBar: 7,
     beatUnitScale: 2,
-    guitarappValue: '6',
     accentPatterns: withCustom(7, [
       OFF(7),
       ON(7),
@@ -172,7 +152,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '8/8',
     beatsPerBar: 8,
     beatUnitScale: 2,
-    guitarappValue: '7',
     accentPatterns: withCustom(8, [OFF(8), ON(8), grouping([3, 3, 2])]),
   },
   {
@@ -180,7 +159,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '9/8',
     beatsPerBar: 9,
     beatUnitScale: 2,
-    guitarappValue: '8',
     accentPatterns: withCustom(9, [
       OFF(9),
       ON(9),
@@ -196,7 +174,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '9/8 ♩.',
     beatsPerBar: 9,
     beatUnitScale: 2,
-    guitarappValue: '14',
     accentPatterns: withCustom(9, [OFF(9), grouping([3, 3, 3])]),
   },
   {
@@ -204,7 +181,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '10/8',
     beatsPerBar: 10,
     beatUnitScale: 2,
-    guitarappValue: '9',
     accentPatterns: withCustom(10, [
       OFF(10),
       ON(10),
@@ -217,7 +193,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '11/8',
     beatsPerBar: 11,
     beatUnitScale: 2,
-    guitarappValue: '10',
     accentPatterns: withCustom(11, [
       OFF(11),
       ON(11),
@@ -231,7 +206,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '12/8',
     beatsPerBar: 12,
     beatUnitScale: 2,
-    guitarappValue: '11',
     accentPatterns: withCustom(12, [
       OFF(12),
       ON(12),
@@ -246,7 +220,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '12/8 ♩.',
     beatsPerBar: 12,
     beatUnitScale: 2,
-    guitarappValue: '15',
     accentPatterns: withCustom(12, [OFF(12), grouping([3, 3, 3, 3])]),
   },
   {
@@ -254,7 +227,6 @@ export const TIME_SIGNATURES: TimeSignature[] = [
     label: '13/8',
     beatsPerBar: 13,
     beatUnitScale: 2,
-    guitarappValue: '12',
     accentPatterns: withCustom(13, [
       OFF(13),
       ON(13),
@@ -303,21 +275,6 @@ export function resolveAccentPatternId(
 ): string {
   const isValid = storedId != null && signature.accentPatterns.some(p => p.id === storedId);
   return isValid ? storedId : getDefaultAccentPatternId(signature);
-}
-
-/**
- * This pattern's index within the signature's own `accentPatterns` — also
- * the guitarapp.com embed's own `pattern` option index for that meter (see
- * IframeMetronomePanel), since `TIME_SIGNATURES` lists each meter's *real*
- * patterns in the same order their embed does. `custom` is excluded from
- * this count first — it's our own addition with no guitarapp.com
- * equivalent, and it can sit anywhere in the array, so including it would
- * shift every grouping after it to the wrong embed index.
- */
-export function getAccentPatternIndex(signature: TimeSignature, patternId: string): number {
-  const real = signature.accentPatterns.filter(pattern => pattern.id !== CUSTOM_PATTERN_ID);
-  const index = real.findIndex(pattern => pattern.id === patternId);
-  return index === -1 ? 0 : index;
 }
 
 /**

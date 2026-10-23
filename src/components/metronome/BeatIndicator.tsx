@@ -24,7 +24,9 @@ export function BeatIndicator({ beatsPerBar, currentBeat, accentPattern }: BeatI
             {beat !== 0 && isAccent && <span className="h-4 w-px bg-border" aria-hidden="true" />}
             <span
               className={cn(
-                'size-3 rounded-full bg-muted transition-colors',
+                // No color transition here — it has to flip the instant the
+                // click plays, not fade in a beat late.
+                'size-3 rounded-full bg-muted',
                 isAccent && 'size-3.5',
                 isActive && (isAccent ? 'bg-orange-600' : 'bg-primary')
               )}

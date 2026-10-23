@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { RotateCcw, Save } from 'lucide-react';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { useAudioOutputDevice } from '@/hooks/useAudioOutputDevice';
 import { useSyncedMetronomePreset } from '@/hooks/useSyncedMetronomePreset';
 import { useMetronomeEngine } from '@/components/metronome/useMetronomeEngine';
 import { AudioOutputButton } from '@/components/shared/AudioOutputButton';
+import { Button } from '@/components/ui/button';
 import {
   CUSTOM_PATTERN_ID,
   cycleBeatLevel,
@@ -12,7 +15,6 @@ import {
   resolveAccentPatternId,
   type BeatLevel,
 } from '@/components/metronome/timeSignatures';
-import { setMetronomePreset } from '@/lib/metronomePresets';
 import {
   DEFAULT_CLICK_SOUND_ID,
   previewClickSound,
@@ -44,6 +46,7 @@ export function LocalMetronomePanel({
   songName,
   onPlayingChange,
 }: LocalMetronomePanelProps) {
+  const { t } = useTranslation();
   // Picks up an external write to this song's preset — a Settings →
   // Backup reset/Import, editing the same song's preset from Settings'
   // own list, etc. — even while this panel is already mounted and just
@@ -51,7 +54,7 @@ export function LocalMetronomePanel({
   // comment). `stopIfPlaying` is assigned below once useMetronomeEngine
   // actually exists — see its own comment for why the indirection.
   const stopIfPlayingRef = useRef<() => void>(() => {});
-  const { synced, updateSynced, preset } = useSyncedMetronomePreset({
+  const { synced, updateSynced, preset, save, isDirty, reset } = useSyncedMetronomePreset({
     songName,
     sheetDefaults: { bpm: initialBpm, timeSignatureId: initialTimeSignatureId },
     onExternalChange: () => stopIfPlayingRef.current(),
@@ -152,9 +155,40 @@ export function LocalMetronomePanel({
 
   const handleSoundChange = (id: ClickSoundId) => {
     setSoundIdState(id);
-    setGlobalDefaultSoundId(id);
-    if (songName) setMetronomePreset(songName, { soundId: id });
+    // Outside a song there's no Save button to commit to (see below), so
+    // this is the only chance to remember the choice — persist it right
+    // away. Inside a song, it waits for an explicit Save like everything
+    // else here.
+    if (!songName) setGlobalDefaultSoundId(id);
     if (!isPlaying) previewClickSound(id);
+  };
+
+  // Combines this hook's own dirty check (bpm/time signature/accent) with
+  // soundId, which it doesn't track — true whenever there's something a
+  // Save button should actually write.
+  const hasUnsavedChanges =
+    songName !== null && (isDirty || soundId !== (preset?.soundId ?? globalDefaultSoundId));
+
+  const handleSave = () => {
+    save({ soundId });
+    setGlobalDefaultSoundId(soundId);
+  };
+
+  // True whenever there's actually something a Reset would clear — a saved
+  // preset for this song, or local edits that drifted from the song's own
+  // sheet defaults without ever being saved.
+  const isAtSheetDefault =
+    bpm === initialBpm &&
+    timeSignatureId === initialTimeSignatureId &&
+    synced.accentPatternId === undefined &&
+    Object.keys(customPatterns).length === 0 &&
+    soundId === globalDefaultSoundId;
+  const canReset = songName !== null && (preset !== null || !isAtSheetDefault);
+
+  const handleReset = () => {
+    reset();
+    setSoundIdState(globalDefaultSoundId);
+    if (isPlaying) stop();
   };
 
   useEffect(() => {
@@ -171,13 +205,14 @@ export function LocalMetronomePanel({
 
   return (
     <div className="flex flex-col items-center gap-5 py-4">
-      <div className="flex w-full max-w-[220px] items-center justify-between gap-2">
+      <div className="flex w-full items-center justify-center gap-2">
         <TimeSignatureSelect value={timeSignatureId} onChange={handleTimeSignatureChange} />
         <AccentPatternSelect
           patterns={timeSignature.accentPatterns}
           value={accentPatternId}
           onChange={handleAccentPatternChange}
         />
+        <SoundSelect value={soundId} onChange={handleSoundChange} />
       </div>
 
       <TempoControl bpm={bpm} onChange={handleBpmChange} />
@@ -197,17 +232,26 @@ export function LocalMetronomePanel({
         />
       )}
 
-      <div className="relative flex items-center justify-center">
+      <div className="flex items-center justify-center gap-3">
+        <TapTempoButton onChange={handleBpmChange} />
         <PlayPauseButton isPlaying={isPlaying} onToggle={toggle} />
-        <div className="absolute left-full ml-3">
-          <BeatCounter currentBeat={currentBeat} beatsPerBar={beatsPerBar} />
-        </div>
+        <BeatCounter currentBeat={currentBeat} beatsPerBar={beatsPerBar} />
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2">
-        <TapTempoButton onChange={handleBpmChange} />
-        <SoundSelect value={soundId} onChange={handleSoundChange} />
         <AudioOutputButton />
+        {songName && (
+          <>
+            <Button type="button" variant="outline" disabled={!canReset} onClick={handleReset}>
+              <RotateCcw data-icon="inline-start" />
+              {t('Reset')}
+            </Button>
+            <Button type="button" disabled={!hasUnsavedChanges} onClick={handleSave}>
+              <Save data-icon="inline-start" />
+              {t('Save')}
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );
