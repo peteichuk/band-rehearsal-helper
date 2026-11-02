@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FolderPlus, MoreVertical, Pencil, Tag } from 'lucide-react';
+import { Download, FolderPlus, MoreVertical, Pencil, Tag, Upload } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +11,16 @@ import {
 import { SongLinks, hasSongLinks } from '@/components/song-detail/SongLinks';
 import { GroupEditorDialog } from '@/components/shared/GroupEditorDialog';
 import { SetlistPickerDialog } from '@/components/shared/SetlistPickerDialog';
+import { SongImportConflictDialog } from '@/components/song-detail/SongImportConflictDialog';
+import {
+  applySongSettings,
+  downloadSongSettingsAsFile,
+  hasSongSettings,
+  parseSongSettingsFile,
+  songHasDataInFile,
+  type ImportConflictChoice,
+} from '@/lib/songSettingsTransfer';
+import { showToast } from '@/lib/toast';
 import type { Song } from '@/types/song';
 
 interface SongOverflowMenuProps {
@@ -25,6 +35,50 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
   const showLinks = hasSongLinks(song);
   const [isLabelsOpen, setIsLabelsOpen] = useState(false);
   const [isSetlistPickerOpen, setIsSetlistPickerOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pendingChoice, setPendingChoice] = useState<{
+    resolve: (choice: ImportConflictChoice) => void;
+  } | null>(null);
+
+  const resolveConflict = (): Promise<ImportConflictChoice> =>
+    new Promise(resolve => setPendingChoice({ resolve }));
+
+  const handleExportSettings = () => {
+    if (!hasSongSettings(song.Name)) {
+      showToast(t('Nothing saved locally for this song yet.'), 'info');
+      return;
+    }
+    downloadSongSettingsAsFile(song.Name);
+  };
+
+  const handleSettingsFileSelected = async (file: File) => {
+    try {
+      const parsed = await parseSongSettingsFile(file);
+      // A file meant for a different song (or a bulk backup that just
+      // doesn't mention this one) must never touch this song's local data
+      // at all — checked before anything else, so Replace in particular
+      // never gets a chance to clear this song's settings for nothing.
+      if (!songHasDataInFile(parsed, song.Name)) {
+        showToast(t('Nothing in that file for this song.'), 'info');
+        return;
+      }
+      // Only asks when there's actually something to conflict with —
+      // nothing saved yet for this song just imports straight through.
+      let mode: 'merge' | 'replace' = 'merge';
+      if (hasSongSettings(song.Name)) {
+        const choice = await resolveConflict();
+        if (choice === 'cancel') {
+          showToast(t('Import cancelled.'), 'info');
+          return;
+        }
+        mode = choice;
+      }
+      const imported = applySongSettings(song.Name, parsed, mode);
+      showToast(t('Imported: {{list}}.', { list: imported.join(', ') }), 'success');
+    } catch (err) {
+      showToast(t('Import failed: {{message}}', { message: (err as Error).message }), 'error');
+    }
+  };
 
   return (
     <>
@@ -56,6 +110,16 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
             {t('Add to setlist')}
           </DropdownMenuItem>
 
+          <DropdownMenuItem onSelect={() => fileInputRef.current?.click()}>
+            <Download className="size-5" />
+            {t('Import settings for this song')}
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onSelect={handleExportSettings}>
+            <Upload className="size-5" />
+            {t("Export this song's settings")}
+          </DropdownMenuItem>
+
           {canEdit && (
             <>
               <DropdownMenuSeparator />
@@ -68,11 +132,30 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/json"
+        className="hidden"
+        onChange={event => {
+          const file = event.target.files?.[0];
+          if (file) void handleSettingsFileSelected(file);
+          event.target.value = '';
+        }}
+      />
+
       <GroupEditorDialog open={isLabelsOpen} onOpenChange={setIsLabelsOpen} songName={song.Name} />
       <SetlistPickerDialog
         open={isSetlistPickerOpen}
         onOpenChange={setIsSetlistPickerOpen}
         songName={song.Name}
+      />
+      <SongImportConflictDialog
+        songName={pendingChoice !== null ? song.Name : null}
+        onChoice={choice => {
+          pendingChoice?.resolve(choice);
+          setPendingChoice(null);
+        }}
       />
     </>
   );

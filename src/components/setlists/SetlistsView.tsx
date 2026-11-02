@@ -1,9 +1,26 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Download, LayoutGrid, List, ListMusic, Plus, Share2, Trash2, Upload } from 'lucide-react';
+import {
+  Download,
+  LayoutGrid,
+  List,
+  ListMusic,
+  MoreVertical,
+  Plus,
+  Share2,
+  Trash2,
+  Upload,
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ToggleButtonPair } from '@/components/shared/ToggleButtonPair';
 import { SwipeToDeleteRow } from '@/components/shared/SwipeToDeleteRow';
+import { ScrollToTopButton } from '@/components/shared/ScrollToTopButton';
 import { SetlistFormDialog } from '@/components/setlists/SetlistFormDialog';
 import {
   SetlistImportConflictDialog,
@@ -23,6 +40,7 @@ import {
   type SetlistBundleExtras,
 } from '@/lib/setlistFileTransfer';
 import { showToast } from '@/lib/toast';
+import { saveSetlistSongsScrollTop, saveSetlistsScrollTop } from '@/lib/scrollMemory';
 import { getSongLineNotesSnapshot, mergeSongLineNotes } from '@/lib/songLineNotes';
 import { getSongTonalityPrefsSnapshot, mergeSongTonalityPrefs } from '@/lib/songKeyPrefs';
 import { getMetronomePresetsSnapshot, mergeMetronomePresets } from '@/lib/metronomePresets';
@@ -58,8 +76,15 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
 
   // tableId (and anything else already in the URL) has to ride along, or
   // the setlist page loses it and the catalog it needs to resolve songs from.
-  const openSetlist = (setlistId: string) =>
+  // Scroll position is saved here (restored by SongListPage on return) —
+  // the setlist itself always opens at its own top, so its own song-list
+  // scroll memory is reset here too (otherwise a leftover value from a
+  // *previous* setlist visit could leak into this fresh one).
+  const openSetlist = (setlistId: string) => {
+    saveSetlistsScrollTop(window.scrollY);
+    saveSetlistSongsScrollTop(0);
     navigate(`/setlists/${encodeURIComponent(setlistId)}?${searchParams.toString()}`);
+  };
   const [displayMode, setDisplayMode] = useLocalStorageState<'tiles' | 'list'>(
     'setlistsDisplayMode',
     'list'
@@ -273,31 +298,31 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
             />
 
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                title={t('Import setlist')}
-                onClick={() => fileInputRef.current?.click()}
-                className="p-[9px] flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <Download className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                title={t('Export setlists')}
-                onClick={startExportMode}
-                disabled={allSetlists.length === 0}
-                className="p-[9px] flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:pointer-events-none"
-              >
-                <Upload className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsCreateOpen(true)}
-                className="py-2.5 px-4 flex items-center gap-1.5 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium"
-              >
-                <Plus className="w-5 h-5" />
-                {t('New setlist')}
-              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    title={t('More options')}
+                    className="p-[9px] flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    <MoreVertical className="w-5 h-5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onSelect={() => setIsCreateOpen(true)}>
+                    <Plus className="size-5" />
+                    {t('New setlist')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => fileInputRef.current?.click()}>
+                    <Download className="size-5" />
+                    {t('Import setlist')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={startExportMode} disabled={allSetlists.length === 0}>
+                    <Upload className="size-5" />
+                    {t('Export setlists')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -431,6 +456,8 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
           })}
         </div>
       )}
+
+      {!isExportMode && <ScrollToTopButton />}
 
       <SetlistFormDialog
         open={isCreateOpen}

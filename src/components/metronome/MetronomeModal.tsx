@@ -61,7 +61,7 @@ export function MetronomeModal({
           // w-auto (overriding the shared dialog's own w-full) so the modal
           // shrink-wraps to its content — e.g. a longer accent pattern or
           // sound label — instead of always sitting at the same fixed width.
-          'w-auto max-w-[calc(100%-20px)] sm:max-w-[560px] max-h-[90vh] flex flex-col overflow-hidden shadow-2xl',
+          'w-auto max-w-[calc(100%-20px)] sm:max-w-[660px] max-h-[90vh] flex flex-col overflow-hidden shadow-2xl',
           !open && 'hidden'
         )}
       >

@@ -87,9 +87,17 @@
   /* Every clickable control gets a pointer cursor by default — browsers
      don't do this for <button> on their own (unlike <a>). One rule here
      instead of a `cursor-pointer` utility on every single button/toggle
-     across the app, raw or through the shared Button component alike. */
+     across the app, raw or through the shared Button component alike.
+     The role list also covers Select/DropdownMenu rows (SelectItem is
+     role="option", DropdownMenuItem/CheckboxItem/RadioItem are
+     role="menuitem(checkbox|radio)") — Radix doesn't give those a pointer
+     cursor either, same as plain <button>. */
   button:not(:disabled),
-  [role='button']:not([aria-disabled='true']) {
+  [role='button']:not([aria-disabled='true']),
+  [role='option']:not([aria-disabled='true']),
+  [role='menuitem']:not([aria-disabled='true']),
+  [role='menuitemcheckbox']:not([aria-disabled='true']),
+  [role='menuitemradio']:not([aria-disabled='true']) {
     cursor: pointer;
   }
 }

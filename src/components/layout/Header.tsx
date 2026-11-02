@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ChevronLeft, Info, LogIn, LogOut, Plus, Settings } from 'lucide-react';
+import { ChevronLeft, Info, Languages, LogIn, LogOut, Plus, Settings, SunMoon } from 'lucide-react';
 import { TableIdPrompt } from '@/components/song-list/TableIdPrompt';
 import { ThemeSelect } from '@/components/layout/ThemeSelect';
+import { SettingsLanguageSection } from '@/components/modals/SettingsLanguageSection';
 import { MetronomeIcon } from '@/components/metronome/MetronomeIcon';
 import { useMenuOpen, useSetMenuOpen } from '@/contexts/MenuContext';
 import { extractSheetId } from '@/lib/google/sheetId';
@@ -26,8 +27,12 @@ import { cn } from '@/lib/utils';
 import type { PageActions } from '@/types/pageActions';
 import type { GoogleAuthState } from '@/hooks/useGoogleAuth';
 
+// bg-blue-100 dark:bg-gray-800 — same resting card background as a
+// song-list row (SongListItem.tsx) — so each row visibly reads as its own
+// tappable button even with no hover (there's no hover on mobile).
+// hover:bg-blue-200 dark:hover:bg-gray-700 one step up from that for desktop.
 const MENU_ITEM_CLASS =
-  'flex items-center gap-3 w-full rounded-lg px-3 py-3 text-base font-medium text-left hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none';
+  'flex items-center gap-3 w-full rounded-lg px-3 py-3 text-base font-medium text-left bg-blue-100 dark:bg-gray-800 hover:bg-blue-200 dark:hover:bg-gray-700 hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none';
 
 /**
  * Hamburger icon that morphs into an X as `open` toggles. Always a 20px
@@ -37,6 +42,35 @@ const MENU_ITEM_CLASS =
  * trigger and the sheet's own close button stay consistent with every other
  * icon in the app; only their surrounding padding differs.
  */
+/**
+ * Lets the Theme/Language rows below open their embedded select from a
+ * click anywhere on the row, not just its small trigger — same effect as
+ * clicking the trigger directly. Bails out when the click already
+ * originated inside the trigger, since that's already handled natively
+ * (forwarding it too would just re-toggle the select shut).
+ *
+ * Dispatches a real `pointerdown` instead of calling `trigger.click()`:
+ * Radix's SelectTrigger only opens from a bare `click` event while its
+ * internal pointer-type ref is still at its default ("touch") — the first
+ * genuine mouse pointerdown on the trigger flips that ref to "mouse" for
+ * good, after which a synthetic `.click()` (no pointerdown of its own) is
+ * silently ignored. A mouse-typed pointerdown goes through the same path a
+ * real click does every time, so this keeps working after that first click.
+ */
+function openEmbeddedSelect(event: MouseEvent<HTMLDivElement>) {
+  const target = event.target as HTMLElement;
+  if (target.closest('[data-slot="select-trigger"]')) return;
+  const trigger = event.currentTarget.querySelector<HTMLElement>('[data-slot="select-trigger"]');
+  trigger?.dispatchEvent(
+    new PointerEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      pointerType: 'mouse',
+      button: 0,
+    })
+  );
+}
+
 function MenuToggleIcon({ open }: { open: boolean }) {
   return (
     <span className="relative flex h-5 w-5 items-center justify-center">
@@ -119,7 +153,7 @@ export function Header({
   }, [pendingTableId, tableId, isTableLoaded, setMenuOpen]);
 
   return (
-    <header className="print:hidden bg-blue-600 dark:bg-blue-800 text-white px-2 py-2 shadow-lg">
+    <header className="print:hidden sticky top-0 z-40 bg-blue-600 dark:bg-blue-800 text-white px-2 py-2 shadow-lg">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
         <div className="flex items-center gap-2">
           {pageActions.showBack && (
@@ -165,7 +199,6 @@ export function Header({
         </div>
 
         <div className="flex items-center justify-end gap-2">
-          <ThemeSelect />
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
               <button type="button" title={t('Menu')} className={PRIMARY_BUTTON_CLASS}>
@@ -226,6 +259,24 @@ export function Header({
                 </div>
 
                 <div className="my-2 border-t border-border" />
+
+                <div
+                  className="flex items-center gap-3 w-full rounded-lg px-3 py-1 text-base font-medium bg-blue-100 dark:bg-gray-800 hover:bg-blue-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  onClick={openEmbeddedSelect}
+                >
+                  <SunMoon className="w-4 h-4 shrink-0" />
+                  <span className="flex-1">{t('Theme')}</span>
+                  <ThemeSelect />
+                </div>
+
+                <div
+                  className="flex items-center gap-3 w-full rounded-lg px-3 py-1 text-base font-medium bg-blue-100 dark:bg-gray-800 hover:bg-blue-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  onClick={openEmbeddedSelect}
+                >
+                  <Languages className="w-4 h-4 shrink-0" />
+                  <span className="flex-1">{t('Language')}</span>
+                  <SettingsLanguageSection />
+                </div>
 
                 <SheetClose asChild>
                   <button type="button" className={MENU_ITEM_CLASS} onClick={onOpenSettings}>

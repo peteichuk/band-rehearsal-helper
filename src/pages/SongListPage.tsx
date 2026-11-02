@@ -11,9 +11,10 @@ import { SongList } from '@/components/song-list/SongList';
 import { SetlistsView } from '@/components/setlists/SetlistsView';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { CollapsiblePanel } from '@/components/shared/CollapsiblePanel';
+import { ScrollToTopButton } from '@/components/shared/ScrollToTopButton';
 import { useSongListContext } from '@/hooks/useSongListContext';
 import { DEFAULT_PAGE_ACTIONS } from '@/types/pageActions';
-import { getListScrollTop, saveListScrollTop } from '@/lib/scrollMemory';
+import { getListScrollTop, getSetlistsScrollTop, saveListScrollTop } from '@/lib/scrollMemory';
 import { applySongTonalityToParams } from '@/lib/songKeyPrefs';
 import { cn } from '@/lib/utils';
 import type { RootOutletContext } from '@/App';
@@ -40,9 +41,14 @@ export function SongListPage() {
     setPageActions(DEFAULT_PAGE_ACTIONS);
   }, [setPageActions]);
 
-  // Restore wherever the list was scrolled to before a song was opened.
+  // Restore wherever the list was scrolled to before leaving it — the song
+  // library and the setlists tab each keep their own independent memory
+  // (see scrollMemory.ts), picked by whichever tab is active on this mount.
   useEffect(() => {
-    window.scrollTo({ top: getListScrollTop() });
+    window.scrollTo({
+      top: catalogViewMode === 'setlists' ? getSetlistsScrollTop() : getListScrollTop(),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const list = (searchParams.get('list') as 'search' | 'group' | null) ?? 'all';
@@ -108,7 +114,7 @@ export function SongListPage() {
           </>
         ) : (
           <>
-            <div className="mb-2 space-y-2">
+            <div className="sticky top-14 z-20 -mx-2 px-2 bg-white dark:bg-gray-900 pt-2 pb-2 mb-2 space-y-2">
               <div className="flex items-center gap-2">
                 <div className="flex-1">
                   <SearchBar
@@ -199,6 +205,8 @@ export function SongListPage() {
                 onEdit={openEditSong}
               />
             )}
+
+            <ScrollToTopButton />
           </>
         )}
       </div>

@@ -27,9 +27,16 @@ function DialogClose({ ...props }: React.ComponentProps<typeof DialogPrimitive.C
 export const dialogOverlayClassName =
   'fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0';
 
-/** Shared across DialogContent and any custom (e.g. non-modal/forceMount) dialog that can't use DialogContent directly. */
+/**
+ * Shared across DialogContent and any custom (e.g. non-modal/forceMount)
+ * dialog that can't use DialogContent directly. bg-white dark:bg-gray-900
+ * (not the shadcn bg-popover token — that one's a visibly different, lighter
+ * gray in dark mode) so every dialog's surface matches the rest of the
+ * app's own content background (see e.g. SongContent.tsx), not a separate
+ * "elevated popover" shade.
+ */
 export const dialogContentClassName =
-  'fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95';
+  'fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-white dark:bg-gray-900 p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95';
 
 function DialogOverlay({
   className,

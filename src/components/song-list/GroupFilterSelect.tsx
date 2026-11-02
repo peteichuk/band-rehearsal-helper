@@ -1,16 +1,10 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Check } from 'lucide-react';
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { FilterSelect } from '@/components/shared/FilterSelect';
 import { useLocalGroups } from '@/hooks/useLocalGroups';
 import type { Song } from '@/types/song';
-
-const ALL_GROUPS = '__all__';
 
 interface GroupFilterSelectProps {
   songs: Song[];
@@ -33,21 +27,17 @@ export function GroupFilterSelect({ songs, value, onChange }: GroupFilterSelectP
   if (groups.length === 0) return null;
 
   return (
-    <Select
-      value={value ?? ALL_GROUPS}
-      onValueChange={next => onChange(next === ALL_GROUPS ? null : next)}
-    >
-      <SelectTrigger className="w-full sm:w-48">
-        <SelectValue placeholder={t('All groups')} />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={ALL_GROUPS}>{t('All groups')}</SelectItem>
-        {groups.map(group => (
-          <SelectItem key={group} value={group}>
-            {group}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <FilterSelect label={value ?? t('All groups')}>
+      <DropdownMenuItem onSelect={() => onChange(null)}>
+        {t('All groups')}
+        {value === null && <Check className="ml-auto size-4" />}
+      </DropdownMenuItem>
+      {groups.map(group => (
+        <DropdownMenuItem key={group} onSelect={() => onChange(group)}>
+          {group}
+          {value === group && <Check className="ml-auto size-4" />}
+        </DropdownMenuItem>
+      ))}
+    </FilterSelect>
   );
 }

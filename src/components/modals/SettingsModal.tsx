@@ -5,7 +5,6 @@ import { Download, Pencil, Upload } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { SettingsAppearanceSection } from '@/components/modals/SettingsAppearanceSection';
-import { SettingsLanguageSection } from '@/components/modals/SettingsLanguageSection';
 import { CachedSongListModal } from '@/components/modals/CachedSongListModal';
 import { TonalityPresetDialog } from '@/components/modals/TonalityPresetDialog';
 import { LineNotesPresetDialog } from '@/components/modals/LineNotesPresetDialog';
@@ -466,15 +465,10 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100%-20px)] sm:max-w-md max-h-[80vh] flex flex-col overflow-hidden">
+      <DialogContent className="max-w-[calc(100%-20px)] sm:max-w-2xl max-h-[80vh] flex flex-col overflow-hidden">
         <DialogTitle>{t('Settings')}</DialogTitle>
 
-        <div className="space-y-5 min-h-0 overflow-y-auto pr-2">
-          <div className="space-y-3">
-            <h2 className={sectionTitleClass}>{t('Language')}</h2>
-            <SettingsLanguageSection />
-          </div>
-
+        <div className="space-y-5 min-h-0 overflow-y-auto pr-2 mt-2">
           <div className="space-y-3">
             <h2 className={sectionTitleClass}>{t('Appearance')}</h2>
             <SettingsAppearanceSection />

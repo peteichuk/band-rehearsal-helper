@@ -91,6 +91,7 @@ export function SongContent({
                     <InlineNote
                       note={notes[titleKey]}
                       onClick={selectionAwareClick(() => openEditor(titleKey))}
+                      fontSize={fontSize}
                     />
                   )}
                   {section.lines.map((line, lineIndex) => {
@@ -105,6 +106,7 @@ export function SongContent({
                         hideChordLine={hideChordLine}
                         note={notes[lineKey]}
                         onLineClick={() => openEditor(lineKey)}
+                        fontSize={fontSize}
                       />
                     );
                   })}

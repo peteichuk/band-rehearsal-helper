@@ -1,17 +1,26 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
-import { Pencil, Plus, Share2, Trash2 } from 'lucide-react';
+import { MoreVertical, Pencil, Plus, Share2, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { SetlistSongRow } from '@/components/setlists/SetlistSongRow';
 import { SetlistFormDialog } from '@/components/setlists/SetlistFormDialog';
 import { SetlistSongPickerDialog } from '@/components/setlists/SetlistSongPickerDialog';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { ScrollToTopButton } from '@/components/shared/ScrollToTopButton';
 import { useLocalSetlists } from '@/hooks/useLocalSetlists';
 import { useDragReorder } from '@/hooks/useDragReorder';
 import { sortSetlistSongs } from '@/lib/songs/sortAndFilter';
 import { downloadSetlistAsFile } from '@/lib/setlistFileTransfer';
 import { applySongTonalityToParams } from '@/lib/songKeyPrefs';
 import { showToast } from '@/lib/toast';
+import { getSetlistSongsScrollTop, saveSetlistSongsScrollTop } from '@/lib/scrollMemory';
 import { DEFAULT_PAGE_ACTIONS } from '@/types/pageActions';
 import type { RootOutletContext } from '@/App';
 
@@ -33,6 +42,14 @@ export function SetlistDetailPage() {
   useEffect(() => {
     setPageActions({ ...DEFAULT_PAGE_ACTIONS, showBack: true });
   }, [setPageActions]);
+
+  // Restores wherever this setlist's song list was scrolled to before a song
+  // was opened from it — but opening the setlist fresh (from the setlists
+  // list) already resets that memory to 0 first (see SetlistsView's
+  // openSetlist), so this still starts at the top in that case.
+  useEffect(() => {
+    window.scrollTo({ top: getSetlistSongsScrollTop() });
+  }, []);
 
   const orderedSongs = setlist ? sortSetlistSongs(allSongs, setlist.songs) : [];
   const orderedNames = orderedSongs.map(song => song.Name);
@@ -82,6 +99,7 @@ export function SetlistDetailPage() {
   };
 
   const selectSong = (song: (typeof orderedSongs)[number]) => {
+    saveSetlistSongsScrollTop(window.scrollY);
     const next = applySongTonalityToParams(searchParams, song.Name);
     navigate(`/song/${encodeURIComponent(song.Name)}?${next.toString()}`, {
       state: { fromAppNav: true, setlistId },
@@ -102,41 +120,38 @@ export function SetlistDetailPage() {
   return (
     <div className="p-2 py-4">
       <div className="flex items-center justify-between gap-2 mb-3">
-        <div className="flex items-center gap-1 min-w-0">
-          <button
-            type="button"
-            onClick={() => setIsRenameOpen(true)}
-            className="flex items-center gap-1.5 text-xl font-bold min-w-0"
-          >
-            <span className="truncate">{setlist.name}</span>
-            <Pencil className="w-4 h-4 shrink-0 text-gray-400" />
-          </button>
-          <button
-            type="button"
-            title={t('Share setlist')}
-            onClick={() => downloadSetlistAsFile(setlist)}
-            className="shrink-0 p-2.5 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
-          >
-            <Share2 className="w-5 h-5" />
-          </button>
-          <button
-            type="button"
-            title={t('Delete setlist')}
-            onClick={handleDeleteSetlist}
-            className="shrink-0 p-2.5 flex items-center justify-center rounded text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
-          >
-            <Trash2 className="w-5 h-5" />
-          </button>
-        </div>
+        <span className="truncate text-xl font-bold min-w-0 flex-1">{setlist.name}</span>
 
-        <button
-          type="button"
-          onClick={() => setIsAddSongsOpen(true)}
-          className="py-2.5 px-4 flex items-center gap-1.5 shrink-0 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium"
-        >
-          <Plus className="w-5 h-5" />
-          {t('Add songs')}
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              title={t('More options')}
+              className="shrink-0 p-2.5 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+            >
+              <MoreVertical className="w-5 h-5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={() => setIsAddSongsOpen(true)}>
+              <Plus className="size-5" />
+              {t('Add songs')}
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => downloadSetlistAsFile(setlist)}>
+              <Share2 className="size-5" />
+              {t('Share setlist')}
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setIsRenameOpen(true)}>
+              <Pencil className="size-5" />
+              {t('Rename setlist')}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={handleDeleteSetlist} variant="destructive">
+              <Trash2 className="size-5" />
+              {t('Delete setlist')}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {displayedSongs.length === 0 && (
@@ -162,6 +177,8 @@ export function SetlistDetailPage() {
           onEdit={openEditSong}
         />
       ))}
+
+      <ScrollToTopButton />
 
       <SetlistFormDialog
         open={isRenameOpen}

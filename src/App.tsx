@@ -212,7 +212,15 @@ function RootLayout() {
 
       <main
         ref={pullToRefresh.containerRef}
-        className="flex-1 overflow-y-auto overflow-x-clip relative"
+        // No overflow-y-auto here: per usePullToRefresh's own comment, this
+        // element never actually scrolls — the min-h-screen wrapper just
+        // grows past the viewport and it's the document/window that
+        // scrolls instead. overflow-y-auto did nothing useful but *did*
+        // make this the containing block for any position:sticky
+        // descendant's offsets (e.g. the library page's sticky search bar),
+        // which broke them — they'd stick relative to this (stationary)
+        // box instead of the viewport.
+        className="flex-1 overflow-x-clip relative"
       >
         <PullToRefreshIndicator
           pullDistance={pullToRefresh.pullDistance}

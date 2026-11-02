@@ -13,6 +13,7 @@ interface ChordLineProps {
   hideChordLine: boolean;
   note?: string;
   onLineClick?: () => void;
+  fontSize?: number;
 }
 
 export function ChordLine({
@@ -23,6 +24,7 @@ export function ChordLine({
   hideChordLine,
   note,
   onLineClick,
+  fontSize,
 }: ChordLineProps) {
   if (line.trim() === '') return null;
 
@@ -60,7 +62,7 @@ export function ChordLine({
           )
         )}
       </div>
-      {note && handleClick && <InlineNote note={note} onClick={handleClick} />}
+      {note && handleClick && <InlineNote note={note} onClick={handleClick} fontSize={fontSize} />}
     </>
   );
 }

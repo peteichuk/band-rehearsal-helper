@@ -82,7 +82,7 @@ export function GroupEditorDialog({ open, onOpenChange, songName }: GroupEditorD
           />
 
           {suggestions.length > 0 && (
-            <ul className="mt-1 max-h-32 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded divide-y divide-gray-100 dark:divide-gray-700">
+            <ul className="mt-1 max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded divide-y divide-gray-100 dark:divide-gray-700">
               {suggestions.map(name => (
                 <li key={name}>
                   <button
@@ -92,7 +92,7 @@ export function GroupEditorDialog({ open, onOpenChange, songName }: GroupEditorD
                       setInput('');
                     }}
                     className={cn(
-                      'w-full text-left px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700'
+                      'w-full text-left px-2 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700'
                     )}
                   >
                     {name}

@@ -59,7 +59,10 @@ function SheetContent({
       <SheetPrimitive.Content
         data-slot="sheet-content"
         className={cn(
-          'fixed z-50 flex flex-col gap-1 bg-popover text-popover-foreground shadow-xl duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out',
+          // bg-white dark:bg-gray-900 (not bg-popover) to match the rest of
+          // the app's own content background — see dialogContentClassName's
+          // comment in dialog.tsx for why.
+          'fixed z-50 flex flex-col gap-1 bg-white dark:bg-gray-900 text-popover-foreground shadow-xl duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out',
           sheetSideClasses[side],
           className
         )}

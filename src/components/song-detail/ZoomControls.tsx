@@ -35,7 +35,7 @@ export function ZoomControls({
         onClick={() => onChange(resetValue)}
       >
         <ReloadIcon className="w-5 h-5" />
-        Aa
+        Aa {fontSize}
       </button>
       <button
         type="button"

@@ -21,25 +21,23 @@ const THEME_LABEL_KEY: Record<ThemePreference, string> = {
   auto: 'Auto',
 };
 
-/** Manual day/night override next to the hamburger menu — 'auto' (the default) follows the OS, same as before this existed. */
+/** Compact theme picker — a row inside the burger menu (Header), right above Settings. 'auto' (the default) follows the OS. */
 export function ThemeSelect() {
   const { t } = useTranslation();
   const { theme } = useAppPreferences();
-  const Icon = THEME_ICON[theme];
 
   return (
     <Select value={theme} onValueChange={value => setTheme(value as ThemePreference)}>
       <SelectTrigger
+        size="sm"
         title={t('Theme: {{theme}}', { theme: t(THEME_LABEL_KEY[theme]) })}
-        className="shrink-0 justify-center gap-0 rounded border-0 bg-blue-700 p-2.5 text-white hover:bg-blue-800 focus-visible:ring-0 dark:bg-blue-600 dark:hover:bg-blue-700 [&>svg:last-child]:hidden"
+        className="w-auto gap-1 border-0 bg-transparent font-normal hover:bg-transparent focus-visible:ring-0 dark:bg-transparent dark:hover:bg-transparent"
       >
-        <SelectValue>
-          <Icon className="size-5" />
-        </SelectValue>
+        <SelectValue>{t(THEME_LABEL_KEY[theme])}</SelectValue>
       </SelectTrigger>
       {/* position="popper" (not the shared component's default
           "item-aligned") because this trigger sits right at the screen's
-          edge next to the hamburger — item-aligned mode has no viewport
+          edge inside the menu sheet — item-aligned mode has no viewport
           collision handling, so the menu could render partly off-screen and
           cause horizontal overflow; popper mode keeps it clamped inside the
           viewport. */}

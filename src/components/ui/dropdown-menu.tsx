@@ -37,7 +37,9 @@ function DropdownMenuContent({
           // trigger is much narrower than a comfortable menu — clamped between
           // a comfortable minimum and a width that stops a long label from
           // stretching it too wide.
-          'z-50 max-h-(--radix-dropdown-menu-content-available-height) w-max min-w-[260px] max-w-[360px] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:overflow-hidden data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+          // bg-white dark:bg-gray-900 (not bg-popover) — see
+          // dialogContentClassName's comment in dialog.tsx for why.
+          'z-50 max-h-(--radix-dropdown-menu-content-available-height) w-max min-w-[260px] max-w-[360px] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-white dark:bg-gray-900 p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:overflow-hidden data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
           className
         )}
         {...props}
@@ -54,10 +56,16 @@ function DropdownMenuItem({
   className,
   inset,
   variant = 'default',
+  preserveIconColor,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & {
   inset?: boolean;
   variant?: 'default' | 'destructive';
+  /** Keeps the item's icon(s) in their own color on hover/focus instead of
+   * recoloring them to match the text — for a brand-colored icon (e.g. a
+   * YouTube/service link) where only the label should pick up the focus
+   * color. */
+  preserveIconColor?: boolean;
 }) {
   return (
     <DropdownMenuPrimitive.Item
@@ -65,7 +73,14 @@ function DropdownMenuItem({
       data-inset={inset}
       data-variant={variant}
       className={cn(
-        "group/dropdown-menu-item relative flex cursor-default items-center gap-2.5 rounded-md px-3 py-2.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:pl-8 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5 data-[variant=destructive]:*:[svg]:text-destructive",
+        // focus:bg-blue-300 dark:focus:bg-gray-700 (not bg-accent) — the
+        // same hover color as a song-list row (SongListItem.tsx); the
+        // data-[variant=destructive] rules below still override it for
+        // delete-style items. my-0.5 + py-3 (up from py-2.5, no margin)
+        // gives each item a bit of breathing room so a stack of them
+        // doesn't read as one solid block.
+        "group/dropdown-menu-item relative flex cursor-default items-center gap-2.5 rounded-md px-3 py-3 my-0.5 text-sm outline-hidden select-none focus:bg-blue-300 dark:focus:bg-gray-700 focus:text-accent-foreground data-inset:pl-8 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5 data-[variant=destructive]:*:[svg]:text-destructive",
+        !preserveIconColor && 'not-data-[variant=destructive]:focus:**:text-accent-foreground',
         className
       )}
       {...props}
@@ -87,7 +102,7 @@ function DropdownMenuCheckboxItem({
       data-slot="dropdown-menu-checkbox-item"
       data-inset={inset}
       className={cn(
-        "relative flex cursor-default items-center gap-2.5 rounded-md py-2.5 pr-9 pl-3 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-8 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
+        "relative flex cursor-default items-center gap-2.5 rounded-md py-3 my-0.5 pr-9 pl-3 text-sm outline-hidden select-none focus:bg-blue-300 dark:focus:bg-gray-700 focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-8 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
         className
       )}
       checked={checked}
@@ -125,7 +140,7 @@ function DropdownMenuRadioItem({
       data-slot="dropdown-menu-radio-item"
       data-inset={inset}
       className={cn(
-        "relative flex cursor-default items-center gap-2.5 rounded-md py-2.5 pr-9 pl-3 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-8 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
+        "relative flex cursor-default items-center gap-2.5 rounded-md py-3 my-0.5 pr-9 pl-3 text-sm outline-hidden select-none focus:bg-blue-300 dark:focus:bg-gray-700 focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-8 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
         className
       )}
       {...props}
@@ -206,7 +221,7 @@ function DropdownMenuSubTrigger({
       data-slot="dropdown-menu-sub-trigger"
       data-inset={inset}
       className={cn(
-        "flex cursor-default items-center gap-2.5 rounded-md px-3 py-2.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:pl-8 data-open:bg-accent data-open:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
+        "flex cursor-default items-center gap-2.5 rounded-md px-3 py-3 my-0.5 text-sm outline-hidden select-none focus:bg-blue-300 dark:focus:bg-gray-700 focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:pl-8 data-open:bg-blue-300 dark:data-open:bg-gray-700 data-open:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
         className
       )}
       {...props}
@@ -225,7 +240,7 @@ function DropdownMenuSubContent({
     <DropdownMenuPrimitive.SubContent
       data-slot="dropdown-menu-sub-content"
       className={cn(
-        'z-50 min-w-[96px] origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+        'z-50 min-w-[96px] origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-lg bg-white dark:bg-gray-900 p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
         className
       )}
       {...props}
