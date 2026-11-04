@@ -1,7 +1,17 @@
 import { useEffect, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ChevronLeft, Info, Languages, LogIn, LogOut, Plus, Settings, SunMoon } from 'lucide-react';
+import {
+  ChevronLeft,
+  HelpCircle,
+  Info,
+  Languages,
+  LogIn,
+  LogOut,
+  Plus,
+  Settings,
+  SunMoon,
+} from 'lucide-react';
 import { TableIdPrompt } from '@/components/song-list/TableIdPrompt';
 import { ThemeSelect } from '@/components/layout/ThemeSelect';
 import { SettingsLanguageSection } from '@/components/modals/SettingsLanguageSection';
@@ -287,6 +297,11 @@ export function Header({
                 <a href="landing.html" className={MENU_ITEM_CLASS}>
                   <Info className="w-4 h-4 shrink-0" />
                   {t('About')}
+                </a>
+
+                <a href="faq.html" className={MENU_ITEM_CLASS}>
+                  <HelpCircle className="w-4 h-4 shrink-0" />
+                  {t('FAQ')}
                 </a>
 
                 <div className="my-2 border-t border-border" />

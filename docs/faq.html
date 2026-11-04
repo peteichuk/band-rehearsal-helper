@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAQ — Band Rehearsal Helper</title>
+    <meta
+      name="description"
+      content="Answers to common questions about Band Rehearsal Helper: Google Sheets setup, the metronome, setlists, local data and more."
+    />
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --accent: #2563eb;
+        --accent-dark: #1e40af;
+        --btn-primary-bg: #2563eb;
+        --btn-primary-bg-hover: #1e40af;
+        --bg: #ffffff;
+        --bg-alt: #f5f7fb;
+        --text: #1f2430;
+        --text-muted: #5b6472;
+        --border: #e5e9f0;
+        --card-bg: #ffffff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --accent: #60a5fa;
+          --accent-dark: #93c5fd;
+          --btn-primary-bg: #3b6fd6;
+          --btn-primary-bg-hover: #2f5bc0;
+          --bg: #0f1420;
+          --bg-alt: #141a2a;
+          --text: #e5e7eb;
+          --text-muted: #9aa4b2;
+          --border: #262e40;
+          --card-bg: #171f30;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          'Roboto',
+          system-ui,
+          -apple-system,
+          sans-serif;
+        line-height: 1.6;
+        color: var(--text);
+        background: var(--bg);
+      }
+      a {
+        color: var(--accent);
+      }
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 0 1.25rem;
+      }
+
+      /* Nav (same as landing.html) */
+      header.nav {
+        border-bottom: 1px solid var(--border);
+        position: relative;
+      }
+      header.nav .wrap {
+        max-width: 1080px;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+      @media (min-width: 860px) {
+        header.nav .wrap {
+          padding-left: 2rem;
+          padding-right: 2rem;
+        }
+      }
+      .nav-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 0;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 700;
+        font-size: 1.05rem;
+        text-decoration: none;
+        color: var(--text);
+      }
+      .brand svg {
+        width: 28px;
+        height: 28px;
+        flex: none;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+      .nav-links a:not(.btn) {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.92rem;
+      }
+      .nav-links a:not(.btn):hover,
+      .nav-links a.active {
+        color: var(--text);
+      }
+      .nav-github {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+      }
+      .nav-github svg {
+        width: 20px;
+        height: 20px;
+      }
+      .nav-github:hover {
+        color: var(--text);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.6rem 1.1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.92rem;
+        text-decoration: none;
+        border: 1px solid transparent;
+      }
+      .btn svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+      .btn-primary {
+        background: var(--btn-primary-bg);
+        color: #ffffff;
+      }
+      .btn-primary:hover {
+        background: var(--btn-primary-bg-hover);
+      }
+
+      @media (max-width: 680px) {
+        .nav-links a:not(.btn) {
+          display: none;
+        }
+      }
+
+      /* Page header */
+      .page-head {
+        padding: 3rem 0 1rem;
+        text-align: center;
+      }
+      .eyebrow {
+        display: inline-block;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 12%, transparent);
+        padding: 0.3rem 0.65rem;
+        border-radius: 999px;
+        margin-bottom: 1rem;
+      }
+      .page-head h1 {
+        font-size: clamp(1.9rem, 4vw, 2.4rem);
+        margin: 0 0 0.6rem;
+        font-weight: 900;
+      }
+      .page-head p {
+        color: var(--text-muted);
+        margin: 0 auto;
+        max-width: 48ch;
+      }
+
+      /* FAQ groups */
+      main.wrap {
+        padding-bottom: 3.5rem;
+      }
+      .faq-group {
+        margin-top: 2.5rem;
+      }
+      .faq-group h2 {
+        font-size: 1.1rem;
+        margin: 0 0 0.9rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      details.faq-item {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--card-bg);
+        margin-bottom: 0.6rem;
+        overflow: hidden;
+      }
+      details.faq-item summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 0.85rem 1rem;
+        font-weight: 600;
+        font-size: 0.96rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+      details.faq-item summary::-webkit-details-marker {
+        display: none;
+      }
+      details.faq-item summary .chev {
+        flex: none;
+        width: 18px;
+        height: 18px;
+        color: var(--text-muted);
+        transition: transform 0.2s ease;
+      }
+      details.faq-item[open] summary .chev {
+        transform: rotate(180deg);
+      }
+      details.faq-item .faq-answer {
+        padding: 0 1rem 1rem;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+      details.faq-item .faq-answer p {
+        margin: 0 0 0.6rem;
+      }
+      details.faq-item .faq-answer p:last-child {
+        margin-bottom: 0;
+      }
+      details.faq-item .faq-answer code {
+        background: var(--bg-alt);
+        padding: 0.1rem 0.35rem;
+        border-radius: 5px;
+        font-size: 0.88em;
+      }
+
+      .faq-cta {
+        margin-top: 3rem;
+        background: var(--bg-alt);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+      }
+      .faq-cta p {
+        color: var(--text-muted);
+        margin: 0 0 1.1rem;
+      }
+
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 2rem 0;
+      }
+      .foot-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+      .foot-links {
+        display: flex;
+        gap: 1.25rem;
+      }
+      .foot-links a {
+        color: var(--text-muted);
+        text-decoration: none;
+      }
+      .foot-links a:hover {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="nav">
+      <div class="wrap nav-row">
+        <a class="brand" href="landing.html">
+          <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="512" height="512" rx="64" fill="#2563eb" />
+            <g transform="translate(25, 125) scale(0.95)" stroke="#fff">
+              <path
+                d="M0 130H40C60 130 65 100 80 70C95 40 110 40 125 130C140 220 155 220 170 130C185 40 200 40 215 130C230 220 235 190 255 130H290"
+                stroke-width="20"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </g>
+          </svg>
+          Band Rehearsal Helper
+        </a>
+        <nav class="nav-links">
+          <a href="landing.html#features">Features</a>
+          <a href="landing.html#how-it-works">How it works</a>
+          <a href="faq.html" class="active">FAQ</a>
+          <a
+            class="nav-github"
+            href="https://github.com/peteichuk/band-rehearsal-helper"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub"
+            title="GitHub"
+          >
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" /></svg>
+          </a>
+          <a class="btn btn-primary" href="https://peteichuk.github.io/band-rehearsal-helper/">Launch App</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="wrap page-head">
+      <span class="eyebrow">FAQ</span>
+      <h1>Frequently asked questions</h1>
+      <p>How the Google Sheet, the metronome, setlists and your local data actually work.</p>
+    </div>
+
+    <main class="wrap">
+      <div class="faq-group">
+        <h2>Getting started</h2>
+
+        <details class="faq-item">
+          <summary>
+            What is Band Rehearsal Helper?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              A free, open-source web app for bands: lyrics with chords, custom setlists, and a
+              built-in metronome. There's no backend — it's a static app that reads your songs
+              straight out of a Google Sheet you already own.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            Do I need to install anything, or does it cost money?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              It's free and open-source, with no sign-up required to just browse songs. It runs in
+              any browser, and you can also "Add to Home Screen" on iOS or Android to use it like a
+              native app.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            Does it work offline?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Yes — once a song list has loaded, the app keeps working without a signal. The only
+              thing that needs a connection is fetching fresh data from your Google Sheet.
+            </p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-group">
+        <h2>Songs &amp; the Google Sheet</h2>
+
+        <details class="faq-item">
+          <summary>
+            How do songs get into the app?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              The app reads a public Google Sheet directly from your browser — no API key, no
+              backend. Add or edit rows in the sheet and they show up in the app right away. See the
+              <a href="https://github.com/peteichuk/band-rehearsal-helper#-data-structure-google-sheets">README</a>
+              for the exact column layout.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            What's the difference between Pinned songs and Favorites?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              <strong>Pinned</strong> songs (<code>PinedByDefault</code> in the sheet) are pinned to
+              the top of the list for everyone. Anyone can locally pin/unpin any song too — that only
+              changes the order for you, it's never written back to the sheet.
+              <code>SortingPriority</code> controls the order among pinned songs (lower first);
+              unpinned songs stay alphabetical.
+            </p>
+            <p>
+              <strong>Favorites</strong> are your own locally starred songs. Once you star anything,
+              the prev/next buttons on a song page cycle through your favorites instead of the
+              pinned list.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            How does Smart Search work?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              It searches song name, lyrics, labels, <code>GroupBy</code>, language, and setlists all
+              at once, is tolerant of typos, and highlights and ranks matches by precision.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            How does chord parsing and transposition work?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Chords are parsed straight out of the lyrics text — just make sure there are clear
+              spaces between chord symbols in the sheet's <code>Text</code> column. Once parsed, you
+              can transpose a song to any key with one tap.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            What are the YouTube / Chordify / Holychords links?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              If a song's row in the sheet has a <code>YouTube</code>, <code>Chordify</code>, or
+              <code>Holychords</code> link, the app shows a quick shortcut to it on that song's page.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            What's Admin Mode, and how do I get edit access?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Sign in with Google from the app. If your account has edit access to the connected
+              sheet, an "Add Song" button and a per-song edit (pencil) icon appear, letting you
+              create and update songs without opening the spreadsheet. Deleting a song from the UI
+              isn't implemented yet — do that directly in the sheet for now.
+            </p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-group">
+        <h2>Metronome</h2>
+
+        <details class="faq-item">
+          <summary>
+            How does the built-in metronome work?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              It's a local Web Audio metronome, preselected from the song's own <code>BPM</code> and
+              <code>TimeSignature</code> columns. It supports simple (2/4–5/4), complex (5/8, 7/8,
+              8/8, 10/8, 11/8, 13/8), and compound (6/8, 9/8, 12/8, and their <code>♩.</code>
+              triplet-feel variants) time signatures — clicking every eighth note at its correct
+              note-value-scaled interval for <code>/8</code> meters, rather than treating them like
+              <code>/4</code>.
+            </p>
+            <p>
+              Pick any accent pattern the time signature offers (Off, On, or a meter-specific
+              grouping like 3+3+2+2+2), and any of several click sounds.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            When do my tempo/signature/accent/sound changes actually get saved?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Only once you tap <strong>Save</strong> — that becomes the song's remembered metronome
+              preset. Tweaking settings without saving is discarded when you leave the song.
+              <strong>Reset</strong> clears the saved preset back to the song's own sheet defaults.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            Can I pick a different speaker for the metronome's clicks?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Yes — from the speaker icon in the metronome, or from Settings, you can route its
+              clicks to a specific output device (e.g. a USB interface or Bluetooth speaker) instead
+              of your system default. This is Chromium-only (Chrome/Edge, desktop or Android). If the
+              picked device isn't connected, playback falls back to the system default and flags
+              that; it automatically redirects (or stops) if the device connects or disconnects while
+              playing.
+            </p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-group">
+        <h2>Setlists &amp; your local data</h2>
+
+        <details class="faq-item">
+          <summary>
+            What are Setlists?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Your own local playlists built from any songs in the catalog, switchable from the
+              bottom tab bar (Library/Setlists). Open a setlist to browse, add, or remove songs;
+              opening a song from inside one makes prev/next cycle that setlist's order instead of
+              your favorites. New songs are always appended at the end.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            How do I reorder songs inside a setlist?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Pick a song up by its grip handle and drag it to a new spot — the rest slide out of
+              the way live, and the order is only committed once you let go. You can also just type
+              a position number into a song's row to jump it straight there.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            How do I share a setlist with the rest of the band?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Share a single setlist via its row's icon, or select several from the Setlists page
+              (Export → checkboxes → Export) to bundle them into one file — optionally including
+              Line/label notes, Tonality/Capo choices, and Metronome presets for just those songs.
+            </p>
+            <p>
+              Importing a file whose setlist name already exists on this device asks
+              Cancel / Merge / Replace per setlist (with "Apply for all"). Merge adds the imported
+              data on top of what you already have, letting the imported value win only where
+              something overlaps.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            What are Line &amp; Label Notes?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Tap any lyric/chord line, or a section label like "Chorus"/"Intro", to attach a
+              personal cue (e.g. "I come in here"). It shows up right away, inline under the line or
+              label — stored locally in your browser only, per device, never written to the shared
+              sheet.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            Can I back up or transfer my local settings?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Yes, from Settings — export Favorites, Pinned overrides, Tags, Tonality/Capo choices,
+              Line notes, Setlists, Appearance defaults, and Metronome presets as a single JSON file,
+              choosing exactly which categories to include. Importing only lets you enable categories
+              the file actually contains, and merges with what you already have rather than
+              overwriting it.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            Does my local data sync automatically between my devices?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Not yet — Favorites, Pins, Setlists, Notes, and Appearance are stored per device in
+              your browser's local storage. Use Settings → Backup to export from one device and
+              import on another in the meantime. Automatic multi-device sync is on the
+              <a href="https://github.com/peteichuk/band-rehearsal-helper#-roadmap">roadmap</a>.
+            </p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-group">
+        <h2>Appearance &amp; viewing</h2>
+
+        <details class="faq-item">
+          <summary>
+            Can I change the font size, column layout, or hide chords/lyrics?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Yes — Settings lets you set a preferred font size and column layout (e.g. split a song
+              into Verse/Chorus columns), remembered separately for portrait and landscape, with a
+              live preview. You can also toggle chords or lyrics off entirely for a cleaner view.
+              Zooming or changing columns on one song's own page only overrides that song, leaving
+              your global default untouched.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            Does dark mode follow my device automatically?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Yes, it follows your OS light/dark theme setting automatically — handy on a dim stage
+              or in a bright room.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            What languages is the app's interface available in?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              English, Українська, Polski, 日本語, Español, Português (Brasil), हिन्दी, and বাংলা —
+              defaults to your browser/OS language, switchable anytime from Settings → Language.
+              Only the app's own UI chrome is translated; your song content (lyrics, titles, tags)
+              always stays exactly as entered in the sheet.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            Can I print my lyrics and chords, or share a song?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Yes — there are clean print styles for a paper copy, and a Share option for a specific
+              song or a filtered list.
+            </p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-group">
+        <h2>Privacy</h2>
+
+        <details class="faq-item">
+          <summary>
+            Where is my data stored, and what does signing in with Google share?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              There's no backend database — everything local (favorites, pins, notes, setlists,
+              preferences) stays only in your own browser, on your own device. Full details,
+              including exactly what Google Sign-In requests and why, are in the
+              <a href="privacy.html">Privacy Policy</a>.
+            </p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-cta">
+        <p>Didn't find your answer here?</p>
+        <a
+          class="btn btn-primary"
+          href="https://github.com/peteichuk/band-rehearsal-helper/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Ask on GitHub
+        </a>
+      </div>
+    </main>
+
+    <footer>
+      <div class="foot-row">
+        <span>&copy; 2026 Michael Peteichuk — Band Rehearsal Helper</span>
+        <div class="foot-links">
+          <a href="landing.html">Home</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+          <a href="https://github.com/peteichuk/band-rehearsal-helper">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

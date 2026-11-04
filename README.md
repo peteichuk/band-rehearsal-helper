@@ -12,38 +12,25 @@ Google Sheets example: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQ
 
 ## 🚀 Features
 
-- **Serverless:** No backend required — the app is a static bundle, built with Vite and deployed to GitHub Pages.
-- **Google Sheets as DB:** Manage your songs in a spreadsheet; updates are reflected instantly in the app.
-- **Smart Chord Parsing:** Supports dynamic chord parsing from text, allowing for future transposition features.
-- **Pinned Songs:** Songs marked `PinedByDefault` in the sheet are pinned to the top of the list for everyone. Anyone can locally pin/unpin any song from the UI — this only changes sort order for you, it's never written back to the sheet.
-- **Favorites:** Star any song locally to build your own favorites list — this is what the prev/next navigation on a song page cycles through. Until you star anything, prev/next falls back to the pinned songs by default.
-- **Smart Search:** Searches song name, lyrics, labels, `GroupBy`, language, and setlists at once, tolerant of a typo, with matches highlighted and ranked by precision.
-- **External Resource Integration:** Quick links to **YouTube**, **Chordify**, and **Holychords**.
-- **Auto Dark Mode:** Built-in responsive design that respects your OS light/dark theme settings.
-- **Multilingual UI:** The app interface is available in English, Українська, Polski, 日本語, Español, Português (Brasil), हिन्दी, and বাংলা — defaults to your browser/OS language (falling back to English), switchable anytime from Settings → Language. Each language is lazy-loaded on first use (a few KB) and cached afterward, so you only ever download the one you actually pick. (Song content itself — lyrics, titles, tags — stays exactly as entered in your Google Sheet; only the app's own UI chrome is translated.)
-- **Mobile Friendly:** Fully responsive UI, perfect for smartphones on a music stand.
-- **Metronome:** Integrated local metronome to help keep time during practice. Preselects BPM and time signature from the song data (`BPM`, `TimeSignature`). Supports simple (2/4–5/4), complex (5/8, 7/8, 8/8, 10/8, 11/8, 13/8), and compound (6/8, 6/8 ♩., 9/8, 9/8 ♩., 12/8, 12/8 ♩.) time signatures, clicking every eighth note at its correct note-value-scaled interval for `/8` meters rather than treating them like `/4`. The `♩.` variants click the same beats as their plain counterpart but default to a triplet accent grouping (e.g. 3+3+3+3 for 12/8) instead of a plain first-beat accent. Pick any accent pattern the time signature offers (Off, On, or a meter-specific grouping like 3+3+2+2+2) from its own selector, and any of several click sounds. While viewing a song, tempo/time signature/accent/sound only become that song's remembered "metronome preset" once you tap Save — tweaking them without saving is discarded on leaving the song — and Reset clears the saved preset back to the song's own sheet defaults.
-- **Audio Output Device:** Pick which output device the metronome plays its clicks through — e.g. a USB audio interface or a Bluetooth speaker — instead of your system default, from the speaker icon in the metronome or from Settings. Chromium-only (Chrome/Edge, desktop or Android). If the picked device isn't currently connected, playback falls back to the system default and flags that both in the device picker and in Settings; if it connects or disconnects again while the metronome is already playing, sound automatically redirects to it (or stops, if it's genuinely gone, rather than silently playing through the wrong speaker).
-- **As Mobile App:** Installable as a Native App on iOS and Android devices. Choose "Add to Home Screen" from your browser menu.
-- **Print:** Simple print styles for physical copies of lyrics and chords.
-- **Share:** Share specific songs or filtered lists.
-- **Transpose Chords:** Enhancing the chord parser to allow one-click transposition.
-- **Working in Offline:** Once loaded, the app can function offline (except for fetching new data from Google Sheets).
-- **Split by Columns:** View song in separate columns (e.g., Verse, Chorus).
-- **Wake lock:** Wake lock for desktop PC (for mobile not possible temporary).
-- **Toggle Show/Hide Chords:** Option to hide chords for a cleaner view of the lyrics.
-- **Toggle Show/Hide Text:** Option to hide lyrics for a focus on chords only.
-- **Sorting Priority:** Among pinned songs, `SortingPriority` controls the order (lower first); unpinned songs stay alphabetical.
-- **Navigation between favorite songs:** Open a song and use the prev/next buttons (or swipe) to move through your favorites — or, by default, through the pinned songs until you've starred your own.
-- **Admin Mode (Google Sign-In):** Sign in with Google; if your account has edit access to the sheet, an "Add Song" button and a per-song edit (pencil) icon appear, letting you create and update songs directly from the app — no need to open the spreadsheet. Deleting a song from the sheet via the UI isn't implemented yet; do that directly in the sheet for now.
-- **Line & Label Notes:** Tap any lyric/chord line, or a section label like "Chorus"/"Intro", to attach a personal cue (e.g. "I come in here"). The note shows up right away, inline under the line or label. Stored locally in your browser only, per device; never written to the shared Google Sheet.
-- **Setlists (Custom Song Groups):** Build your own local playlists from any songs in the catalog, switching between Library/Setlists from the bottom tab bar. Open a setlist to browse, add, or remove songs; opening a song from inside one makes prev/next cycle that setlist's own order instead of your favorites. Adding songs always appends them at the end of the list, never sorts them in.
-- **Setlist Import/Export:** Share a single setlist via its row's icon, or select several from the Setlists page (Export → checkboxes appear → Cancel/Export) to bundle them into one file — optionally also including Line/label notes, Tonality/Capo choices, and Metronome presets for just the songs in those setlists (all off by default). Importing a file with a name that already exists on this device asks Cancel / Merge / Replace per setlist, with an "Apply for all" option to reuse that answer for the rest of the file; Cancel aborts the whole import. Merge adds the imported songs/data on top of what's already there, letting the imported value win only where something overlaps.
-- **Drag & Drop Song Ordering:** Inside a setlist, pick a song up by its grip handle and drag it to a new spot — the other songs slide out of the way live, and the order is only actually committed once you let go. You can also just type a position number into a song's row to jump it straight there.
-- **Song Overflow Menu:** A "⋮" menu on every song row (in the Library and on the song page) puts Edit, Labels, and Add to setlist in one place — inside a setlist it also offers Remove from this setlist.
-- **Swipe to Delete:** Telegram-style swipe-left gesture on a setlist or a song inside a setlist reveals a delete button, so removing something is a quick one-handed swipe-then-tap instead of hunting for a menu.
-- **Appearance Settings:** Set your preferred font size and column layout from Settings, remembered separately for portrait and landscape, with a live preview as you adjust. Zooming or changing columns on an individual song's own page only overrides that one song, leaving your global default untouched.
-- **Settings Backup (Import/Export):** Export your local data — Favorites, Pinned overrides, Tags, Tonality/Capo choices, Line notes, Setlists, Appearance defaults, and Metronome presets — as a single JSON file, choosing exactly which categories to include. Importing reads the file first and only lets you enable categories it actually contains, merging with whatever you already have rather than overwriting it.
+> For details on how any of this works, see the **[FAQ](https://peteichuk.github.io/band-rehearsal-helper/faq.html)**.
+
+- **Serverless:** Static Vite app on GitHub Pages — no backend.
+- **Google Sheets as DB:** Manage songs in a spreadsheet; changes show up instantly.
+- **Smart Chord Parsing & Transposition:** Parses chords from text, transposes to any key.
+- **Pinned Songs & Favorites:** Sheet-wide pins, plus your own local favorites and prev/next navigation.
+- **Smart Search:** Fuzzy search across names, lyrics, labels, groups, language, and setlists.
+- **External Links:** Quick links to YouTube, Chordify, and Holychords.
+- **Auto Dark Mode:** Follows your OS light/dark theme.
+- **Multilingual UI:** English + 7 more languages, lazy-loaded.
+- **Mobile Friendly:** Fully responsive, installable as a PWA.
+- **Metronome:** Built-in Web Audio metronome with per-song presets, accent patterns, and custom audio output device.
+- **Works Offline:** Once loaded, keeps working without a signal.
+- **Flexible Layout:** Split lyrics into columns, hide chords/text, adjust font size.
+- **Admin Mode (Google Sign-In):** Add/edit songs directly from the app if you have edit access.
+- **Line & Label Notes:** Personal cues on any line, stored locally per device.
+- **Setlists:** Build, drag-and-drop reorder, import/export, and share custom song lists.
+- **Settings Backup:** Export/import your local data as a JSON file.
+- **Print & Share:** Clean print styles, plus sharing a song or a filtered list.
 
 ## 📊 Data Structure (Google Sheets)
 
@@ -76,7 +63,13 @@ To ensure the application works correctly, your Google Sheet should include the 
 - [x] Implementation of advanced filtering and searching by the `GroupBy` field.
 - [ ] Wake lock for (IOS, Android).
 - [ ] Sync local data (Favorites, Pinned, Setlists, Notes, Appearance) between devices.
-- [ ] Play + auto-scroll the lyrics, paced to the song's tempo.
+- [ ] Auto-scroll: smoothly scroll the lyrics down, with speed configurable (paced to the song's BPM or track duration).
+- [ ] Bluetooth pedal / page-turner support (e.g. AirTurn, iRig BlueTurn) via hotkeys (Left/Right, PageUp/PageDown) for hands-free scrolling between pages/songs.
+- [ ] Big Target Controls: a mobile mode with oversized metronome/song-switch buttons, easier to hit by touch while playing.
+- [ ] Capo-aware chord display: show chords relative to the capo alongside the real key (e.g. `Real Key: Eb | Capo 1: D`).
+- [ ] Chord diagrams: tap a chord to see a guitar/bass fingering diagram.
+- [ ] Visual metronome: flash the whole screen in time with the beat, for when the click can't be heard or isn't wanted out loud.
+- [ ] Multi-device live sync (Live Session): a band leader switches songs on their device and everyone else's device follows automatically (WebSockets / peer-to-peer).
 
 ## 🧰 Development & Build
 
