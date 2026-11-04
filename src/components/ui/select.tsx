@@ -34,13 +34,12 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        // hover:bg-blue-100 — this had no light-mode hover at all before
-        // (only dark:hover:bg-input/50), so a select trigger like
-        // GroupFilterSelect or CapoSelect gave no hover feedback whatsoever
-        // in light mode. blue-100 (not bg-muted, which at oklch(0.97) is
-        // barely distinguishable from white) matches the blue-10x/20x/30x
-        // hover family used everywhere else in the app.
-        "flex w-fit items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent pr-3 pl-3 text-sm whitespace-nowrap transition-colors outline-none select-none hover:bg-blue-100 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        // bg-white dark:bg-gray-700 (not transparent/bg-input) + hover:bg-muted
+        // — matches FilterSelect's own trigger (a plain Button
+        // variant="outline"), so every select-like picker in the app
+        // (CapoSelect, FilterSelect's dropdown, …) looks and highlights the
+        // same way.
+        "flex w-fit items-center justify-between gap-1.5 rounded-lg border border-input bg-white pr-3 pl-3 text-sm whitespace-nowrap transition-colors outline-none select-none hover:bg-muted focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-gray-700 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         // Plain classes (not data-[size=]: variants) so a caller's own
         // className can actually override the padding via cn()/tailwind-merge
         // — a `data-[size=default]:py-2` selector has higher CSS specificity
@@ -85,7 +84,12 @@ function SelectContent({
           // so a <Select> whose items aren't wrapped in a <SelectGroup> (which
           // supplies its own p-1) rendered items flush against the popup's
           // edges instead of the breathing room every other menu/dropdown has.
-          'relative z-50 max-h-(--radix-select-content-available-height) min-w-36 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+          // bg-white dark:bg-gray-900 (not bg-popover) — same reason as
+          // DropdownMenuContent/DialogContent: bg-popover is a visibly
+          // different, lighter gray in dark mode, so a <Select> (e.g.
+          // CapoSelect/FilterSelect's dropdown) didn't match every other
+          // floating surface in the app.
+          'relative z-50 max-h-(--radix-select-content-available-height) min-w-36 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-white dark:bg-gray-900 p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
           position === 'popper' &&
             'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
           className

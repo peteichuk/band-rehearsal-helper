@@ -23,7 +23,7 @@ export function CapoSelect({ value, onChange }: CapoSelectProps) {
   const { t } = useTranslation();
   return (
     <Select value={String(value)} onValueChange={next => onChange(Number(next))}>
-      <SelectTrigger className="min-w-28">
+      <SelectTrigger className="min-w-28 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

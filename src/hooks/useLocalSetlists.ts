@@ -9,8 +9,10 @@ import {
   importSetlist,
   removeSongFromSetlist,
   renameSetlist,
+  reorderSetlists,
   reorderSetlistSongs,
   setSongCustomIndex,
+  sortSetlists,
   subscribeLocalSetlists,
 } from '@/lib/localSetlists';
 import type { Setlist } from '@/lib/localSetlists';
@@ -18,10 +20,7 @@ import type { Setlist } from '@/lib/localSetlists';
 export function useLocalSetlists() {
   const setlists = useSyncExternalStore(subscribeLocalSetlists, getLocalSetlistsSnapshot);
 
-  const allSetlists = useMemo<Setlist[]>(
-    () => Object.values(setlists).sort((a, b) => a.name.localeCompare(b.name)),
-    [setlists]
-  );
+  const allSetlists = useMemo<Setlist[]>(() => sortSetlists(Object.values(setlists)), [setlists]);
 
   return {
     setlists,
@@ -36,6 +35,7 @@ export function useLocalSetlists() {
     removeSongFromSetlist,
     setSongCustomIndex,
     reorderSetlistSongs,
+    reorderSetlists,
     findSetlistByName,
     importSetlist,
   };

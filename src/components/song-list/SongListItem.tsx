@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bookmark, FileCheck2, Pin, Star } from 'lucide-react';
+import { FileCheck2, Pin, Star, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocalFavorites } from '@/hooks/useLocalFavorites';
 import { usePinOverrides } from '@/hooks/useEffectivePins';
@@ -9,6 +9,8 @@ import { togglePinOverride } from '@/lib/localPins';
 import { isEffectivelyPinned } from '@/lib/songs/effectivePins';
 import { GroupEditorDialog } from '@/components/shared/GroupEditorDialog';
 import { SongActionsMenu } from '@/components/song-list/SongActionsMenu';
+import { HighlightedText } from '@/components/song-list/HighlightedText';
+import { findMatchingLine } from '@/lib/songs/search';
 import type { Song } from '@/types/song';
 
 interface SongListItemProps {
@@ -17,9 +19,18 @@ interface SongListItemProps {
   onSelect: (song: Song) => void;
   canEdit: boolean;
   onEdit: (song: Song) => void;
+  /** Active search query — when set, matching words in the name are highlighted. */
+  highlightQuery?: string;
 }
 
-export function SongListItem({ song, isSelected, onSelect, canEdit, onEdit }: SongListItemProps) {
+export function SongListItem({
+  song,
+  isSelected,
+  onSelect,
+  canEdit,
+  onEdit,
+  highlightQuery,
+}: SongListItemProps) {
   const { t } = useTranslation();
   const hasText = Boolean(song.Text);
   const { isFavorite, toggleFavorite } = useLocalFavorites();
@@ -29,6 +40,10 @@ export function SongListItem({ song, isSelected, onSelect, canEdit, onEdit }: So
   const { getGroups } = useLocalGroups();
   const myGroups = getGroups(song.Name);
   const [isGroupEditorOpen, setIsGroupEditorOpen] = useState(false);
+  // Only looked up while actively searching — shows *why* a result matched
+  // when it came from the lyrics rather than the name, which the row
+  // otherwise gives no clue about.
+  const matchingLine = highlightQuery ? findMatchingLine(song.Text, highlightQuery) : null;
 
   return (
     <>
@@ -44,10 +59,10 @@ export function SongListItem({ song, isSelected, onSelect, canEdit, onEdit }: So
           }
         }}
         className={cn(
-          'w-full px-2 py-1 mb-1 rounded cursor-pointer hover:bg-blue-300 dark:hover:bg-gray-700 transition-colors',
+          'w-full px-2 py-1 border-l-4 transition-colors cursor-pointer',
           isSelected
-            ? 'bg-blue-300 dark:bg-gray-700 text-blue-900 dark:text-blue-100'
-            : 'bg-blue-100 dark:bg-gray-800'
+            ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-gray-700 text-blue-900 dark:text-blue-100'
+            : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-800/60'
         )}
       >
         <div className="flex items-start gap-1">
@@ -95,7 +110,11 @@ export function SongListItem({ song, isSelected, onSelect, canEdit, onEdit }: So
                     !hasText && 'text-red-900 dark:text-red-300 underline decoration-wavy'
                   )}
                 >
-                  {song.Name || t('Untitled')}
+                  {song.Name ? (
+                    <HighlightedText text={song.Name} query={highlightQuery ?? ''} />
+                  ) : (
+                    t('Untitled')
+                  )}
                 </span>
                 {hasText && (
                   <span className="text-xs text-green-600 dark:text-green-700 mt-1">
@@ -112,39 +131,58 @@ export function SongListItem({ song, isSelected, onSelect, canEdit, onEdit }: So
                 )}
               </div>
             </div>
-            <button
-              type="button"
-              onClick={event => {
-                event.stopPropagation();
-                setIsGroupEditorOpen(true);
-              }}
-              title={myGroups.length > 0 ? t('Edit my groups') : t('Add to a group')}
-              className={cn(
-                'self-start inline-flex items-start gap-1 text-left text-xs px-0.5',
-                myGroups.length > 0
-                  ? 'text-teal-700 dark:text-teal-400'
-                  : 'text-gray-400 hover:text-teal-600 dark:hover:text-teal-400'
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={event => {
+                  event.stopPropagation();
+                  setIsGroupEditorOpen(true);
+                }}
+                title={myGroups.length > 0 ? t('Edit labels') : t('Add a label')}
+                className={cn(
+                  'inline-flex items-center gap-1 flex-wrap text-left text-xs px-0.5',
+                  myGroups.length === 0 &&
+                    'text-gray-400 hover:text-teal-600 dark:hover:text-teal-400'
+                )}
+              >
+                <Tag
+                  className={cn(
+                    'w-3.5 h-3.5 shrink-0',
+                    myGroups.length > 0 && 'text-teal-500 dark:text-teal-700'
+                  )}
+                  fill={myGroups.length > 0 ? 'currentColor' : 'none'}
+                />
+                {myGroups.map(group => (
+                  <span
+                    key={group}
+                    className="px-2 py-1 rounded-lg text-white bg-teal-500 dark:bg-teal-700"
+                  >
+                    <HighlightedText text={group} query={highlightQuery ?? ''} />
+                  </span>
+                ))}
+              </button>
+              {song.GroupBy && (
+                <span className="inline-block w-fit px-2 py-1 text-xs text-white bg-purple-600 dark:bg-purple-900 rounded-lg">
+                  <HighlightedText text={song.GroupBy} query={highlightQuery ?? ''} />
+                </span>
               )}
-            >
-              <Bookmark
-                className="w-3.5 h-3.5 shrink-0 mt-0.5"
-                fill={myGroups.length > 0 ? 'currentColor' : 'none'}
-              />
-              {myGroups.length > 0 && <span className="break-words">{myGroups.join(', ')}</span>}
-            </button>
+            </div>
           </div>
           <div className="shrink-0 flex items-center gap-1 text-xs mt-1">
-            {song.GroupBy && (
-              <span className="px-2 py-1 bg-purple-300 dark:bg-purple-900 rounded-lg">
-                {song.GroupBy}
-              </span>
-            )}
             {song.Language && (
-              <span className="text-gray-500 dark:text-gray-400">{song.Language}</span>
+              <span className="text-gray-500 dark:text-gray-400">
+                <HighlightedText text={song.Language} query={highlightQuery ?? ''} />
+              </span>
             )}
             <SongActionsMenu song={song} canEdit={canEdit} onEdit={() => onEdit(song)} />
           </div>
         </div>
+
+        {matchingLine && (
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 break-words">
+            <HighlightedText text={matchingLine} query={highlightQuery ?? ''} />
+          </p>
+        )}
       </div>
 
       {/*

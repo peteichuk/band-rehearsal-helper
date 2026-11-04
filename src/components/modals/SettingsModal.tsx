@@ -157,7 +157,7 @@ type BackupStep =
 const BACKUP_CATEGORY_LABEL_KEY: Record<BackupCategory, string> = {
   favorites: 'Favorites',
   pins: 'Pinned overrides',
-  tags: 'Tags (groups)',
+  tags: 'Labels',
   tonality: 'Tonality/Capo choices',
   lineNotes: 'Line/label notes',
   setlists: 'Setlists',
@@ -167,7 +167,7 @@ const BACKUP_CATEGORY_LABEL_KEY: Record<BackupCategory, string> = {
 
 const SONG_LIST_TITLE_KEY: Record<SongListCategory, string> = {
   pins: 'Pinned overrides',
-  tags: 'My groups',
+  tags: 'Labels',
   tonality: 'Tonality/Capo choices',
   lineNotes: 'Line/label notes',
   metronomePresets: 'Metronome presets',
@@ -289,7 +289,7 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
       }
       setAllLocalGroups(merged);
       imported.push(
-        t('{{count}} song(s) with custom groups', {
+        t('{{count}} song(s) with labels', {
           count: Object.keys(parsed.customGroups).length,
         })
       );
@@ -352,9 +352,9 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
   };
 
   const handleResetGroups = () => {
-    if (window.confirm(t('Remove all your custom groups? This cannot be undone.'))) {
+    if (window.confirm(t('Remove all your labels? This cannot be undone.'))) {
       resetLocalGroups();
-      showToast(t('Custom groups reset.'), 'success');
+      showToast(t('Labels reset.'), 'success');
     }
   };
 
@@ -408,7 +408,7 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
           { songName }
         );
       case 'tags':
-        return t('Remove all groups/tags from "{{songName}}"?', { songName });
+        return t('Remove all labels from "{{songName}}"?', { songName });
       case 'tonality':
         return t(
           'Reset the tonality/capo choice for "{{songName}}"? It\'ll go back to the song\'s original key.',
@@ -533,10 +533,10 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
 
             <div>
               <h3 className="text-sm font-semibold mb-1">
-                {t('My groups ({{count}} songs tagged)', { count: customGroupedSongsCount })}
+                {t('Labels ({{count}} songs tagged)', { count: customGroupedSongsCount })}
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                {t("Your own local groups (bookmark icon), on top of the sheet's GroupBy column.")}
+                {t("Your own local labels (tag icon), on top of the sheet's GroupBy column.")}
               </p>
               <div className="flex items-center gap-2">
                 <Button
@@ -545,7 +545,7 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
                   onClick={handleResetGroups}
                   disabled={customGroupedSongsCount === 0}
                 >
-                  {t('Reset My Groups')}
+                  {t('Reset Labels')}
                 </Button>
                 <EditListButton onClick={() => setListCategory('tags')} />
               </div>

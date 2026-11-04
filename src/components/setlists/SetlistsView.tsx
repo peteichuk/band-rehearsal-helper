@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Download,
+  GripVertical,
   LayoutGrid,
   List,
   ListMusic,
@@ -19,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ToggleButtonPair } from '@/components/shared/ToggleButtonPair';
+import { SearchBar } from '@/components/song-list/SearchBar';
 import { SwipeToDeleteRow } from '@/components/shared/SwipeToDeleteRow';
 import { ScrollToTopButton } from '@/components/shared/ScrollToTopButton';
 import { SetlistFormDialog } from '@/components/setlists/SetlistFormDialog';
@@ -33,6 +35,8 @@ import {
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useLocalSetlists } from '@/hooks/useLocalSetlists';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useDragReorder } from '@/hooks/useDragReorder';
+import { useGridDragReorder } from '@/hooks/useGridDragReorder';
 import {
   downloadSetlistAsFile,
   downloadSetlistsAsFile,
@@ -40,6 +44,7 @@ import {
   type SetlistBundleExtras,
 } from '@/lib/setlistFileTransfer';
 import { showToast } from '@/lib/toast';
+import { cn } from '@/lib/utils';
 import { saveSetlistSongsScrollTop, saveSetlistsScrollTop } from '@/lib/scrollMemory';
 import { getSongLineNotesSnapshot, mergeSongLineNotes } from '@/lib/songLineNotes';
 import { getSongTonalityPrefsSnapshot, mergeSongTonalityPrefs } from '@/lib/songKeyPrefs';
@@ -67,7 +72,16 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
     findSetlistByName,
     importSetlist,
     addSongToSetlist,
+    reorderSetlists,
   } = useLocalSetlists();
+  const dragReorder = useDragReorder({
+    items: allSetlists.map(setlist => setlist.id),
+    onReorder: reorderSetlists,
+  });
+  const gridDragReorder = useGridDragReorder({
+    items: allSetlists.map(setlist => setlist.id),
+    onReorder: reorderSetlists,
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importConflict, setImportConflict] = useState<{
     name: string;
@@ -89,6 +103,11 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
     'setlistsDisplayMode',
     'list'
   );
+  const [query, setQuery] = useState('');
+  const isSearching = query.trim().length > 0;
+  const visibleSetlists = isSearching
+    ? allSetlists.filter(setlist => setlist.name.toLowerCase().includes(query.trim().toLowerCase()))
+    : allSetlists;
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isExportMode, setIsExportMode] = useState(false);
   const [selectedForExport, setSelectedForExport] = useState<Set<string>>(new Set());
@@ -129,6 +148,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
 
   const startExportMode = () => {
     setSelectedForExport(new Set());
+    setQuery('');
     setIsExportMode(true);
   };
 
@@ -253,90 +273,99 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-2 mb-3">
-        {isExportMode ? (
-          <>
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-200">
-                <input
-                  type="checkbox"
-                  checked={allSelectedForExport}
-                  onChange={toggleSelectAllForExport}
-                  className="h-4 w-4 accent-blue-600"
-                />
-                {t('Select all')}
-              </label>
+      <div className="sticky top-14 z-20 -mx-2 px-2 bg-white dark:bg-gray-900 pt-2 pb-2 mb-2">
+        <div className="flex items-center justify-between gap-2">
+          {isExportMode ? (
+            <>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-200">
+                  <input
+                    type="checkbox"
+                    checked={allSelectedForExport}
+                    onChange={toggleSelectAllForExport}
+                    className="h-4 w-4 accent-blue-600"
+                  />
+                  {t('Select all')}
+                </label>
+                <button
+                  type="button"
+                  onClick={cancelExportMode}
+                  className="py-[9px] px-4 flex items-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium"
+                >
+                  {t('Cancel')}
+                </button>
+              </div>
               <button
                 type="button"
-                onClick={cancelExportMode}
-                className="py-[9px] px-4 flex items-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium"
+                onClick={() => setShowExportOptions(true)}
+                disabled={selectedForExport.size === 0}
+                className="py-2.5 px-4 flex items-center gap-1.5 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-50 disabled:pointer-events-none"
               >
-                {t('Cancel')}
+                <Upload className="w-5 h-5" />
+                {t('Export')}
               </button>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowExportOptions(true)}
-              disabled={selectedForExport.size === 0}
-              className="py-2.5 px-4 flex items-center gap-1.5 rounded bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-50 disabled:pointer-events-none"
-            >
-              <Upload className="w-5 h-5" />
-              {t('Export')}
-            </button>
-          </>
-        ) : (
-          <>
-            <ToggleButtonPair
-              value={displayMode}
-              onChange={setDisplayMode}
-              activeClassName="bg-blue-700 dark:bg-blue-600 text-white"
-              inactiveClassName="text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
-              options={[
-                { value: 'tiles', label: t('Tiles'), icon: <LayoutGrid className="w-5 h-5" /> },
-                { value: 'list', label: t('List'), icon: <List className="w-5 h-5" /> },
-              ]}
-            />
-
-            <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    title={t('More options')}
-                    className="p-[9px] flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
-                  >
-                    <MoreVertical className="w-5 h-5" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onSelect={() => setIsCreateOpen(true)}>
-                    <Plus className="size-5" />
-                    {t('New setlist')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => fileInputRef.current?.click()}>
-                    <Download className="size-5" />
-                    {t('Import setlist')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={startExportMode} disabled={allSetlists.length === 0}>
-                    <Upload className="size-5" />
-                    {t('Export setlists')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="application/json"
-                className="hidden"
-                onChange={event => {
-                  const file = event.target.files?.[0];
-                  if (file) void handleImportFile(file);
-                  event.target.value = '';
-                }}
+            </>
+          ) : (
+            <>
+              <ToggleButtonPair
+                value={displayMode}
+                onChange={setDisplayMode}
+                activeClassName="bg-blue-700 dark:bg-blue-600 text-white"
+                inactiveClassName="text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                options={[
+                  { value: 'tiles', label: t('Tiles'), icon: <LayoutGrid className="w-5 h-5" /> },
+                  { value: 'list', label: t('List'), icon: <List className="w-5 h-5" /> },
+                ]}
               />
-            </div>
-          </>
-        )}
+
+              <div className="flex-1 min-w-0">
+                <SearchBar value={query} onChange={setQuery} placeholder={t('Search setlists…')} />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      title={t('More options')}
+                      className="p-[9px] flex items-center justify-center rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-muted dark:hover:bg-input/50"
+                    >
+                      <MoreVertical className="w-5 h-5" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={() => setIsCreateOpen(true)}>
+                      <Plus className="size-5" />
+                      {t('New setlist')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => fileInputRef.current?.click()}>
+                      <Download className="size-5" />
+                      {t('Import setlist')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={startExportMode}
+                      disabled={allSetlists.length === 0}
+                    >
+                      <Upload className="size-5" />
+                      {t('Export setlists')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="application/json"
+                  className="hidden"
+                  onChange={event => {
+                    const file = event.target.files?.[0];
+                    if (file) void handleImportFile(file);
+                    event.target.value = '';
+                  }}
+                />
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {allSetlists.length === 0 && (
@@ -346,59 +375,98 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
         />
       )}
 
-      {allSetlists.length > 0 && effectiveDisplayMode === 'tiles' && (
+      {allSetlists.length > 0 && visibleSetlists.length === 0 && (
+        <EmptyState title={t('No setlists found')} />
+      )}
+
+      {visibleSetlists.length > 0 && effectiveDisplayMode === 'tiles' && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {allSetlists.map(setlist => (
-            <div
-              key={setlist.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => openSetlist(setlist.id)}
-              onKeyDown={event => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  openSetlist(setlist.id);
-                }
-              }}
-              className="relative cursor-pointer rounded bg-blue-100 dark:bg-gray-800 hover:bg-blue-200 dark:hover:bg-gray-700 p-3 flex flex-col items-center gap-1 text-center"
-            >
-              <div className="absolute top-1 right-1 flex items-center gap-0.5">
-                <button
-                  type="button"
-                  title={t('Share setlist')}
-                  onClick={event => {
-                    event.stopPropagation();
-                    downloadSetlistAsFile(setlist);
-                  }}
-                  className="p-1.5 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  title={t('Delete setlist')}
-                  onClick={event => {
-                    event.stopPropagation();
-                    confirmDeleteSetlist(setlist);
-                  }}
-                  className="p-1.5 flex items-center justify-center rounded text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+          {visibleSetlists.map(setlist => {
+            const isDraggingTile = gridDragReorder.draggingName === setlist.id;
+            return (
+              <div
+                key={setlist.id}
+                ref={gridDragReorder.setCellRef(setlist.id)}
+                role="button"
+                tabIndex={0}
+                onClick={() => openSetlist(setlist.id)}
+                onKeyDown={event => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openSetlist(setlist.id);
+                  }
+                }}
+                // shadow (not shadow-sm) for more lift on light — a flat white
+                // tile barely read as its own card otherwise. ring-1
+                // ring-foreground/10 — same "surface outline" every floating
+                // panel in the app uses (DialogContent, SelectContent,
+                // DropdownMenuContent): box-shadow is invisible against a dark
+                // background, so without it a dark tile was indistinguishable
+                // from the page behind it.
+                className={cn(
+                  'relative cursor-pointer rounded-lg bg-white dark:bg-gray-900 shadow hover:shadow-lg ring-1 ring-foreground/10 dark:hover:bg-gray-800 p-3 flex flex-col items-center gap-1 text-center transition-shadow',
+                  // No scale-* here — Tailwind v4 compiles it to the native
+                  // CSS `scale` property, which composes with (multiplies)
+                  // the inline `transform: translate()` trackPointer sets
+                  // during drag, so the tile drifted further from the
+                  // pointer the farther it moved. shadow-xl alone still
+                  // reads as "lifted".
+                  // z-30, not z-10 — clears the sticky search/toolbar's z-20
+                  isDraggingTile && 'z-30 shadow-xl'
+                )}
+              >
+                {!isSearching && (
+                  <button
+                    type="button"
+                    title={t('Drag to reorder')}
+                    onPointerDown={gridDragReorder.getHandleProps(setlist.id).onPointerDown}
+                    onClick={event => event.stopPropagation()}
+                    className={cn(
+                      'absolute top-1 left-1 p-1.5 flex items-center justify-center rounded text-gray-400 touch-none',
+                      isDraggingTile ? 'cursor-grabbing text-blue-500' : 'cursor-grab'
+                    )}
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </button>
+                )}
+                <div className="absolute top-1 right-1 flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    title={t('Share setlist')}
+                    onClick={event => {
+                      event.stopPropagation();
+                      downloadSetlistAsFile(setlist);
+                    }}
+                    className="p-1.5 flex items-center justify-center rounded hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    title={t('Delete setlist')}
+                    onClick={event => {
+                      event.stopPropagation();
+                      confirmDeleteSetlist(setlist);
+                    }}
+                    className="p-1.5 flex items-center justify-center rounded text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <ListMusic className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-medium break-words">{setlist.name}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('{{count}} song(s)', { count: songCount(setlist.id) })}
+                </span>
               </div>
-              <ListMusic className="w-10 h-10 text-blue-600 dark:text-blue-400" />
-              <span className="text-sm font-medium break-words">{setlist.name}</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {t('{{count}} song(s)', { count: songCount(setlist.id) })}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {allSetlists.length > 0 && effectiveDisplayMode === 'list' && (
-        <div className="space-y-1">
-          {allSetlists.map(setlist => {
+      {visibleSetlists.length > 0 && effectiveDisplayMode === 'list' && (
+        <div className="divide-y divide-gray-100 dark:divide-gray-800">
+          {visibleSetlists.map(setlist => {
             const row = (
               <div
                 role={isExportMode ? 'checkbox' : 'button'}
@@ -414,7 +482,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                     else openSetlist(setlist.id);
                   }
                 }}
-                className="w-full px-2 py-2 flex items-center gap-2 rounded bg-blue-100 dark:bg-gray-800 hover:bg-blue-200 dark:hover:bg-gray-700 cursor-pointer"
+                className="w-full px-2 py-1 flex items-center gap-2 cursor-pointer bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 {isExportMode && (
                   <input
@@ -425,7 +493,6 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                     className="h-4 w-4 shrink-0 accent-blue-600"
                   />
                 )}
-                <ListMusic className="w-5 h-5 shrink-0 text-blue-600 dark:text-blue-400" />
                 <span className="flex-1 min-w-0 truncate font-medium">{setlist.name}</span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
                   {t('{{count}} song(s)', { count: songCount(setlist.id) })}
@@ -438,7 +505,7 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
                       event.stopPropagation();
                       downloadSetlistAsFile(setlist);
                     }}
-                    className="shrink-0 p-2.5 flex items-center justify-center rounded text-gray-400 hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
+                    className="shrink-0 p-2.5 flex items-center justify-center rounded hover:text-blue-600 hover:bg-black/5 dark:hover:bg-white/10"
                   >
                     <Share2 className="w-4 h-4" />
                   </button>
@@ -446,12 +513,40 @@ export function SetlistsView({ allSongs }: SetlistsViewProps) {
               </div>
             );
 
-            return isExportMode ? (
-              <div key={setlist.id}>{row}</div>
+            const content = isExportMode ? (
+              <div>{row}</div>
             ) : (
-              <SwipeToDeleteRow key={setlist.id} onDelete={() => handleSwipeDelete(setlist)}>
-                {row}
-              </SwipeToDeleteRow>
+              <SwipeToDeleteRow onDelete={() => handleSwipeDelete(setlist)}>{row}</SwipeToDeleteRow>
+            );
+
+            const isDragging = dragReorder.draggingName === setlist.id;
+
+            return (
+              <div
+                key={setlist.id}
+                ref={dragReorder.setRowRef(setlist.id)}
+                className={cn(
+                  'flex items-center gap-1 transition-shadow',
+                  // No scale-* — see the tile drag className's comment above.
+                  // z-30, not z-10 — clears the sticky search/toolbar's z-20.
+                  isDragging && 'relative z-30 shadow-xl bg-white dark:bg-gray-900'
+                )}
+              >
+                {!isExportMode && !isSearching && (
+                  <button
+                    type="button"
+                    title={t('Drag to reorder')}
+                    onPointerDown={dragReorder.getHandleProps(setlist.id).onPointerDown}
+                    className={cn(
+                      'shrink-0 py-2.5 w-7 flex items-center justify-center text-gray-400 touch-none',
+                      isDragging ? 'cursor-grabbing text-blue-500' : 'cursor-grab'
+                    )}
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </button>
+                )}
+                <div className="flex-1 min-w-0">{content}</div>
+              </div>
             );
           })}
         </div>

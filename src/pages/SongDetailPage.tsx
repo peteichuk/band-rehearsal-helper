@@ -7,7 +7,7 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
-import { Bookmark, Pin, SlidersHorizontal, Star } from 'lucide-react';
+import { Pin, SlidersHorizontal, Star, Tag } from 'lucide-react';
 import { SongOverflowMenu } from '@/components/song-detail/SongOverflowMenu';
 import { SongControlsPanel } from '@/components/song-detail/SongControlsPanel';
 import { SongContent } from '@/components/song-detail/SongContent';
@@ -281,18 +281,33 @@ export function SongDetailPage() {
             </button>
             <button
               type="button"
-              title={myGroups.length > 0 ? t('Edit my groups') : t('Add to a group')}
+              title={myGroups.length > 0 ? t('Edit labels') : t('Add a label')}
               onClick={() => setIsGroupEditorOpen(true)}
               className={cn(
-                'flex items-center gap-1 p-1 hover:text-teal-600 dark:hover:text-teal-400',
-                myGroups.length > 0 ? 'text-teal-600 dark:text-teal-400' : 'text-gray-400'
+                'inline-flex items-center flex-wrap gap-1 p-1',
+                myGroups.length === 0 &&
+                  'text-gray-400 hover:text-teal-600 dark:hover:text-teal-400'
               )}
             >
-              <Bookmark className="w-4 h-4" fill={myGroups.length > 0 ? 'currentColor' : 'none'} />
-              {myGroups.length > 0 && (
-                <span className="text-xs break-words">{myGroups.join(', ')}</span>
-              )}
+              <Tag
+                className={cn('w-4 h-4', myGroups.length > 0 && 'text-teal-500 dark:text-teal-700')}
+                fill={myGroups.length > 0 ? 'currentColor' : 'none'}
+              />
+              {myGroups.map(group => (
+                <span
+                  key={group}
+                  className="px-2 py-1 rounded-lg text-xs text-white bg-teal-500 dark:bg-teal-700"
+                >
+                  {group}
+                </span>
+              ))}
             </button>
+
+            {song.GroupBy && (
+              <span className="px-2 py-1 rounded-lg text-xs text-white bg-purple-600 dark:bg-purple-900">
+                {song.GroupBy}
+              </span>
+            )}
           </div>
         </div>
 
@@ -303,10 +318,10 @@ export function SongDetailPage() {
               title={isControlsOpen ? t('Hide display controls') : t('Show display controls')}
               onClick={() => setIsControlsOpen(!isControlsOpen)}
               className={cn(
-                'p-2.5 shrink-0 flex items-center justify-center rounded',
+                'p-2.5 shrink-0 flex items-center justify-center rounded border',
                 isControlsOpen
-                  ? 'bg-blue-700 dark:bg-blue-600 text-white hover:bg-blue-800 dark:hover:bg-blue-700'
-                  : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  ? 'bg-blue-700 dark:bg-blue-600 text-white border-transparent hover:bg-blue-800 dark:hover:bg-blue-700'
+                  : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-muted dark:hover:bg-input/50'
               )}
             >
               <SlidersHorizontal className="w-5 h-5" />

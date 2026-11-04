@@ -143,10 +143,10 @@ export function SongListPage() {
                   title={isFiltersOpen ? t('Hide filters') : t('Show filters')}
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
                   className={cn(
-                    'p-2.5 shrink-0 flex items-center justify-center rounded',
+                    'p-2.5 shrink-0 flex items-center justify-center rounded border',
                     isFiltersOpen || hasActiveFilters
-                      ? 'bg-blue-700 dark:bg-blue-600 text-white hover:bg-blue-800 dark:hover:bg-blue-700'
-                      : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+                      ? 'bg-blue-700 dark:bg-blue-600 text-white border-transparent hover:bg-blue-800 dark:hover:bg-blue-700'
+                      : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-muted dark:hover:bg-input/50'
                   )}
                 >
                   <Filter className="w-5 h-5" />
@@ -203,6 +203,7 @@ export function SongListPage() {
                 onSelect={selectSong}
                 canEdit={canEdit}
                 onEdit={openEditSong}
+                highlightQuery={list === 'search' ? q : ''}
               />
             )}
 

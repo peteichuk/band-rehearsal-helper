@@ -119,39 +119,41 @@ export function SetlistDetailPage() {
 
   return (
     <div className="p-2 py-4">
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <span className="truncate text-xl font-bold min-w-0 flex-1">{setlist.name}</span>
+      <div className="sticky top-14 z-20 -mx-2 px-2 bg-white dark:bg-gray-900 pt-2 pb-2 mb-2">
+        <div className="flex items-center justify-between gap-2">
+          <span className="truncate text-xl font-bold min-w-0 flex-1">{setlist.name}</span>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              title={t('More options')}
-              className="shrink-0 p-2.5 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
-            >
-              <MoreVertical className="w-5 h-5" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={() => setIsAddSongsOpen(true)}>
-              <Plus className="size-5" />
-              {t('Add songs')}
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => downloadSetlistAsFile(setlist)}>
-              <Share2 className="size-5" />
-              {t('Share setlist')}
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setIsRenameOpen(true)}>
-              <Pencil className="size-5" />
-              {t('Rename setlist')}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={handleDeleteSetlist} variant="destructive">
-              <Trash2 className="size-5" />
-              {t('Delete setlist')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                title={t('More options')}
+                className="shrink-0 p-2.5 flex items-center justify-center rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-muted dark:hover:bg-input/50"
+              >
+                <MoreVertical className="w-5 h-5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => setIsAddSongsOpen(true)}>
+                <Plus className="size-5" />
+                {t('Add songs')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => downloadSetlistAsFile(setlist)}>
+                <Share2 className="size-5" />
+                {t('Share setlist')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setIsRenameOpen(true)}>
+                <Pencil className="size-5" />
+                {t('Rename setlist')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={handleDeleteSetlist} variant="destructive">
+                <Trash2 className="size-5" />
+                {t('Delete setlist')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {displayedSongs.length === 0 && (
@@ -161,24 +163,26 @@ export function SetlistDetailPage() {
         />
       )}
 
-      {displayedSongs.map((song, index) => (
-        <SetlistSongRow
-          key={song.Name}
-          song={song}
-          position={index + 1}
-          totalCount={displayedSongs.length}
-          isDragging={dragReorder.draggingName === song.Name}
-          rowRef={dragReorder.setRowRef(song.Name)}
-          handleProps={dragReorder.getHandleProps(song.Name)}
-          onSelect={selectSong}
-          onPositionCommit={newPosition => movePosition(song.Name, newPosition)}
-          onRemoveFromSetlist={() => handleRemoveSong(song.Name)}
-          canEdit={canEdit}
-          onEdit={openEditSong}
-        />
-      ))}
+      <div className="divide-y divide-gray-100 dark:divide-gray-800">
+        {displayedSongs.map((song, index) => (
+          <SetlistSongRow
+            key={song.Name}
+            song={song}
+            position={index + 1}
+            totalCount={displayedSongs.length}
+            isDragging={dragReorder.draggingName === song.Name}
+            rowRef={dragReorder.setRowRef(song.Name)}
+            handleProps={dragReorder.getHandleProps(song.Name)}
+            onSelect={selectSong}
+            onPositionCommit={newPosition => movePosition(song.Name, newPosition)}
+            onRemoveFromSetlist={() => handleRemoveSong(song.Name)}
+            canEdit={canEdit}
+            onEdit={openEditSong}
+          />
+        ))}
+      </div>
 
-      <ScrollToTopButton />
+      <ScrollToTopButton hasBottomNav={false} />
 
       <SetlistFormDialog
         open={isRenameOpen}

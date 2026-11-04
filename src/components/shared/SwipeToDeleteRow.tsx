@@ -16,7 +16,7 @@ export function SwipeToDeleteRow({ children, onDelete, deleteLabel }: SwipeToDel
   const swipe = useSwipeToReveal();
 
   return (
-    <div className="relative overflow-hidden rounded">
+    <div className="relative overflow-hidden">
       <button
         type="button"
         title={label}

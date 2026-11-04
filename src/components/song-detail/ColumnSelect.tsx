@@ -27,7 +27,7 @@ export function ColumnSelect({ value, onChange }: ColumnSelectProps) {
   const { t } = useTranslation();
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-auto gap-2">
+      <SelectTrigger className="w-auto gap-2 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

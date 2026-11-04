@@ -27,12 +27,11 @@ import { cn } from '@/lib/utils';
 import type { PageActions } from '@/types/pageActions';
 import type { GoogleAuthState } from '@/hooks/useGoogleAuth';
 
-// bg-blue-100 dark:bg-gray-800 — same resting card background as a
-// song-list row (SongListItem.tsx) — so each row visibly reads as its own
-// tappable button even with no hover (there's no hover on mobile).
-// hover:bg-blue-200 dark:hover:bg-gray-700 one step up from that for desktop.
+// No background at rest (plain menu row, like DropdownMenuItem) — only
+// hover:bg-gray-100 dark:hover:bg-gray-800 highlights it, so the sheet
+// reads as one clean menu instead of a stack of separate card buttons.
 const MENU_ITEM_CLASS =
-  'flex items-center gap-3 w-full rounded-lg px-3 py-3 text-base font-medium text-left bg-blue-100 dark:bg-gray-800 hover:bg-blue-200 dark:hover:bg-gray-700 hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none';
+  'flex items-center gap-3 w-full rounded-lg px-3 py-3 text-base font-medium text-left hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none';
 
 /**
  * Hamburger icon that morphs into an X as `open` toggles. Always a 20px
@@ -261,7 +260,7 @@ export function Header({
                 <div className="my-2 border-t border-border" />
 
                 <div
-                  className="flex items-center gap-3 w-full rounded-lg px-3 py-1 text-base font-medium bg-blue-100 dark:bg-gray-800 hover:bg-blue-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  className="flex items-center gap-3 w-full rounded-lg px-3 py-1 text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
                   onClick={openEmbeddedSelect}
                 >
                   <SunMoon className="w-4 h-4 shrink-0" />
@@ -270,7 +269,7 @@ export function Header({
                 </div>
 
                 <div
-                  className="flex items-center gap-3 w-full rounded-lg px-3 py-1 text-base font-medium bg-blue-100 dark:bg-gray-800 hover:bg-blue-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  className="flex items-center gap-3 w-full rounded-lg px-3 py-1 text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
                   onClick={openEmbeddedSelect}
                 >
                   <Languages className="w-4 h-4 shrink-0" />

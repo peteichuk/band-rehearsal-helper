@@ -17,7 +17,7 @@ interface CachedSongListModalProps {
 
 /**
  * Generic "which songs have this cached, and what to do about it" list,
- * reused across Settings' per-song categories (Pinned overrides, My groups,
+ * reused across Settings' per-song categories (Pinned overrides, Labels,
  * Tonality/Capo, Line notes, Metronome presets) instead of one bespoke modal
  * per category.
  */

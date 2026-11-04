@@ -32,14 +32,6 @@ export function sortForDisplay(songs: Song[], effectivePinnedNames?: Set<string>
   ];
 }
 
-export function filterBySearch(songs: Song[], query: string): Song[] {
-  const q = query.trim().toLowerCase();
-  if (!q) return songs;
-  return songs.filter(song =>
-    [song.Name, song.Language, song.GroupBy].some(field => field?.toLowerCase().includes(q))
-  );
-}
-
 /** Matches the sheet's `GroupBy` column OR any locally-added custom group for that song. */
 export function filterByGroup(
   songs: Song[],

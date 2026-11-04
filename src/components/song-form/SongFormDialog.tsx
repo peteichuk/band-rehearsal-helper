@@ -8,6 +8,13 @@ import {
 } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Pin } from 'lucide-react';
 import { ZoomControls } from '@/components/song-detail/ZoomControls';
 import { DISPLAY_SCALE } from '@/lib/chords/transpose';
@@ -137,7 +144,7 @@ export function SongFormDialog({
           // would span edge-to-edge with no margin once the viewport drops
           // below ~832px.
           'max-w-[min(800px,calc(100%-2rem))] sm:max-w-[min(800px,calc(100%-2rem))]',
-          'max-h-[85vh] overflow-y-auto'
+          'max-h-[85vh] flex flex-col overflow-hidden'
         )}
         onOpenAutoFocus={event => {
           // Radix otherwise focuses the first focusable element itself
@@ -154,7 +161,7 @@ export function SongFormDialog({
           {initialSong ? t('Edit "{{name}}"', { name: initialSong.Name }) : t('Add Song')}
         </DialogTitle>
 
-        <div className="space-y-3">
+        <div className="space-y-3 min-h-0 overflow-y-auto">
           {lead.map(header => (
             <FieldRow
               key={header}
@@ -187,9 +194,9 @@ export function SongFormDialog({
           )}
         </div>
 
-        {error && <p className="text-sm text-destructive mt-2">{error}</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
 
-        <div className="flex justify-end gap-2 mt-4">
+        <div className="flex justify-end gap-2">
           <Button
             type="button"
             variant="outline"
@@ -352,35 +359,35 @@ function Field({
 
   if (header === 'Tonality') {
     return (
-      <select
-        value={String(value ?? '')}
-        onChange={e => update(e.target.value)}
-        className={cn(inputClass, hasError && inputErrorClass)}
-      >
-        <option value="">{t('Select tonality…')}</option>
-        {DISPLAY_SCALE.map(note => (
-          <option key={note} value={note}>
-            {note}
-          </option>
-        ))}
-      </select>
+      <Select value={String(value ?? '')} onValueChange={update}>
+        <SelectTrigger className={cn('w-full', inputClass, hasError && inputErrorClass)}>
+          <SelectValue placeholder={t('Select tonality…')} />
+        </SelectTrigger>
+        <SelectContent>
+          {DISPLAY_SCALE.map(note => (
+            <SelectItem key={note} value={note}>
+              {note}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     );
   }
 
   if (header === 'TimeSignature') {
     return (
-      <select
-        value={String(value ?? '')}
-        onChange={e => update(e.target.value)}
-        className={cn(inputClass, hasError && inputErrorClass)}
-      >
-        <option value="">{t('Time signature, e.g. 3/4, 4/4…')}</option>
-        {TIME_SIGNATURES.map(signature => (
-          <option key={signature.id} value={signature.label}>
-            {signature.label}
-          </option>
-        ))}
-      </select>
+      <Select value={String(value ?? '')} onValueChange={update}>
+        <SelectTrigger className={cn('w-full', inputClass, hasError && inputErrorClass)}>
+          <SelectValue placeholder={t('Time signature, e.g. 3/4, 4/4…')} />
+        </SelectTrigger>
+        <SelectContent>
+          {TIME_SIGNATURES.map(signature => (
+            <SelectItem key={signature.id} value={signature.label}>
+              {signature.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     );
   }
 

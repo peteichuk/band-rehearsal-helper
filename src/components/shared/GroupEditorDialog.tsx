@@ -39,7 +39,7 @@ export function GroupEditorDialog({ open, onOpenChange, songName }: GroupEditorD
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[calc(100%-20px)] sm:max-w-sm">
         <DialogTitle>
-          {songName ? t('My groups — {{songName}}', { songName }) : t('My groups')}
+          {songName ? t('Labels — {{songName}}', { songName }) : t('Labels')}
         </DialogTitle>
 
         {currentGroups.length > 0 && (
@@ -74,7 +74,7 @@ export function GroupEditorDialog({ open, onOpenChange, songName }: GroupEditorD
                 commitInput();
               }
             }}
-            placeholder={t('Add a group…')}
+            placeholder={t('Add a label…')}
             // text-base (16px) is deliberate — iOS Safari auto-zooms the
             // page on focus for any input with a computed font-size under
             // 16px.

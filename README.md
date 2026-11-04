@@ -17,6 +17,7 @@ Google Sheets example: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQ
 - **Smart Chord Parsing:** Supports dynamic chord parsing from text, allowing for future transposition features.
 - **Pinned Songs:** Songs marked `PinedByDefault` in the sheet are pinned to the top of the list for everyone. Anyone can locally pin/unpin any song from the UI — this only changes sort order for you, it's never written back to the sheet.
 - **Favorites:** Star any song locally to build your own favorites list — this is what the prev/next navigation on a song page cycles through. Until you star anything, prev/next falls back to the pinned songs by default.
+- **Smart Search:** Searches song name, lyrics, labels, `GroupBy`, language, and setlists at once, tolerant of a typo, with matches highlighted and ranked by precision.
 - **External Resource Integration:** Quick links to **YouTube**, **Chordify**, and **Holychords**.
 - **Auto Dark Mode:** Built-in responsive design that respects your OS light/dark theme settings.
 - **Multilingual UI:** The app interface is available in English, Українська, Polski, 日本語, Español, Português (Brasil), हिन्दी, and বাংলা — defaults to your browser/OS language (falling back to English), switchable anytime from Settings → Language. Each language is lazy-loaded on first use (a few KB) and cached afterward, so you only ever download the one you actually pick. (Song content itself — lyrics, titles, tags — stays exactly as entered in your Google Sheet; only the app's own UI chrome is translated.)

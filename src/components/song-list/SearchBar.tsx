@@ -6,6 +6,7 @@ interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  placeholder?: string;
 }
 
 const DEBOUNCE_MS = 300;
@@ -17,18 +18,21 @@ const DEBOUNCE_MS = 300;
  * which is what was making typing feel laggy. Local state here gives
  * instant typing feedback, and `onChange` only actually fires `DEBOUNCE_MS`
  * after the user stops typing.
+ *
+ * `value` only ever seeds `localValue`'s *initial* state (a fresh mount —
+ * e.g. switching to this tab, or opening a shared link with its own ?q=),
+ * never re-syncs it afterwards. Typing fast used to race with that resync:
+ * a debounced `onChange` writes the URL, the URL update echoes back as a
+ * new `value` prop, and that got pushed back into `localValue` — which,
+ * landing between keystrokes, could stomp whatever had been typed since.
+ * Once mounted, `localValue` is the single source of truth for what's
+ * on-screen; the URL is only ever written *to*, never read back from, while
+ * this component stays mounted.
  */
-export function SearchBar({ value, onChange, disabled }: SearchBarProps) {
+export function SearchBar({ value, onChange, disabled, placeholder }: SearchBarProps) {
   const { t } = useTranslation();
   const [localValue, setLocalValue] = useState(value);
   const timeoutRef = useRef<number | null>(null);
-
-  // Only fires when `value` itself changes — i.e. an *external* change (the
-  // list getting cleared by navigating away and back, a shared link with
-  // its own ?q=), never while a debounce from our own typing is in flight.
-  useEffect(() => {
-    setLocalValue(value);
-  }, [value]);
 
   useEffect(() => {
     return () => {
@@ -52,7 +56,7 @@ export function SearchBar({ value, onChange, disabled }: SearchBarProps) {
     <div className="relative">
       <input
         type="text"
-        placeholder={t('Search songs…')}
+        placeholder={placeholder ?? t('Search songs…')}
         value={localValue}
         disabled={disabled}
         onChange={e => scheduleChange(e.target.value)}

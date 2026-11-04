@@ -1,6 +1,15 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { beginInteraction, endInteraction } from '@/lib/interactionLock';
 
+// A little give past the list's own top/bottom edge — clamping exactly at
+// the edge felt like hitting a wall; this lets the row nudge slightly past
+// it before stopping.
+const BOUNDS_SLACK = 10;
+// How long the dragged row (and any sibling still offset when the pointer
+// is released) takes to animate back to its resting transform, instead of
+// snapping there instantly.
+const RESET_TRANSITION_MS = 150;
+
 interface UseDragReorderOptions {
   items: string[];
   onReorder: (nextOrder: string[]) => void;
@@ -39,18 +48,27 @@ export function useDragReorder({ items, onReorder }: UseDragReorderOptions) {
   const fromIndexRef = useRef(-1);
   const toIndexRef = useRef(-1);
   const slotHeightRef = useRef(0);
+  // The list's own top/bottom, from the union of every row's natural rect
+  // at drag-start — clamps the dragged row so it can never visually slide
+  // out past the first/last row (e.g. up under a sticky header above the
+  // list), rather than relying on z-index to win that overlap.
+  const boundsRef = useRef({ top: 0, bottom: 0 });
 
   const setRowRef = (name: string) => (el: HTMLElement | null) => {
     if (el) rowRefs.current.set(name, el);
     else rowRefs.current.delete(name);
   };
 
-  /** Pins the dragged row's center to the pointer, using its drag-start (never re-measured) rect. */
+  /** Pins the dragged row's center to the pointer (clamped to the list's own bounds), using its drag-start (never re-measured) rect. */
   const trackPointer = (name: string, pointerY: number) => {
     const el = rowRefs.current.get(name);
     const natural = naturalRectsRef.current.get(name);
     if (!el || !natural) return;
-    const offset = pointerY - (natural.top + natural.height / 2);
+    let offset = pointerY - (natural.top + natural.height / 2);
+    const { top, bottom } = boundsRef.current;
+    const minOffset = top - natural.top - BOUNDS_SLACK;
+    const maxOffset = bottom - natural.height - natural.top + BOUNDS_SLACK;
+    offset = Math.min(Math.max(offset, minOffset), maxOffset);
     el.style.transition = 'none';
     el.style.transform = `translateY(${offset}px)`;
   };
@@ -90,11 +108,15 @@ export function useDragReorder({ items, onReorder }: UseDragReorderOptions) {
     toIndexRef.current = to;
   };
 
+  /** Animates back to resting position instead of snapping there — the dragged row itself was tracking the pointer with `transition: none`, so this is also what turns transitions back on for it. */
   const resetRowStyle = (name: string) => {
     const el = rowRefs.current.get(name);
     if (!el) return;
-    el.style.transition = '';
+    el.style.transition = `transform ${RESET_TRANSITION_MS}ms ease`;
     el.style.transform = '';
+    window.setTimeout(() => {
+      el.style.transition = '';
+    }, RESET_TRANSITION_MS);
   };
 
   const endDrag = (name: string, order: string[]) => {
@@ -135,6 +157,12 @@ export function useDragReorder({ items, onReorder }: UseDragReorderOptions) {
       const secondRect = order.length > 1 ? naturalRectsRef.current.get(order[1]) : undefined;
       slotHeightRef.current =
         firstRect && secondRect ? secondRect.top - firstRect.top : (firstRect?.height ?? 0);
+
+      const rects = [...naturalRectsRef.current.values()];
+      boundsRef.current = {
+        top: Math.min(...rects.map(r => r.top)),
+        bottom: Math.max(...rects.map(r => r.bottom)),
+      };
 
       setDraggingName(name);
       document.body.style.cursor = 'grabbing';

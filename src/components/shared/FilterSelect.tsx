@@ -33,7 +33,10 @@ export function FilterSelect({ label, disabled, children, className }: FilterSel
           type="button"
           variant="outline"
           disabled={disabled}
-          className={cn('w-full sm:w-48 justify-between font-normal', className)}
+          className={cn(
+            'w-full sm:w-48 justify-between font-normal bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600',
+            className
+          )}
         >
           {label}
           <ChevronDown className="size-4 opacity-50" />

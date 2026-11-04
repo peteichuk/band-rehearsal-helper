@@ -14,6 +14,8 @@ export interface Setlist {
   name: string;
   createdAt: number;
   songs: SetlistSongEntry[];
+  /** Explicit manual position (drag-drop) — sparse, see sortSetlists. */
+  customIndex?: number;
 }
 
 export type LocalSetlists = Record<string, Setlist>; // setlist id -> Setlist
@@ -192,6 +194,30 @@ export function getSetlistsForSong(songName: string): Setlist[] {
 
 export function getAllSetlists(): Setlist[] {
   return Object.values(setlists);
+}
+
+/**
+ * Order for the setlists list itself: entries with an explicit `customIndex`
+ * (set by dragging) come first, sorted by it; every other setlist follows,
+ * alphabetically. Same sparse convention as sortSetlistSongs.
+ */
+export function sortSetlists(all: Setlist[]): Setlist[] {
+  const withIndex = all.filter(setlist => setlist.customIndex != null);
+  const withoutIndex = all.filter(setlist => setlist.customIndex == null);
+  withIndex.sort((a, b) => Number(a.customIndex) - Number(b.customIndex));
+  withoutIndex.sort((a, b) => a.name.localeCompare(b.name));
+  return [...withIndex, ...withoutIndex];
+}
+
+/** Drag-drop commit — locks in the exact visual order as sequential custom indices for everyone. */
+export function reorderSetlists(orderedIds: string[]) {
+  const next = { ...setlists };
+  orderedIds.forEach((id, index) => {
+    const setlist = next[id];
+    if (setlist) next[id] = { ...setlist, customIndex: index };
+  });
+  setlists = next;
+  persist();
 }
 
 /**
