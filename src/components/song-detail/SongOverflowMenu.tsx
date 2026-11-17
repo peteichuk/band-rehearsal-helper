@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, FolderPlus, MoreVertical, Pencil, Tag, Upload } from 'lucide-react';
+import { Copy, Download, FolderPlus, MoreVertical, Pencil, Tag, Upload } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,6 +51,18 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
     downloadSongSettingsAsFile(song.Name);
   };
 
+  const handleCopySong = async () => {
+    // The sheet's own text (original key) under the title — what you'd paste
+    // into a chat or a doc.
+    const content = `${song.Name}\n\n${song.Text ?? ''}`.trim();
+    try {
+      await navigator.clipboard.writeText(content);
+      showToast(t('Song copied to clipboard.'), 'success');
+    } catch {
+      showToast(t("Couldn't copy the song."), 'error');
+    }
+  };
+
   const handleSettingsFileSelected = async (file: File) => {
     try {
       const parsed = await parseSongSettingsFile(file);
@@ -98,6 +110,13 @@ export function SongOverflowMenu({ song, canEdit, onEdit }: SongOverflowMenuProp
               <SongLinks song={song} />
               <DropdownMenuSeparator />
             </>
+          )}
+
+          {song.Text && (
+            <DropdownMenuItem onSelect={() => void handleCopySong()}>
+              <Copy className="size-5" />
+              {t('Copy song')}
+            </DropdownMenuItem>
           )}
 
           <DropdownMenuItem onSelect={() => setIsLabelsOpen(true)}>

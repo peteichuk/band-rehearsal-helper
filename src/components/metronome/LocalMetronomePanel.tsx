@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RotateCcw, Save } from 'lucide-react';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { RotateCcw, Save, Zap } from 'lucide-react';
+import { cn } from 'cn';
+import {
+  setMetronomeSoundId,
+  setMetronomeVisualFlash,
+  useAppPreferences,
+} from '@/lib/appPreferences';
 import { useAudioOutputDevice } from '@/hooks/useAudioOutputDevice';
 import { useSyncedMetronomePreset } from '@/hooks/useSyncedMetronomePreset';
 import { useMetronomeEngine } from '@/components/metronome/useMetronomeEngine';
@@ -15,11 +20,7 @@ import {
   resolveAccentPatternId,
   type BeatLevel,
 } from '@/components/metronome/timeSignatures';
-import {
-  DEFAULT_CLICK_SOUND_ID,
-  previewClickSound,
-  type ClickSoundId,
-} from '@/components/metronome/sounds';
+import { previewClickSound, type ClickSoundId } from '@/components/metronome/sounds';
 import { TempoControl } from '@/components/metronome/TempoControl';
 import { TapTempoButton } from '@/components/metronome/TapTempoButton';
 import { TimeSignatureSelect } from '@/components/metronome/TimeSignatureSelect';
@@ -29,6 +30,7 @@ import { BeatIndicator } from '@/components/metronome/BeatIndicator';
 import { BeatAccentEditor } from '@/components/metronome/BeatAccentEditor';
 import { PlayPauseButton } from '@/components/metronome/PlayPauseButton';
 import { BeatCounter } from '@/components/metronome/BeatCounter';
+import { BeatFlashOverlay } from '@/components/metronome/BeatFlashOverlay';
 
 interface LocalMetronomePanelProps {
   bpm: number;
@@ -71,14 +73,19 @@ export function LocalMetronomePanel({
   // A global rolling default (same spirit as useGlobalDisplayDefaults behind
   // useSongDisplayConfig) — backs any song that's never had its own sound
   // picked, and keeps tracking whatever was last chosen anywhere.
-  const [globalDefaultSoundId, setGlobalDefaultSoundId] = useLocalStorageState<ClickSoundId>(
-    'metronome-sound',
-    DEFAULT_CLICK_SOUND_ID
-  );
+  const {
+    metronomeSoundId: globalDefaultSoundId,
+    metronomeVisualFlash: visualFlash,
+    metronomeFlashIntensity,
+  } = useAppPreferences();
+  const setGlobalDefaultSoundId = setMetronomeSoundId;
   const [soundId, setSoundIdState] = useState<ClickSoundId>(
     preset?.soundId ?? globalDefaultSoundId
   );
   const audioOutputDevice = useAudioOutputDevice();
+  // Global on/off (not per-song, not part of Save) — a device/environment
+  // preference, like the audio output device, rather than part of a preset.
+  const setVisualFlash = setMetronomeVisualFlash;
 
   const handleBpmChange = (next: number) => updateSynced({ bpm: next });
 
@@ -137,7 +144,7 @@ export function LocalMetronomePanel({
     setSoundIdState(nextSoundId);
     if (isPlaying) stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset]);
+  }, [preset, globalDefaultSoundId]);
 
   // Confirming a new output device (see AudioOutputButton/Dialog) only
   // takes effect on the next AudioContext by default — if the metronome is
@@ -205,6 +212,12 @@ export function LocalMetronomePanel({
 
   return (
     <div className="flex flex-col items-center gap-5 py-4">
+      <BeatFlashOverlay
+        enabled={visualFlash}
+        currentBeat={currentBeat}
+        accentPattern={accentPattern}
+        intensity={metronomeFlashIntensity}
+      />
       <div className="flex w-full items-center justify-center gap-2">
         <TimeSignatureSelect value={timeSignatureId} onChange={handleTimeSignatureChange} />
         <AccentPatternSelect
@@ -234,21 +247,54 @@ export function LocalMetronomePanel({
 
       <div className="flex items-center justify-center gap-3">
         <TapTempoButton onChange={handleBpmChange} />
-        <PlayPauseButton isPlaying={isPlaying} onToggle={toggle} />
+        <PlayPauseButton
+          isPlaying={isPlaying}
+          onToggle={toggle}
+          currentBeat={currentBeat}
+          accentPattern={accentPattern}
+        />
         <BeatCounter currentBeat={currentBeat} beatsPerBar={beatsPerBar} />
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2">
         <AudioOutputButton />
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          aria-pressed={visualFlash}
+          onClick={() => setVisualFlash(!visualFlash)}
+          title={t('Visual metronome')}
+          className={cn(
+            'border-orange-600 dark:border-orange-400',
+            visualFlash &&
+              'bg-orange-600 dark:bg-orange-600 text-white hover:text-white dark:hover:text-white dark:border-orange-600 hover:bg-orange-700 dark:hover:bg-orange-700'
+          )}
+        >
+          <Zap className={cn('size-5', !visualFlash && 'text-orange-600 dark:text-orange-400')} />
+        </Button>
         {songName && (
           <>
-            <Button type="button" variant="outline" disabled={!canReset} onClick={handleReset}>
-              <RotateCcw data-icon="inline-start" />
-              {t('Reset')}
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              disabled={!canReset}
+              onClick={handleReset}
+              title={t('Reset')}
+            >
+              <RotateCcw className="size-5" />
+              <span className="sr-only">{t('Reset')}</span>
             </Button>
-            <Button type="button" disabled={!hasUnsavedChanges} onClick={handleSave}>
-              <Save data-icon="inline-start" />
-              {t('Save')}
+            <Button
+              type="button"
+              size="icon"
+              disabled={!hasUnsavedChanges}
+              onClick={handleSave}
+              title={t('Save')}
+            >
+              <Save className="size-5" />
+              <span className="sr-only">{t('Save')}</span>
             </Button>
           </>
         )}

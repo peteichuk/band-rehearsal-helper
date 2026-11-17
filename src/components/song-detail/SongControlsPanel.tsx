@@ -1,13 +1,14 @@
 import { useTranslation } from 'react-i18next';
-import { MetronomeIcon } from '@/components/metronome/MetronomeIcon';
 import { ZoomControls } from '@/components/song-detail/ZoomControls';
 import { TransposeControls } from '@/components/song-detail/TransposeControls';
 import { CapoSelect } from '@/components/song-detail/CapoSelect';
 import { ColumnSelect } from '@/components/song-detail/ColumnSelect';
+import { ChordDiagramControls } from '@/components/song-detail/ChordDiagramControls';
 import { LineToggleButtons } from '@/components/song-detail/LineToggleButtons';
 import { CollapsiblePanel } from '@/components/shared/CollapsiblePanel';
 import PrintIcon from '@/assets/icons/print.svg?react';
 import type { TransposeOption } from '@/lib/chords/transpose';
+import type { ChordDiagramSetting } from '@/lib/chords/chordDiagrams';
 
 const DIVIDER = <div className="self-stretch w-px shrink-0 bg-gray-300 dark:bg-gray-600" />;
 
@@ -27,9 +28,15 @@ interface SongControlsPanelProps {
   hideChordLine: boolean;
   onToggleTextLine: () => void;
   onToggleChordLine: () => void;
-  onOpenMetronome: () => void;
-  isMetronomePlaying: boolean;
   canPrint: boolean;
+  chordInstrument: ChordDiagramSetting;
+  onChordInstrumentChange: (value: ChordDiagramSetting) => void;
+  showChordStrip: boolean;
+  onToggleChordStrip: () => void;
+  showChordInline: boolean;
+  onToggleChordInline: () => void;
+  chordDiagramScale: number;
+  onChordDiagramScaleChange: (next: number) => void;
 }
 
 /**
@@ -53,9 +60,15 @@ export function SongControlsPanel({
   hideChordLine,
   onToggleTextLine,
   onToggleChordLine,
-  onOpenMetronome,
-  isMetronomePlaying,
   canPrint,
+  chordInstrument,
+  onChordInstrumentChange,
+  showChordStrip,
+  onToggleChordStrip,
+  showChordInline,
+  onToggleChordInline,
+  chordDiagramScale,
+  onChordDiagramScaleChange,
 }: SongControlsPanelProps) {
   const { t } = useTranslation();
   return (
@@ -79,24 +92,28 @@ export function SongControlsPanel({
           onToggleChordLine={onToggleChordLine}
         />
         {DIVIDER}
-        <button
-          type="button"
-          title={t('Metronome')}
-          data-metronome-trigger
-          onClick={onOpenMetronome}
-          className="p-2.5 shrink-0 flex items-center justify-center bg-orange-600 hover:bg-orange-700 text-white rounded"
-        >
-          <MetronomeIcon playing={isMetronomePlaying} className="w-5 h-5" />
-        </button>
+        <ChordDiagramControls
+          instrument={chordInstrument}
+          onInstrumentChange={onChordInstrumentChange}
+          showStrip={showChordStrip}
+          onToggleStrip={onToggleChordStrip}
+          showInline={showChordInline}
+          onToggleInline={onToggleChordInline}
+          scale={chordDiagramScale}
+          onScaleChange={onChordDiagramScaleChange}
+        />
         {canPrint && (
-          <button
-            type="button"
-            title={t('Print')}
-            onClick={() => window.print()}
-            className="p-2.5 shrink-0 flex items-center justify-center bg-white dark:bg-gray-700 hover:bg-muted dark:hover:bg-input/50 border border-gray-300 dark:border-gray-600 rounded"
-          >
-            <PrintIcon className="w-5 h-5" />
-          </button>
+          <>
+            {DIVIDER}
+            <button
+              type="button"
+              title={t('Print')}
+              onClick={() => window.print()}
+              className="p-2.5 shrink-0 flex items-center justify-center bg-white dark:bg-gray-700 hover:bg-muted dark:hover:bg-input/50 border border-gray-300 dark:border-gray-600 rounded"
+            >
+              <PrintIcon className="w-5 h-5" />
+            </button>
+          </>
         )}
       </div>
     </CollapsiblePanel>

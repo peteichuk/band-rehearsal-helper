@@ -2,6 +2,7 @@ import type { PinOverrides } from '@/lib/localPins';
 import type { LocalGroups } from '@/lib/localGroups';
 import type { MetronomePreset } from '@/lib/metronomePresets';
 import type { SetlistSongEntry } from '@/lib/localSetlists';
+import type { BackupAppPreferences } from '@/lib/appPreferences';
 import type { Orientation, OrientationDisplayConfig } from '@/lib/songDisplayConfig';
 
 export type AppearanceDefaults = Record<Orientation, OrientationDisplayConfig>;
@@ -24,5 +25,6 @@ export interface ExportedSettings {
   lineNotes?: Record<string, Record<string, string>>;
   setlists?: ExportedSetlist[];
   appearanceDefaults?: AppearanceDefaults;
+  appPreferences?: Partial<BackupAppPreferences>;
   metronomePresets?: Record<string, MetronomePreset>;
 }

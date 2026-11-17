@@ -15,7 +15,6 @@ import { SongNavigation } from '@/components/song-detail/SongNavigation';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useSongNavigation } from '@/hooks/useSongNavigation';
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { useSongDisplayConfig } from '@/hooks/useSongDisplayConfig';
 import { useGlobalDisplayDefaults } from '@/hooks/useGlobalDisplayDefaults';
 import { usePinOverrides, useEffectivePinsSet } from '@/hooks/useEffectivePins';
@@ -33,6 +32,15 @@ import {
   getSongTonalityPref,
   setSongTonalityPref,
 } from '@/lib/songKeyPrefs';
+import {
+  setChordDiagramInline,
+  setChordDiagramInstrument,
+  setChordDiagramScale,
+  setHideChordLine,
+  setHideTextLine,
+  setChordStripVisible,
+  useAppPreferences,
+} from '@/lib/appPreferences';
 import { getTransposeOptionForSteps, wrapCapoSteps } from '@/lib/chords/transpose';
 import { cn } from '@/lib/utils';
 import type { RootOutletContext } from '@/App';
@@ -41,8 +49,7 @@ import type { Song } from '@/types/song';
 
 export function SongDetailPage() {
   const { t } = useTranslation();
-  const { allSongs, setPageActions, canEdit, openEditSong, onOpenMetronome, isMetronomePlaying } =
-    useOutletContext<RootOutletContext>();
+  const { allSongs, setPageActions, canEdit, openEditSong } = useOutletContext<RootOutletContext>();
   const { songName } = useParams<{ songName: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -85,8 +92,15 @@ export function SongDetailPage() {
     decodeURIComponent(songName ?? '')
   );
   const globalDisplayDefaults = useGlobalDisplayDefaults();
-  const [hideTextLine, setHideTextLine] = useLocalStorageState('hideTextLine', false);
-  const [hideChordLine, setHideChordLine] = useLocalStorageState('hideChordLine', false);
+  const {
+    chordDiagramInstrument,
+    chordStripVisible,
+    chordDiagramInline,
+    chordDiagramScale,
+    hideTextLine,
+    hideChordLine,
+    chordNotation,
+  } = useAppPreferences();
   const [isGroupEditorOpen, setIsGroupEditorOpen] = useState(false);
   const { getGroups } = useLocalGroups();
   const { isFavorite, toggleFavorite } = useLocalFavorites();
@@ -349,9 +363,15 @@ export function SongDetailPage() {
           hideChordLine={hideChordLine}
           onToggleTextLine={() => setHideTextLine(!hideTextLine)}
           onToggleChordLine={() => setHideChordLine(!hideChordLine)}
-          onOpenMetronome={onOpenMetronome}
-          isMetronomePlaying={isMetronomePlaying}
           canPrint={Boolean(text)}
+          chordInstrument={chordDiagramInstrument}
+          onChordInstrumentChange={setChordDiagramInstrument}
+          showChordStrip={chordStripVisible}
+          onToggleChordStrip={() => setChordStripVisible(!chordStripVisible)}
+          showChordInline={chordDiagramInline}
+          onToggleChordInline={() => setChordDiagramInline(!chordDiagramInline)}
+          chordDiagramScale={chordDiagramScale}
+          onChordDiagramScaleChange={setChordDiagramScale}
         />
       )}
 
@@ -365,6 +385,11 @@ export function SongDetailPage() {
           hideTextLine={hideTextLine}
           hideChordLine={hideChordLine}
           fontSize={fontSize}
+          chordInstrument={chordDiagramInstrument}
+          showChordStrip={chordStripVisible}
+          inlineChordDiagrams={chordDiagramInline}
+          chordDiagramScale={chordDiagramScale}
+          chordNotation={chordNotation}
         />
       ) : (
         <EmptyState

@@ -149,3 +149,26 @@ export function getTransposeOptions(originalTonality: string): TransposeOption[]
     };
   });
 }
+
+/** American (B = B natural, Bb = B flat) or German (H = B natural, B = B flat) spelling of the note B. */
+export type ChordNotation = 'american' | 'german';
+
+/**
+ * Rewrites a chord's note names for display. Chords stay in their canonical
+ * (American) spelling everywhere else — transposition, diagram lookup — and
+ * only get re-spelled at the very last step, as shown on screen.
+ */
+export function formatChordNotation(chord: string, notation: ChordNotation): string {
+  if (notation === 'american') return chord;
+  return chord
+    .split('/')
+    .map(part => {
+      const match = part.match(/^([A-H][#b]?)(.*)$/);
+      if (!match) return part;
+      const [, root, suffix] = match;
+      if (root === 'B' || root === 'H') return `H${suffix}`;
+      if (root === 'Bb' || root === 'A#') return `B${suffix}`;
+      return part;
+    })
+    .join('/');
+}

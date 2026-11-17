@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from 'cn';
 import { Dialog, DialogContent, DialogTitle, dialogOverlayClassName } from '@/components/ui/dialog';
 import { LocalMetronomePanel } from '@/components/metronome/LocalMetronomePanel';
+import { useAppPreferences } from '@/lib/appPreferences';
 import { getTimeSignatureIdFromLabel } from '@/components/metronome/timeSignatures';
 
 interface MetronomeModalProps {
@@ -29,10 +30,14 @@ export function MetronomeModal({
   onPlayingChange,
 }: MetronomeModalProps) {
   const { t } = useTranslation();
+  const { metronomeDefaultTimeSignatureId, metronomeDefaultBpm } = useAppPreferences();
 
   if (!hasOpenedOnce) return null;
-  const resolvedBpm = bpm || 120;
-  const initialTimeSignatureId = getTimeSignatureIdFromLabel(timeSignature);
+  const resolvedBpm = bpm || metronomeDefaultBpm;
+  const initialTimeSignatureId = getTimeSignatureIdFromLabel(
+    timeSignature,
+    metronomeDefaultTimeSignatureId
+  );
 
   return (
     // `modal={false}` is required here: a modal Radix Dialog permanently

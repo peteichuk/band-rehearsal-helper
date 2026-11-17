@@ -3,6 +3,16 @@ import { useRef, type TouchEvent } from 'react';
 const MIN_SWIPE_DISTANCE_PX = 60;
 const AXIS_LOCK_PX = 10;
 const RESISTANCE = 0.3;
+/**
+ * True while any text is selected on the page. Selecting a word (double-tap /
+ * long-press) and then dragging its handles fires the same touch events a
+ * swipe does — but that's the user adjusting a selection, never a request to
+ * flip to another song.
+ */
+function hasTextSelection() {
+  return Boolean(window.getSelection()?.toString());
+}
+
 const SLIDE_TRANSITION = 'transform 180ms ease-out, opacity 180ms ease-out';
 
 interface UseSwipeNavigationOptions {
@@ -75,7 +85,7 @@ export function useSwipeNavigation({
   };
 
   const onTouchStart = (event: TouchEvent) => {
-    if (event.touches.length > 1 || isPageZoomed()) {
+    if (event.touches.length > 1 || isPageZoomed() || hasTextSelection()) {
       cancelGesture();
       return;
     }
@@ -85,7 +95,10 @@ export function useSwipeNavigation({
   };
 
   const onTouchMove = (event: TouchEvent) => {
-    if (event.touches.length > 1 || isPageZoomed()) {
+    // Re-checked on every move, not just at the start: the selection can
+    // appear mid-gesture (the double-tap's second touch turns into a word
+    // selection), and from then on the drag belongs to the selection.
+    if (event.touches.length > 1 || isPageZoomed() || hasTextSelection()) {
       cancelGesture();
       return;
     }
@@ -113,6 +126,11 @@ export function useSwipeNavigation({
   const onTouchEnd = (event: TouchEvent) => {
     const wasHorizontal = axisLocked.current === 'horizontal';
     axisLocked.current = null;
+
+    if (hasTextSelection()) {
+      cancelGesture();
+      return;
+    }
 
     if (touchStartX.current == null || !wasHorizontal) {
       touchStartX.current = null;

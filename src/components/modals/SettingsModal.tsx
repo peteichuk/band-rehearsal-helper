@@ -5,12 +5,17 @@ import { Download, Pencil, Upload } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { SettingsAppearanceSection } from '@/components/modals/SettingsAppearanceSection';
+import { SettingsSongDisplaySection } from '@/components/modals/SettingsSongDisplaySection';
+import { SettingsMetronomeSection } from '@/components/modals/SettingsMetronomeSection';
+import { SettingsAboutSection } from '@/components/modals/SettingsAboutSection';
+import { SettingsChordDiagramsSection } from '@/components/modals/SettingsChordDiagramsSection';
 import { CachedSongListModal } from '@/components/modals/CachedSongListModal';
 import { TonalityPresetDialog } from '@/components/modals/TonalityPresetDialog';
 import { LineNotesPresetDialog } from '@/components/modals/LineNotesPresetDialog';
 import { GroupEditorDialog } from '@/components/shared/GroupEditorDialog';
 import { AudioOutputButton } from '@/components/shared/AudioOutputButton';
 import { AudioOutputStatus } from '@/components/shared/AudioOutputStatus';
+import { applyBackupAppPreferences, getBackupAppPreferences } from '@/lib/appPreferences';
 import { showToast } from '@/lib/toast';
 import { MetronomeModal } from '@/components/metronome/MetronomeModal';
 import {
@@ -89,6 +94,7 @@ type BackupCategory =
   | 'lineNotes'
   | 'setlists'
   | 'appearance'
+  | 'appPreferences'
   | 'metronomePresets';
 
 const BACKUP_CATEGORY_KEYS: BackupCategory[] = [
@@ -99,6 +105,7 @@ const BACKUP_CATEGORY_KEYS: BackupCategory[] = [
   'lineNotes',
   'setlists',
   'appearance',
+  'appPreferences',
   'metronomePresets',
 ];
 
@@ -119,6 +126,7 @@ function presentCategoriesOf(parsed: Partial<ExportedSettings>): Record<BackupCa
     lineNotes: Boolean(parsed.lineNotes && typeof parsed.lineNotes === 'object'),
     setlists: Array.isArray(parsed.setlists),
     appearance: Boolean(parsed.appearanceDefaults),
+    appPreferences: Boolean(parsed.appPreferences && typeof parsed.appPreferences === 'object'),
     metronomePresets: Boolean(
       parsed.metronomePresets && typeof parsed.metronomePresets === 'object'
     ),
@@ -162,6 +170,7 @@ const BACKUP_CATEGORY_LABEL_KEY: Record<BackupCategory, string> = {
   lineNotes: 'Line/label notes',
   setlists: 'Setlists',
   appearance: 'Appearance settings',
+  appPreferences: 'App preferences (chord diagrams, metronome, song display)',
   metronomePresets: 'Metronome presets',
 };
 
@@ -232,6 +241,7 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
         setlists: getAllSetlists().map(setlist => ({ name: setlist.name, songs: setlist.songs })),
       }),
       ...(selection.appearance && { appearanceDefaults: getAllGlobalDefaults() }),
+      ...(selection.appPreferences && { appPreferences: getBackupAppPreferences() }),
       ...(selection.metronomePresets && { metronomePresets: getMetronomePresetsSnapshot() }),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -317,6 +327,11 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
     if (selection.appearance && parsed.appearanceDefaults) {
       mergeGlobalDefaults(parsed.appearanceDefaults);
       imported.push(t('appearance defaults'));
+    }
+
+    if (selection.appPreferences && parsed.appPreferences) {
+      applyBackupAppPreferences(parsed.appPreferences);
+      imported.push(t('app preferences'));
     }
 
     if (selection.metronomePresets && parsed.metronomePresets) {
@@ -475,6 +490,21 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
           </div>
 
           <div className="space-y-3">
+            <h2 className={sectionTitleClass}>{t('Song display')}</h2>
+            <SettingsSongDisplaySection />
+          </div>
+
+          <div className="space-y-3">
+            <h2 className={sectionTitleClass}>{t('Chord diagrams')}</h2>
+            <SettingsChordDiagramsSection />
+          </div>
+
+          <div className="space-y-3">
+            <h2 className={sectionTitleClass}>{t('Metronome')}</h2>
+            <SettingsMetronomeSection />
+          </div>
+
+          <div className="space-y-3">
             <h2 className={sectionTitleClass}>{t('Audio Output')}</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               {t(
@@ -485,6 +515,11 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
               <AudioOutputStatus />
               <AudioOutputButton />
             </div>
+          </div>
+
+          <div className="space-y-3">
+            <h2 className={sectionTitleClass}>{t('About')}</h2>
+            <SettingsAboutSection />
           </div>
 
           <div className="space-y-4">

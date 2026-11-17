@@ -283,10 +283,14 @@ export function resolveAccentPatternId(
  * Falls back to the default when the song has no value or it doesn't match
  * any known signature.
  */
-export function getTimeSignatureIdFromLabel(label: string | null | undefined): string {
+export function getTimeSignatureIdFromLabel(
+  label: string | null | undefined,
+  fallbackId: string = DEFAULT_TIME_SIGNATURE_ID
+): string {
   const trimmed = label?.trim();
-  if (!trimmed) return DEFAULT_TIME_SIGNATURE_ID;
-  return (
-    TIME_SIGNATURES.find(signature => signature.label === trimmed)?.id ?? DEFAULT_TIME_SIGNATURE_ID
-  );
+  const fallback = TIME_SIGNATURES.some(s => s.id === fallbackId)
+    ? fallbackId
+    : DEFAULT_TIME_SIGNATURE_ID;
+  if (!trimmed) return fallback;
+  return TIME_SIGNATURES.find(signature => signature.label === trimmed)?.id ?? fallback;
 }

@@ -23,14 +23,15 @@ Google Sheets example: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQ
 - **Auto Dark Mode:** Follows your OS light/dark theme.
 - **Multilingual UI:** English + 7 more languages, lazy-loaded.
 - **Mobile Friendly:** Fully responsive, installable as a PWA.
-- **Metronome:** Built-in Web Audio metronome with per-song presets, accent patterns, and custom audio output device.
+- **Metronome:** Built-in Web Audio metronome with per-song presets, accent patterns, custom audio output device, an optional visual beat flash (screen-edge glow), and configurable defaults (click sound, tempo, time signature) for songs without their own.
+- **Chord Diagrams:** Tap a chord to see its guitar, ukulele, or piano diagram; optionally list every chord of the song below it, with adjustable size and defaults in Settings.
 - **Works Offline:** Once loaded, keeps working without a signal.
 - **Flexible Layout:** Split lyrics into columns, hide chords/text, adjust font size.
 - **Admin Mode (Google Sign-In):** Add/edit songs directly from the app if you have edit access.
 - **Line & Label Notes:** Personal cues on any line, stored locally per device.
 - **Setlists:** Build, drag-and-drop reorder, import/export, and share custom song lists.
-- **Settings Backup:** Export/import your local data as a JSON file.
-- **Print & Share:** Clean print styles, plus sharing a song or a filtered list.
+- **Settings Backup:** Export/import your local data (including appearance, chord-diagram and metronome preferences) as a JSON file.
+- **Print, Copy & Share:** Clean print styles, copying a song's text, plus sharing a song or a filtered list.
 
 ## 📊 Data Structure (Google Sheets)
 
@@ -67,8 +68,8 @@ To ensure the application works correctly, your Google Sheet should include the 
 - [ ] Bluetooth pedal / page-turner support (e.g. AirTurn, iRig BlueTurn) via hotkeys (Left/Right, PageUp/PageDown) for hands-free scrolling between pages/songs.
 - [ ] Big Target Controls: a mobile mode with oversized metronome/song-switch buttons, easier to hit by touch while playing.
 - [ ] Capo-aware chord display: show chords relative to the capo alongside the real key (e.g. `Real Key: Eb | Capo 1: D`).
-- [ ] Chord diagrams: tap a chord to see a guitar/bass fingering diagram.
-- [ ] Visual metronome: flash the whole screen in time with the beat, for when the click can't be heard or isn't wanted out loud.
+- [x] Chord diagrams: tap a chord to see a guitar/bass fingering diagram.
+- [x] Visual metronome: flash the whole screen in time with the beat, for when the click can't be heard or isn't wanted out loud.
 - [ ] Multi-device live sync (Live Session): a band leader switches songs on their device and everyone else's device follows automatically (WebSockets / peer-to-peer).
 
 ## 🧰 Development & Build

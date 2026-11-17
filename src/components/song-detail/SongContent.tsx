@@ -1,7 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
-import { splitIntoSections } from '@/lib/chords/parseLine';
+import { splitIntoSections, splitLineIntoSegments } from '@/lib/chords/parseLine';
+import { transposeChord, type ChordNotation } from '@/lib/chords/transpose';
+import type { ChordDiagramSetting } from '@/lib/chords/chordDiagrams';
+import { ChordPopover, type OpenChord } from '@/components/chords/ChordPopover';
+import { ChordStrip } from '@/components/chords/ChordStrip';
 import { ChordLine } from '@/components/song-detail/ChordLine';
 import { InlineNote } from '@/components/song-detail/InlineNote';
 import { selectionAwareClick } from '@/lib/selectionAwareClick';
@@ -24,7 +28,15 @@ interface SongContentProps {
   hideTextLine?: boolean;
   hideChordLine?: boolean;
   fontSize?: number;
+  chordInstrument?: ChordDiagramSetting;
+  showChordStrip?: boolean;
+  inlineChordDiagrams?: boolean;
+  /** Percent of the default diagram size. */
+  chordDiagramScale?: number;
+  chordNotation?: ChordNotation;
 }
+
+const DEFAULT_FONT_SIZE = 16;
 
 export function SongContent({
   songName,
@@ -35,12 +47,32 @@ export function SongContent({
   hideTextLine = false,
   hideChordLine = false,
   fontSize,
+  chordInstrument = 'off',
+  showChordStrip = false,
+  inlineChordDiagrams = false,
+  chordDiagramScale = 100,
+  chordNotation = 'american',
 }: SongContentProps) {
   const { t } = useTranslation();
   const sections = useMemo(() => splitIntoSections(text), [text]);
   const { notes, setNote, deleteNote } = useSongLineNotes(songName);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
+  const [openChord, setOpenChord] = useState<OpenChord | null>(null);
+
+  // Every distinct chord of the song as it's displayed (transposed), in
+  // order of first appearance — what the bottom strip lists.
+  const uniqueChords = useMemo(() => {
+    const seen = new Set<string>();
+    for (const section of sections) {
+      for (const line of section.lines) {
+        for (const segment of splitLineIntoSegments(line)) {
+          if (segment.type === 'chord') seen.add(transposeChord(segment.value, steps, useFlats));
+        }
+      }
+    }
+    return [...seen];
+  }, [sections, steps, useFlats]);
 
   const openEditor = (lineKey: string) => {
     setEditingKey(lineKey);
@@ -107,6 +139,18 @@ export function SongContent({
                         note={notes[lineKey]}
                         onLineClick={() => openEditor(lineKey)}
                         fontSize={fontSize}
+                        inlineDiagramInstrument={
+                          inlineChordDiagrams && chordInstrument !== 'off'
+                            ? chordInstrument
+                            : undefined
+                        }
+                        diagramScale={chordDiagramScale / 100}
+                        chordNotation={chordNotation}
+                        onChordClick={
+                          chordInstrument === 'off'
+                            ? undefined
+                            : (chord, element) => setOpenChord({ chord, anchor: element })
+                        }
                       />
                     );
                   })}
@@ -116,6 +160,27 @@ export function SongContent({
           );
         })}
       </div>
+
+      {chordInstrument !== 'off' && (
+        <>
+          {showChordStrip && (
+            <ChordStrip
+              chords={uniqueChords}
+              instrument={chordInstrument}
+              scale={chordDiagramScale / 100}
+              chordNotation={chordNotation}
+            />
+          )}
+          <ChordPopover
+            open={openChord}
+            onClose={() => setOpenChord(null)}
+            instrument={chordInstrument}
+            fontSize={fontSize ?? DEFAULT_FONT_SIZE}
+            scale={chordDiagramScale / 100}
+            chordNotation={chordNotation}
+          />
+        </>
+      )}
 
       <Dialog open={editingKey !== null} onOpenChange={open => !open && closeEditor()}>
         <DialogContent className="max-w-[calc(100%-20px)]">
