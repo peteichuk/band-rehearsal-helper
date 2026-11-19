@@ -18,9 +18,10 @@ interface BeatFlashOverlayProps {
  * size never changes — only the opacity varies with the beat's strength.
  */
 const INTENSITY_STYLE: Record<FlashIntensity, { peak: number; shadow: string }> = {
-  low: { peak: 0.5, shadow: 'inset 0 0 14px 1px currentColor' },
-  normal: { peak: 1, shadow: 'inset 0 0 20px 2px currentColor' },
-  high: { peak: 1, shadow: 'inset 0 0 36px 6px currentColor' },
+  low: { peak: 1, shadow: 'inset 0 0 20px 2px currentColor' },
+  normal: { peak: 1, shadow: 'inset 0 0 36px 6px currentColor' },
+  // Built for Play mode / a stage: visible from across the room.
+  high: { peak: 1, shadow: 'inset 0 0 64px 14px currentColor' },
 };
 
 /**

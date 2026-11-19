@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
   deleteMetronomePreset,
   getMetronomePresetsSnapshot,
@@ -55,13 +55,21 @@ export function useSyncedMetronomePreset({
     resolveSyncedPresetFields(preset, sheetDefaults)
   );
 
+  // The panel now survives prev/next between songs (so a running metronome
+  // keeps going — see MetronomeModal's panel key), so `songName` itself can
+  // change under this hook: re-seed from the new song, but without calling
+  // `onExternalChange` — that's a song switch, not an outside edit, and must
+  // not stop playback.
+  const prevSongNameRef = useRef(songName);
   useEffect(() => {
+    const songChanged = prevSongNameRef.current !== songName;
+    prevSongNameRef.current = songName;
     const next = resolveSyncedPresetFields(preset, sheetDefaults);
     if (JSON.stringify(next) === JSON.stringify(synced)) return;
     setSynced(next);
-    onExternalChange?.();
+    if (!songChanged) onExternalChange?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset]);
+  }, [preset, songName]);
 
   /** Updates local state only — persisting is now a separate, explicit step (see `save`), so a field can never reach the store just by being edited. */
   const updateSynced = (patch: Partial<MetronomePreset>) => {

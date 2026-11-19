@@ -34,6 +34,10 @@ interface SongContentProps {
   /** Percent of the default diagram size. */
   chordDiagramScale?: number;
   chordNotation?: ChordNotation;
+  /** False (Play mode): existing notes still show, but tapping a line/title no longer opens the note editor. */
+  notesEditable?: boolean;
+  /** False (Play mode): tapping a chord no longer opens its diagram popover (a tap there just toggles the bar). */
+  chordTapEnabled?: boolean;
 }
 
 const DEFAULT_FONT_SIZE = 16;
@@ -52,6 +56,8 @@ export function SongContent({
   inlineChordDiagrams = false,
   chordDiagramScale = 100,
   chordNotation = 'american',
+  notesEditable = true,
+  chordTapEnabled = true,
 }: SongContentProps) {
   const { t } = useTranslation();
   const sections = useMemo(() => splitIntoSections(text), [text]);
@@ -112,8 +118,10 @@ export function SongContent({
               <section className="song-section break-inside-avoid px-2 rounded border border-blue-200 dark:border-blue-900 relative overflow-y-visible">
                 {section.title && (
                   <strong
-                    onClick={selectionAwareClick(() => openEditor(titleKey))}
-                    className="font-semibold text-gray-900 dark:text-white relative bg-white dark:bg-gray-800 rounded border border-blue-200 dark:border-blue-900 py-1 px-2 -top-3 z-10 inline-block leading-none cursor-pointer"
+                    onClick={
+                      notesEditable ? selectionAwareClick(() => openEditor(titleKey)) : undefined
+                    }
+                    className="font-semibold text-gray-900 dark:text-white relative bg-white dark:bg-gray-800 rounded border border-blue-200 dark:border-blue-900 py-1 px-2 -top-3 z-10 inline-block leading-none"
                   >
                     {section.title}
                   </strong>
@@ -122,7 +130,9 @@ export function SongContent({
                   {section.title && notes[titleKey] && (
                     <InlineNote
                       note={notes[titleKey]}
-                      onClick={selectionAwareClick(() => openEditor(titleKey))}
+                      onClick={
+                        notesEditable ? selectionAwareClick(() => openEditor(titleKey)) : undefined
+                      }
                       fontSize={fontSize}
                     />
                   )}
@@ -137,7 +147,7 @@ export function SongContent({
                         hideTextLine={hideTextLine}
                         hideChordLine={hideChordLine}
                         note={notes[lineKey]}
-                        onLineClick={() => openEditor(lineKey)}
+                        onLineClick={notesEditable ? () => openEditor(lineKey) : undefined}
                         fontSize={fontSize}
                         inlineDiagramInstrument={
                           inlineChordDiagrams && chordInstrument !== 'off'
@@ -147,7 +157,7 @@ export function SongContent({
                         diagramScale={chordDiagramScale / 100}
                         chordNotation={chordNotation}
                         onChordClick={
-                          chordInstrument === 'off'
+                          chordInstrument === 'off' || !chordTapEnabled
                             ? undefined
                             : (chord, element) => setOpenChord({ chord, anchor: element })
                         }

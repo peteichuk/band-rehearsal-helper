@@ -1,12 +1,24 @@
 import type { SongNavigation as SongNavigationState } from '@/hooks/useSongNavigation';
+import { numberedTitle } from '@/lib/songs/songNumber';
 import type { Song } from '@/types/song';
 
 interface SongNavigationProps {
   navigation: SongNavigationState;
   onNavigate: (song: Song) => void;
+  /** Setlist positions (1-based) of the neighbours, for the "№3 Title" labels — null outside a setlist. */
+  prevNumber?: number | null;
+  nextNumber?: number | null;
+  /** Setlist length, for the "/12" part of the label. */
+  total?: number;
 }
 
-export function SongNavigation({ navigation, onNavigate }: SongNavigationProps) {
+export function SongNavigation({
+  navigation,
+  onNavigate,
+  prevNumber = null,
+  nextNumber = null,
+  total = 0,
+}: SongNavigationProps) {
   const { prev, next } = navigation;
   if (!prev && !next) return null;
 
@@ -24,7 +36,9 @@ export function SongNavigation({ navigation, onNavigate }: SongNavigationProps) 
         }
       >
         <span className="flex-shrink-0">&larr;</span>
-        <span className="truncate">{prev ? prev.Name : '...'}</span>
+        <span className="truncate">
+          {prev ? numberedTitle(prev.Name, prevNumber, total) : '...'}
+        </span>
       </button>
 
       <button
@@ -38,7 +52,9 @@ export function SongNavigation({ navigation, onNavigate }: SongNavigationProps) 
             : 'bg-blue-600 dark:bg-blue-700 hover:bg-blue-500 dark:hover:bg-blue-600 text-white')
         }
       >
-        <span className="truncate">{next ? next.Name : '...'}</span>
+        <span className="truncate">
+          {next ? numberedTitle(next.Name, nextNumber, total) : '...'}
+        </span>
         <span className="flex-shrink-0">&rarr;</span>
       </button>
     </div>

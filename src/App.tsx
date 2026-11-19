@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   HashRouter,
@@ -27,6 +27,7 @@ import { SongFormDialog } from '@/components/song-form/SongFormDialog';
 import { Toaster } from '@/components/shared/Toaster';
 import { useSongsQuery } from '@/hooks/useSongsQuery';
 import { useMetronome } from '@/hooks/useMetronome';
+import { stopMetronome } from '@/lib/metronomeControl';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useLocale } from '@/hooks/useLocale';
 import { isAmbiguousSystemLocale } from '@/lib/locale';
@@ -57,6 +58,9 @@ export interface RootOutletContext {
   openEditSong: (song: Song) => void;
   onOpenMetronome: () => void;
   isMetronomePlaying: boolean;
+  /** Play mode (stage UI: hidden header, big prev/next + metronome buttons) — only ever on while a song is open. */
+  isPlayMode: boolean;
+  exitPlayMode: () => void;
   catalogViewMode: CatalogViewMode;
   setCatalogViewMode: (mode: CatalogViewMode) => void;
 }
@@ -98,10 +102,33 @@ function RootLayout() {
   const { catalogViewMode, localePromptSeen } = useAppPreferences();
   const metronome = useMetronome(location.pathname);
   const [isMetronomePlaying, setIsMetronomePlaying] = useState(false);
+  const [isPlayModeOn, setIsPlayModeOn] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | 'new' | null>(null);
   const setMenuOpen = useSetMenuOpen();
+
+  // Play mode only makes sense on a song page — derived from the route (not
+  // `currentSong`, which is briefly null while the songs refetch) so leaving
+  // the song, by any means, switches it off.
+  const isPlayMode = isPlayModeOn && songRouteMatch !== null;
+  useEffect(() => {
+    if (isPlayModeOn && songRouteMatch === null) setIsPlayModeOn(false);
+  }, [isPlayModeOn, songRouteMatch]);
+  // Leaving Play mode (the exit button, or navigating away) stops a running
+  // metronome — it was started for the performance, and shouldn't keep
+  // clicking on into the normal browsing UI.
+  const wasPlayModeRef = useRef(false);
+  useEffect(() => {
+    if (wasPlayModeRef.current && !isPlayMode) stopMetronome();
+    wasPlayModeRef.current = isPlayMode;
+  }, [isPlayMode]);
+  const enterPlayMode = () => {
+    // The engine lives in the metronome panel, which mounts lazily (on first
+    // open) — Play mode needs it running without showing the dialog.
+    metronome.mount();
+    setIsPlayModeOn(true);
+  };
 
   useDarkMode();
   useLocale();
@@ -124,7 +151,8 @@ function RootLayout() {
   // event) rather than as a `disabled` prop here — see its comment for why.
   const pullToRefresh = usePullToRefresh<HTMLElement>({
     onRefresh: handlePullToRefresh,
-    disabled: !tableId,
+    // Pulling down mid-song (e.g. auto-scroll paused at the top) must never reload the sheet.
+    disabled: !tableId || isPlayMode,
   });
 
   const setTableId = (next: string) => {
@@ -189,26 +217,34 @@ function RootLayout() {
     openEditSong: song => setEditingSong(song),
     onOpenMetronome: metronome.open,
     isMetronomePlaying,
+    isPlayMode,
+    exitPlayMode: () => setIsPlayModeOn(false),
     catalogViewMode,
     setCatalogViewMode,
   };
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header
-        pageActions={pageActions}
-        tableId={tableId}
-        onTableIdChange={setTableId}
-        onOpenShare={() => setIsShareOpen(true)}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onOpenMetronome={metronome.open}
-        isMetronomePlaying={isMetronomePlaying}
-        isTableFetching={isFetching}
-        isTableLoaded={isSuccess}
-        auth={auth}
-        canEdit={canEdit}
-        onAddSong={() => setEditingSong('new')}
-      />
+      {!isPlayMode && (
+        <Header
+          pageActions={pageActions}
+          tableId={tableId}
+          onTableIdChange={setTableId}
+          onOpenShare={() => setIsShareOpen(true)}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          // While it's running, the header button doubles as a Stop button; once
+          // stopped, the next press opens the dialog as usual.
+          onOpenMetronome={() => (isMetronomePlaying ? stopMetronome() : metronome.open())}
+          isMetronomePlaying={isMetronomePlaying}
+          canPlayMode={songRouteMatch !== null}
+          onEnterPlayMode={enterPlayMode}
+          isTableFetching={isFetching}
+          isTableLoaded={isSuccess}
+          auth={auth}
+          canEdit={canEdit}
+          onAddSong={() => setEditingSong('new')}
+        />
+      )}
 
       <main
         ref={pullToRefresh.containerRef}
@@ -266,7 +302,7 @@ function RootLayout() {
         initialSong={editingSong === 'new' ? null : editingSong}
         onSubmit={handleFormSubmit}
       />
-      <Toaster />
+      <Toaster raised={isPlayMode} />
       <LocalePromptModal open={!localePromptSeen && isAmbiguousSystemLocale()} />
     </div>
   );

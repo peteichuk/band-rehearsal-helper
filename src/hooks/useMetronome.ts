@@ -26,6 +26,8 @@ export function useMetronome(resetKey: string) {
     setHasOpenedOnce(true);
   };
   const close = () => setIsOpen(false);
+  /** Mounts the (hidden) panel without showing the modal — Play mode needs the engine alive but not the dialog. */
+  const mount = () => setHasOpenedOnce(true);
 
-  return { isOpen, open, close, hasOpenedOnce };
+  return { isOpen, open, close, mount, hasOpenedOnce };
 }

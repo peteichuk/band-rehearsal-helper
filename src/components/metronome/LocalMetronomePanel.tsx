@@ -7,6 +7,8 @@ import {
   setMetronomeVisualFlash,
   useAppPreferences,
 } from '@/lib/appPreferences';
+import { showToast } from '@/lib/toast';
+import { publishMetronomeControl } from '@/lib/metronomeControl';
 import { useAudioOutputDevice } from '@/hooks/useAudioOutputDevice';
 import { useSyncedMetronomePreset } from '@/hooks/useSyncedMetronomePreset';
 import { useMetronomeEngine } from '@/components/metronome/useMetronomeEngine';
@@ -36,6 +38,8 @@ interface LocalMetronomePanelProps {
   bpm: number;
   /** Seeded from the song's `TimeSignature` sheet column — overridden by that song's saved preset, if any. */
   timeSignatureId: string;
+  /** Whether the song's own sheet row has a BPM — `bpm` above is already filled in with the default tempo when it doesn't. */
+  sheetHasBpm: boolean;
   /** Identifies the song for its saved metronome preset (tempo/time signature/accent) — null skips persistence. */
   songName: string | null;
   /** Mirrors the engine's play state up to callers (e.g. to animate a header button). */
@@ -45,6 +49,7 @@ interface LocalMetronomePanelProps {
 export function LocalMetronomePanel({
   bpm: initialBpm,
   timeSignatureId: initialTimeSignatureId,
+  sheetHasBpm,
   songName,
   onPlayingChange,
 }: LocalMetronomePanelProps) {
@@ -138,13 +143,40 @@ export function LocalMetronomePanel({
   // hook. Also covers the preset being cleared entirely (e.g. a Settings →
   // Backup reset) — `preset?.soundId` already falls back to the global
   // default correctly in that case, no separate null-check needed.
+  // `songName` is a dep because the panel stays mounted across prev/next
+  // (see MetronomeModal's panel key): a song switch re-seeds the sound too,
+  // but must not stop a running metronome the way an external edit does.
+  const prevSongNameRef = useRef(songName);
   useEffect(() => {
+    const songChanged = prevSongNameRef.current !== songName;
+    prevSongNameRef.current = songName;
     const nextSoundId = preset?.soundId ?? globalDefaultSoundId;
     if (nextSoundId === soundId) return;
     setSoundIdState(nextSoundId);
-    if (isPlaying) stop();
+    if (isPlaying && !songChanged) stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset, globalDefaultSoundId]);
+  }, [preset, globalDefaultSoundId, songName]);
+
+  // Switching songs while the metronome runs: a song with a tempo of its own
+  // (sheet BPM or a saved preset) carries it on at the new tempo; one without
+  // stops it — better silence than clicking along at some default tempo that
+  // has nothing to do with the song everyone's about to start playing.
+  const prevSongForStopRef = useRef(songName);
+  useEffect(() => {
+    if (prevSongForStopRef.current === songName) return;
+    prevSongForStopRef.current = songName;
+    const hasOwnTempo = sheetHasBpm || preset?.bpm != null;
+    if (isPlaying && !hasOwnTempo) {
+      stop();
+      showToast(
+        t('Metronome stopped: this song has no BPM'),
+        'warning',
+        undefined,
+        'metronome-off'
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [songName]);
 
   // Confirming a new output device (see AudioOutputButton/Dialog) only
   // takes effect on the next AudioContext by default — if the metronome is
@@ -203,12 +235,40 @@ export function LocalMetronomePanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying]);
 
-  // Covers engine switches and song changes: this panel unmounts (key/branch
+  // Covers leaving the song section: this panel unmounts (key/branch
   // change) without `isPlaying` necessarily having flipped back to false first.
   useEffect(() => {
     return () => onPlayingChange?.(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Publish the engine's state/toggle for UI outside this panel (the
+  // Play-mode bar) — see metronomeControl.ts. `toggle` goes through a ref
+  // so the published handle never goes stale between renders.
+  const toggleRef = useRef(toggle);
+  toggleRef.current = toggle;
+  useEffect(() => {
+    publishMetronomeControl({
+      isPlaying,
+      currentBeat,
+      accentPattern,
+      bpm,
+      hasOwnTempo: sheetHasBpm || preset?.bpm != null,
+      beatIntervalMs: 60000 / bpm / beatUnitScale,
+      timeSignatureLabel: timeSignature.label,
+      toggle: () => toggleRef.current(),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isPlaying,
+    currentBeat,
+    bpm,
+    timeSignatureId,
+    sheetHasBpm,
+    preset?.bpm,
+    JSON.stringify(accentPattern),
+  ]);
+  useEffect(() => () => publishMetronomeControl(null), []);
 
   return (
     <div className="flex flex-col items-center gap-5 py-4">

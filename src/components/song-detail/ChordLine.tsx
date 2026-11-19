@@ -81,7 +81,7 @@ export function ChordLine({
           )
         )}
       </div>
-      {note && handleClick && <InlineNote note={note} onClick={handleClick} fontSize={fontSize} />}
+      {note && <InlineNote note={note} onClick={handleClick} fontSize={fontSize} />}
     </>
   );
 }

@@ -327,7 +327,7 @@
     <div class="wrap page-head">
       <span class="eyebrow">FAQ</span>
       <h1>Frequently asked questions</h1>
-      <p>How the Google Sheet, the metronome, setlists and your local data actually work.</p>
+      <p>How the Google Sheet, the metronome, Play mode, setlists and your local data actually work.</p>
     </div>
 
     <main class="wrap">
@@ -525,6 +525,121 @@
             </p>
           </div>
         </details>
+
+        <details class="faq-item">
+          <summary>
+            Can the metronome flash the screen, and what does the swinging needle in the header mean?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Yes — the optional <strong>visual metronome</strong> (the lightning-bolt button in the metronome,
+              or Settings → Metronome) draws a glow around the screen edge on every beat, brighter on stronger
+              beats. Pick <strong>Subtle</strong>, <strong>Normal</strong> or <strong>Strong</strong> in Settings —
+              Strong is thick enough to catch from across a stage.
+            </p>
+            <p>
+              While the metronome runs, the needle of the header's metronome icon swings in time with it — right
+              on one beat, left on the next, like a physical metronome. Tap that header button once to
+              <strong>stop</strong> the metronome; tap it again to open the metronome dialog.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            What happens to the metronome when I switch to another song?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              It keeps running and simply picks up the new song's tempo, time signature and sound — as long as
+              that song has a tempo of its own (a <code>BPM</code> in the sheet, or a saved preset). If it doesn't,
+              the metronome <strong>stops</strong> and a notice tells you so, rather than clicking along at the
+              default tempo while the band starts the wrong thing.
+            </p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-group">
+        <h2>Play mode</h2>
+
+        <details class="faq-item">
+          <summary>
+            What is Play mode?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              A stripped-down stage view of a song, with controls big enough to hit by touch mid-song. Open a
+              song and tap the green masks button in the header, next to the metronome (it's disabled outside a
+              song). The header, the song's own buttons and menus, and note editing are tucked away; the lyrics
+              and chords get the whole screen. Chord lines are always shown, even if you normally hide them.
+            </p>
+            <p>
+              Tap the song to show or hide the control bar at the bottom — it opens when you enter, and hides
+              itself after a few seconds. The <strong>✕</strong> in the bar leaves Play mode (and stops the
+              metronome if it was running).
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            How do I switch songs in Play mode?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              With the big <strong>Previous</strong> / <strong>Next</strong> buttons in the bar — but you have to
+              <strong>hold</strong> them for a moment: the button fills up like a progress bar, and only fires
+              when it's full. Let go early and nothing happens. That's deliberate, so a stray touch mid-song
+              can never flip the page — which is also why swiping between songs is turned off in Play mode.
+            </p>
+            <p>
+              With no song on a side, that button stays but is greyed out. Songs opened from a setlist are
+              numbered, e.g. <code>№3/12 Song title</code> (their place in the setlist and its length).
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            Why is the big metronome button greyed out, with a red dash instead of the BPM?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              That song has no tempo of its own — no <code>BPM</code> in the sheet and no saved metronome
+              preset — so starting it would just click at the default tempo. It's disabled on purpose, to stop
+              you from starting the wrong metronome by accident. Add a <code>BPM</code> to the sheet, or set a
+              tempo in the metronome and tap <strong>Save</strong>, and it unlocks.
+            </p>
+            <p>
+              If the metronome is already running, the button stays active so you can still stop it.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            How does auto-scroll work?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              The arrow button in the bar starts scrolling the lyrics for you; once it's on, <strong>−</strong>
+              and <strong>+</strong> change the speed across 7 levels (3 is a comfortable reading pace, 1 is a
+              crawl for slow songs). Scroll by hand at any time and it pauses for a moment, then carries on from
+              wherever you left the page — it never fights you, and never locks the page at the bottom.
+            </p>
+            <p>
+              It switches off when you change song or leave Play mode, so a new song never starts scrolling by
+              itself.
+            </p>
+          </div>
+        </details>
       </div>
 
       <div class="faq-group">
@@ -540,7 +655,7 @@
               Your own local playlists built from any songs in the catalog, switchable from the
               bottom tab bar (Library/Setlists). Open a setlist to browse, add, or remove songs;
               opening a song from inside one makes prev/next cycle that setlist's order instead of
-              your favorites. New songs are always appended at the end.
+              your favorites, and the song is numbered by its place in it (<code>№3/12</code>; no numbers for a one-song setlist). New songs are always appended at the end.
             </p>
           </div>
         </details>
@@ -628,6 +743,21 @@
 
       <div class="faq-group">
         <h2>Appearance &amp; viewing</h2>
+
+        <details class="faq-item">
+          <summary>
+            Can I see how to play a chord?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Yes — tap any chord in a song to open its fingering diagram for guitar, ukulele or piano (pick the
+              instrument, or turn diagrams off, in Settings). You can also list every chord of the song as diagrams
+              below it, or show a small diagram right next to each chord, with an adjustable size. In Play mode,
+              tapping a chord doesn't open a diagram — a tap there just shows or hides the control bar.
+            </p>
+          </div>
+        </details>
 
         <details class="faq-item">
           <summary>

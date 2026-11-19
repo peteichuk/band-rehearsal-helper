@@ -1,9 +1,12 @@
 export type ToastType = 'success' | 'warning' | 'error' | 'info';
+/** Optional custom icon replacing the type's default one (rendered by <Toaster/>). */
+export type ToastIcon = 'metronome-off';
 
 export interface Toast {
   id: number;
   message: string;
   type: ToastType;
+  icon?: ToastIcon;
 }
 
 type Listener = () => void;
@@ -27,10 +30,11 @@ const DEFAULT_DURATION_MS = 3000;
 export function showToast(
   message: string,
   type: ToastType = 'info',
-  durationMs = DEFAULT_DURATION_MS
+  durationMs = DEFAULT_DURATION_MS,
+  icon?: ToastIcon
 ) {
   const id = nextId++;
-  toasts = [...toasts, { id, message, type }];
+  toasts = [...toasts, { id, message, type, icon }];
   notify();
   setTimeout(() => dismissToast(id), durationMs);
 }

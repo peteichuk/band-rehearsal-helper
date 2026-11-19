@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ChevronLeft,
+  Theater,
   HelpCircle,
   Info,
   Languages,
@@ -28,6 +29,7 @@ import {
 } from '@/components/ui/sheet';
 import {
   METRONOME_BUTTON_CLASS,
+  PLAY_MODE_BUTTON_CLASS,
   PRIMARY_BUTTON_CLASS,
 } from '@/components/layout/headerButtonStyles';
 import ReloadIcon from '@/assets/icons/refresh.svg?react';
@@ -113,6 +115,9 @@ interface HeaderProps {
   onOpenSettings: () => void;
   onOpenMetronome: () => void;
   isMetronomePlaying: boolean;
+  /** Play mode is a per-song view — its button is disabled anywhere else. */
+  canPlayMode: boolean;
+  onEnterPlayMode: () => void;
   /** Whether `useSongsQuery` currently has a request in flight for `tableId`. */
   isTableFetching: boolean;
   /**
@@ -137,6 +142,8 @@ export function Header({
   onOpenSettings,
   onOpenMetronome,
   isMetronomePlaying,
+  canPlayMode,
+  onEnterPlayMode,
   isTableFetching,
   isTableLoaded,
   auth,
@@ -198,12 +205,26 @@ export function Header({
 
           <button
             type="button"
-            title={t('Metronome')}
+            title={isMetronomePlaying ? t('Stop metronome') : t('Metronome')}
             data-metronome-trigger
             className={METRONOME_BUTTON_CLASS}
             onClick={onOpenMetronome}
           >
             <MetronomeIcon playing={isMetronomePlaying} className="w-5 h-5" />
+          </button>
+
+          <button
+            type="button"
+            title={canPlayMode ? t('Play mode') : t('Open a song to use Play mode')}
+            disabled={!canPlayMode}
+            className={cn(
+              PLAY_MODE_BUTTON_CLASS,
+              'disabled:opacity-40 disabled:pointer-events-none'
+            )}
+            onClick={onEnterPlayMode}
+          >
+            <Theater className="w-5 h-5" />
+            <span className="sr-only">{t('Play mode')}</span>
           </button>
         </div>
 

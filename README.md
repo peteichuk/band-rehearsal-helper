@@ -23,7 +23,8 @@ Google Sheets example: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQ
 - **Auto Dark Mode:** Follows your OS light/dark theme.
 - **Multilingual UI:** English + 7 more languages, lazy-loaded.
 - **Mobile Friendly:** Fully responsive, installable as a PWA.
-- **Metronome:** Built-in Web Audio metronome with per-song presets, accent patterns, custom audio output device, an optional visual beat flash (screen-edge glow), and configurable defaults (click sound, tempo, time signature) for songs without their own.
+- **Metronome:** Built-in Web Audio metronome with per-song presets, accent patterns, custom audio output device, an optional visual beat flash (screen-edge glow), a needle that swings in time with the beat, keeps running when you switch songs (stops if the next one has no BPM), and configurable defaults (click sound, tempo, time signature) for songs without their own.
+- **Play Mode:** A stage view for a song — toolbar tucked away until you tap, big hold-to-confirm prev/next buttons, a big metronome play/pause, and auto-scroll. Songs opened from a setlist are numbered (`№3/12`).
 - **Chord Diagrams:** Tap a chord to see its guitar, ukulele, or piano diagram; optionally list every chord of the song below it, with adjustable size and defaults in Settings.
 - **Works Offline:** Once loaded, keeps working without a signal.
 - **Flexible Layout:** Split lyrics into columns, hide chords/text, adjust font size.
@@ -62,13 +63,13 @@ To ensure the application works correctly, your Google Sheet should include the 
 
 - [x] UI Admin with CRUD. Auth by Google then easy add/edit songs directly from the Google Sheets for APP. (delete not yet implemented)
 - [x] Implementation of advanced filtering and searching by the `GroupBy` field.
-- [ ] Wake lock for (IOS, Android).
+- [ ] Wake lock for (IOS, Android): partially implemented (Screen Wake Lock API plus a hidden-video fallback), but as a browser app it is heavily limited by the OS/browser and doesn't work reliably yet.
 - [ ] Sync local data (Favorites, Pinned, Setlists, Notes, Appearance) between devices.
-- [ ] Auto-scroll: smoothly scroll the lyrics down, with speed configurable (paced to the song's BPM or track duration).
+- [ ] Auto-scroll pacing: a basic speed-level auto-scroll exists in Play mode; still to do — pace it to the song's BPM or track duration.
 - [ ] Bluetooth pedal / page-turner support (e.g. AirTurn, iRig BlueTurn) via hotkeys (Left/Right, PageUp/PageDown) for hands-free scrolling between pages/songs.
-- [ ] Big Target Controls: a mobile mode with oversized metronome/song-switch buttons, easier to hit by touch while playing.
+- [x] Big Target Controls (Play mode): a per-song stage view with a tap-to-reveal bar of oversized metronome play/pause and hold-to-confirm prev/next buttons, plus basic auto-scroll.
 - [ ] Capo-aware chord display: show chords relative to the capo alongside the real key (e.g. `Real Key: Eb | Capo 1: D`).
-- [x] Chord diagrams: tap a chord to see a guitar/bass fingering diagram.
+- [x] Chord diagrams: tap a chord to see a guitar, ukulele, or piano diagram.
 - [x] Visual metronome: flash the whole screen in time with the beat, for when the click can't be heard or isn't wanted out loud.
 - [ ] Multi-device live sync (Live Session): a band leader switches songs on their device and everyone else's device follows automatically (WebSockets / peer-to-peer).
 

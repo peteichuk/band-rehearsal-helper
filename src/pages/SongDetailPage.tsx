@@ -1,4 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
   useOutletContext,
@@ -12,6 +13,10 @@ import { SongOverflowMenu } from '@/components/song-detail/SongOverflowMenu';
 import { SongControlsPanel } from '@/components/song-detail/SongControlsPanel';
 import { SongContent } from '@/components/song-detail/SongContent';
 import { SongNavigation } from '@/components/song-detail/SongNavigation';
+import { PlayModeBar } from '@/components/play-mode/PlayModeBar';
+import { PlayModeSongBanner } from '@/components/play-mode/PlayModeSongBanner';
+import { useAutoScrollState } from '@/hooks/useAutoScroll';
+import { numberedTitle } from '@/lib/songs/songNumber';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useSongNavigation } from '@/hooks/useSongNavigation';
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
@@ -49,7 +54,8 @@ import type { Song } from '@/types/song';
 
 export function SongDetailPage() {
   const { t } = useTranslation();
-  const { allSongs, setPageActions, canEdit, openEditSong } = useOutletContext<RootOutletContext>();
+  const { allSongs, setPageActions, canEdit, openEditSong, isPlayMode, exitPlayMode } =
+    useOutletContext<RootOutletContext>();
   const { songName } = useParams<{ songName: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -184,12 +190,22 @@ export function SongDetailPage() {
     });
   };
 
+  // Play mode switches songs only through the hold-to-confirm buttons — a
+  // stray swipe mid-song must never flip the page.
   const swipeHandlers = useSwipeNavigation({
-    onSwipeLeft: () => navigation.next && goToSong(navigation.next),
-    onSwipeRight: () => navigation.prev && goToSong(navigation.prev),
-    hasNext: Boolean(navigation.next),
-    hasPrev: Boolean(navigation.prev),
+    onSwipeLeft: () => !isPlayMode && navigation.next && goToSong(navigation.next),
+    onSwipeRight: () => !isPlayMode && navigation.prev && goToSong(navigation.prev),
+    hasNext: !isPlayMode && Boolean(navigation.next),
+    hasPrev: !isPlayMode && Boolean(navigation.prev),
   });
+
+  const autoScroll = useAutoScrollState();
+  // A fresh song opens at the top and shouldn't start scrolling by itself —
+  // auto-scroll switches off on every song change (and on leaving Play mode).
+  const { stop: stopAutoScroll } = autoScroll;
+  useEffect(() => {
+    stopAutoScroll();
+  }, [song?.Name, isPlayMode]);
 
   if (!song) {
     return (
@@ -201,6 +217,22 @@ export function SongDetailPage() {
       </div>
     );
   }
+
+  // Opened from a setlist: number the songs by their place in it (1-based
+  // index in the same ordered list prev/next walks), "№3/12 Title" — but not
+  // for a one-song setlist, where "№1/1" says nothing.
+  const setlistLength = navigationList.length;
+  const songNumber =
+    activeSetlist && navigation.currentIndex >= 0 && setlistLength > 1
+      ? navigation.currentIndex + 1
+      : null;
+  const prevNumber = songNumber === null ? null : songNumber - 1;
+  const nextNumber = songNumber === null ? null : songNumber + 1;
+
+  const prevLabel =
+    navigation.prev && numberedTitle(navigation.prev.Name, prevNumber, setlistLength);
+  const nextLabel =
+    navigation.next && numberedTitle(navigation.next.Name, nextNumber, setlistLength);
 
   const originalTonality = song.Tonality || 'C';
   const pinned = isEffectivelyPinned(song, pinOverrides);
@@ -248,10 +280,17 @@ export function SongDetailPage() {
   };
 
   return (
-    <div className="p-2 py-4 will-change-transform" {...swipeHandlers}>
+    <div
+      // Extra room at the bottom in Play mode, so the last lines can scroll
+      // clear of the (fixed) control bar.
+      className={cn('p-2 py-4 will-change-transform', isPlayMode && 'pb-40')}
+      {...swipeHandlers}
+    >
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="min-w-0">
-          <h2 className="text-2xl font-bold">{song.Name || t('Untitled')}</h2>
+          <h2 className="text-2xl font-bold">
+            {numberedTitle(song.Name || t('Untitled'), songNumber, setlistLength)}
+          </h2>
 
           <div className="print:hidden flex flex-wrap items-center gap-2 mt-1">
             <span className="text-xs text-blue-600 dark:text-blue-400">
@@ -271,53 +310,60 @@ export function SongDetailPage() {
               {t('BPM:')} <span className="font-semibold">{song.BPM ?? '-'}</span>
             </span>
 
-            <button
-              type="button"
-              title={pinned ? t('Unpin') : t('Pin to top')}
-              onClick={() => togglePinOverride(song.Name, pinned)}
-              className={cn(
-                'p-1 hover:text-yellow-500 dark:hover:text-yellow-400',
-                pinned ? 'text-yellow-500 dark:text-yellow-400' : 'text-gray-400'
-              )}
-            >
-              <Pin className="w-4 h-4" fill={pinned ? 'currentColor' : 'none'} />
-            </button>
-            <button
-              type="button"
-              title={isLocalFavorite ? t('Remove from my favorites') : t('Add to my favorites')}
-              onClick={() => toggleFavorite(song.Name)}
-              className={cn(
-                'p-1 hover:text-yellow-500 dark:hover:text-yellow-400',
-                isLocalFavorite ? 'text-yellow-500 dark:text-yellow-400' : 'text-gray-400'
-              )}
-            >
-              <Star className="w-4 h-4" fill={isLocalFavorite ? 'currentColor' : 'none'} />
-            </button>
-            <button
-              type="button"
-              title={myGroups.length > 0 ? t('Edit labels') : t('Add a label')}
-              onClick={() => setIsGroupEditorOpen(true)}
-              className={cn(
-                'inline-flex items-center flex-wrap gap-1 p-1',
-                myGroups.length === 0 &&
-                  'text-gray-400 hover:text-teal-600 dark:hover:text-teal-400'
-              )}
-            >
-              <Tag
-                className={cn('w-4 h-4', myGroups.length > 0 && 'text-teal-500 dark:text-teal-700')}
-                fill={myGroups.length > 0 ? 'currentColor' : 'none'}
-              />
-              {myGroups.map(group => (
-                <span
-                  key={group}
-                  className="px-2 py-1 rounded-lg text-xs text-white bg-teal-500 dark:bg-teal-700"
+            {!isPlayMode && (
+              <>
+                <button
+                  type="button"
+                  title={pinned ? t('Unpin') : t('Pin to top')}
+                  onClick={() => togglePinOverride(song.Name, pinned)}
+                  className={cn(
+                    'p-1 hover:text-yellow-500 dark:hover:text-yellow-400',
+                    pinned ? 'text-yellow-500 dark:text-yellow-400' : 'text-gray-400'
+                  )}
                 >
-                  {group}
-                </span>
-              ))}
-            </button>
+                  <Pin className="w-4 h-4" fill={pinned ? 'currentColor' : 'none'} />
+                </button>
+                <button
+                  type="button"
+                  title={isLocalFavorite ? t('Remove from my favorites') : t('Add to my favorites')}
+                  onClick={() => toggleFavorite(song.Name)}
+                  className={cn(
+                    'p-1 hover:text-yellow-500 dark:hover:text-yellow-400',
+                    isLocalFavorite ? 'text-yellow-500 dark:text-yellow-400' : 'text-gray-400'
+                  )}
+                >
+                  <Star className="w-4 h-4" fill={isLocalFavorite ? 'currentColor' : 'none'} />
+                </button>
+                <button
+                  type="button"
+                  title={myGroups.length > 0 ? t('Edit labels') : t('Add a label')}
+                  onClick={() => setIsGroupEditorOpen(true)}
+                  className={cn(
+                    'inline-flex items-center flex-wrap gap-1 p-1',
+                    myGroups.length === 0 &&
+                      'text-gray-400 hover:text-teal-600 dark:hover:text-teal-400'
+                  )}
+                >
+                  <Tag
+                    className={cn(
+                      'w-4 h-4',
+                      myGroups.length > 0 && 'text-teal-500 dark:text-teal-700'
+                    )}
+                    fill={myGroups.length > 0 ? 'currentColor' : 'none'}
+                  />
+                  {myGroups.map(group => (
+                    <span
+                      key={group}
+                      className="px-2 py-1 rounded-lg text-xs text-white bg-teal-500 dark:bg-teal-700"
+                    >
+                      {group}
+                    </span>
+                  ))}
+                </button>
+              </>
+            )}
 
-            {song.GroupBy && (
+            {!isPlayMode && song.GroupBy && (
               <span className="px-2 py-1 rounded-lg text-xs text-white bg-purple-600 dark:bg-purple-900">
                 {song.GroupBy}
               </span>
@@ -325,28 +371,30 @@ export function SongDetailPage() {
           </div>
         </div>
 
-        <div className="print:hidden flex items-center gap-2 shrink-0">
-          {text && (
-            <button
-              type="button"
-              title={isControlsOpen ? t('Hide display controls') : t('Show display controls')}
-              onClick={() => setIsControlsOpen(!isControlsOpen)}
-              className={cn(
-                'p-2.5 shrink-0 flex items-center justify-center rounded border',
-                isControlsOpen
-                  ? 'bg-blue-700 dark:bg-blue-600 text-white border-transparent hover:bg-blue-800 dark:hover:bg-blue-700'
-                  : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-muted dark:hover:bg-input/50'
-              )}
-            >
-              <SlidersHorizontal className="w-5 h-5" />
-            </button>
-          )}
+        {!isPlayMode && (
+          <div className="print:hidden flex items-center gap-2 shrink-0">
+            {text && (
+              <button
+                type="button"
+                title={isControlsOpen ? t('Hide display controls') : t('Show display controls')}
+                onClick={() => setIsControlsOpen(!isControlsOpen)}
+                className={cn(
+                  'p-2.5 shrink-0 flex items-center justify-center rounded border',
+                  isControlsOpen
+                    ? 'bg-blue-700 dark:bg-blue-600 text-white border-transparent hover:bg-blue-800 dark:hover:bg-blue-700'
+                    : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-muted dark:hover:bg-input/50'
+                )}
+              >
+                <SlidersHorizontal className="w-5 h-5" />
+              </button>
+            )}
 
-          <SongOverflowMenu song={song} canEdit={canEdit} onEdit={() => openEditSong(song)} />
-        </div>
+            <SongOverflowMenu song={song} canEdit={canEdit} onEdit={() => openEditSong(song)} />
+          </div>
+        )}
       </div>
 
-      {text && (
+      {text && !isPlayMode && (
         <SongControlsPanel
           open={isControlsOpen}
           fontSize={fontSize}
@@ -383,13 +431,16 @@ export function SongDetailPage() {
           useFlats={transpose?.useFlats ?? false}
           columnClass={columnClass}
           hideTextLine={hideTextLine}
-          hideChordLine={hideChordLine}
+          // Chords always show in Play mode — its bar has no toggle to bring them back.
+          hideChordLine={hideChordLine && !isPlayMode}
           fontSize={fontSize}
           chordInstrument={chordDiagramInstrument}
           showChordStrip={chordStripVisible}
           inlineChordDiagrams={chordDiagramInline}
           chordDiagramScale={chordDiagramScale}
           chordNotation={chordNotation}
+          notesEditable={!isPlayMode}
+          chordTapEnabled={!isPlayMode}
         />
       ) : (
         <EmptyState
@@ -398,13 +449,48 @@ export function SongDetailPage() {
         />
       )}
 
-      <SongNavigation navigation={navigation} onNavigate={goToSong} />
+      {/* Play mode has its own (hold-to-confirm) prev/next in the bar. */}
+      {!isPlayMode && (
+        <SongNavigation
+          navigation={navigation}
+          onNavigate={goToSong}
+          prevNumber={prevNumber}
+          nextNumber={nextNumber}
+          total={setlistLength}
+        />
+      )}
 
       <GroupEditorDialog
         open={isGroupEditorOpen}
         onOpenChange={setIsGroupEditorOpen}
         songName={song.Name}
       />
+
+      {/* Portalled out: this wrapper has will-change-transform, which would
+          otherwise make it (not the viewport) the containing block of the
+          fixed-position bar. */}
+      {isPlayMode &&
+        createPortal(
+          <>
+            <PlayModeBar
+              songName={numberedTitle(song.Name, songNumber, setlistLength)}
+              prevLabel={prevLabel}
+              nextLabel={nextLabel}
+              position={
+                navigation.currentIndex >= 0 && setlistLength > 1
+                  ? { index: navigation.currentIndex + 1, total: setlistLength }
+                  : null
+              }
+              prev={navigation.prev}
+              next={navigation.next}
+              onNavigate={goToSong}
+              autoScroll={autoScroll}
+              onExit={exitPlayMode}
+            />
+            <PlayModeSongBanner songName={numberedTitle(song.Name, songNumber, setlistLength)} />
+          </>,
+          document.body
+        )}
     </div>
   );
 }

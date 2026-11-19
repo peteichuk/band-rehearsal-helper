@@ -9,7 +9,10 @@ interface MetronomeModalProps {
   open: boolean;
   onClose: () => void;
   hasOpenedOnce: boolean;
-  /** Identifies the current song (e.g. a route path) — changing it resets the metronome. */
+  /**
+   * Identifies the current route — the metronome resets (and stops) when it
+   * moves to a different section, but not between songs (see `panelKey`).
+   */
   resetKey: string;
   bpm: number | null;
   /** Song's time signature from the sheet, e.g. "4/4", "6/8". */
@@ -33,6 +36,11 @@ export function MetronomeModal({
   const { metronomeDefaultTimeSignatureId, metronomeDefaultBpm } = useAppPreferences();
 
   if (!hasOpenedOnce) return null;
+  // Every song shares one key, so flipping prev/next keeps the same panel
+  // (and its running engine) alive — it just re-seeds BPM/meter/sound from
+  // the new song (see useSyncedMetronomePreset). Leaving the song section
+  // still remounts, which stops it.
+  const panelKey = resetKey.startsWith('/song/') ? '/song' : resetKey;
   const resolvedBpm = bpm || metronomeDefaultBpm;
   const initialTimeSignatureId = getTimeSignatureIdFromLabel(
     timeSignature,
@@ -74,9 +82,10 @@ export function MetronomeModal({
 
         <div className="flex flex-col gap-4 min-h-0 overflow-y-auto">
           <LocalMetronomePanel
-            key={resetKey}
+            key={panelKey}
             bpm={resolvedBpm}
             timeSignatureId={initialTimeSignatureId}
+            sheetHasBpm={Boolean(bpm)}
             songName={songName}
             onPlayingChange={onPlayingChange}
           />

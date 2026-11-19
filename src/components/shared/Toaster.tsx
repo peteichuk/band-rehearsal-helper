@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
+import { MetronomeIcon } from '@/components/metronome/MetronomeIcon';
 import { dismissToast, getToastsSnapshot, subscribeToasts, type ToastType } from '@/lib/toast';
 
 const TOAST_STYLES: Record<ToastType, { icon: typeof Info; border: string; iconColor: string }> = {
@@ -26,13 +27,19 @@ const TOAST_STYLES: Record<ToastType, { icon: typeof Info; border: string; iconC
 };
 
 /** Mounted once at the app root — renders whatever's in the shared toast queue (see src/lib/toast.ts), so a toast outlives the modal/action that triggered it. */
-export function Toaster() {
+export function Toaster({ raised = false }: { raised?: boolean }) {
   const toasts = useSyncExternalStore(subscribeToasts, getToastsSnapshot);
 
   if (toasts.length === 0) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-6 z-[100] flex flex-col items-center gap-2 px-4">
+    <div
+      className={`pointer-events-none fixed inset-x-0 z-[100] flex flex-col items-center gap-2 px-4 ${
+        // Play mode's control bar sits along the bottom — lift above it
+        // instead of covering its buttons.
+        raised ? 'bottom-[calc(11rem+env(safe-area-inset-bottom))]' : 'bottom-6'
+      }`}
+    >
       {toasts.map(toast => {
         const { icon: Icon, border, iconColor } = TOAST_STYLES[toast.type];
         return (
@@ -42,7 +49,15 @@ export function Toaster() {
             onClick={() => dismissToast(toast.id)}
             className={`pointer-events-auto flex max-w-sm items-start gap-2 rounded-lg border-2 ${border} bg-white px-3 py-2 text-left text-sm text-gray-900 shadow-lg animate-in fade-in slide-in-from-bottom-2 dark:bg-gray-800 dark:text-gray-100`}
           >
-            <Icon className={`mt-0.5 size-4 shrink-0 ${iconColor}`} />
+            {toast.icon === 'metronome-off' ? (
+              <MetronomeIcon
+                playing={false}
+                crossedOut
+                className={`mt-0.5 size-4 shrink-0 ${iconColor}`}
+              />
+            ) : (
+              <Icon className={`mt-0.5 size-4 shrink-0 ${iconColor}`} />
+            )}
             <span>{toast.message}</span>
           </button>
         );

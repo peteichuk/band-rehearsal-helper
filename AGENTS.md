@@ -43,6 +43,7 @@ If you change `src/` without rebuilding `docs/`, the live site silently keeps se
 - TypeScript strict — run `npx tsc --noEmit -p .` after non-trivial changes.
 - Don't run `npm run build` during regular development — it regenerates the committed `docs/` folder, which just creates diff noise while iterating. Only run it when you actually need to confirm the production build passes (e.g. right before the user commits/pushes, or when debugging a build-only failure), per the `docs/` section above.
 - No test suite exists, and none is expected — don't add one or write tests unless the user explicitly asks.
+- **Locale files must stay line-for-line in sync:** all 7 `src/locales/*.json` have the exact same keys (same order) and therefore the same line count — the owner checks `wc -l` to spot missing strings. Always add every new `t('…')` string to all 7 files, even when no translation is needed (same text), and give every plural key the full `_one/_few/_many/_other` + base set in every locale, even for languages that don't use all categories. Details and a check script: `.claude/CLAUDE.md` → i18n.
 - Prettier formatting is enforced via `lint-staged`/Husky on commit; run `npm run format` if unsure.
 - Match existing patterns for new local-cache categories (type in `SongListCategory`, a `reset*` function in `src/lib/*`, wiring in `SettingsModal.tsx`) rather than inventing a new shape.
 
