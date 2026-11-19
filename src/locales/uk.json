@@ -364,5 +364,21 @@
   "Metronome stopped: this song has no BPM": "Метроном зупинено: у цієї пісні немає BPM",
   "Edit which songs": "Змінити, які саме пісні",
   "Search setlists…": "Пошук сетлистів…",
-  "No setlists found": "Сетлистів не знайдено"
+  "No setlists found": "Сетлистів не знайдено",
+  "Previous position": "Попередня позиція",
+  "Next position": "Наступна позиція",
+  "All songs": "Усі пісні",
+  "This song": "Ця пісня",
+  "This song, temporarily": "Ця пісня, тимчасово",
+  "Chord positions": "Позиції акордів",
+  "Which fingering of a chord diagram you picked — for all songs or for a single song.": "Яку аплікатуру діаграми акорду ви обрали — для всіх пісень або для однієї.",
+  "Reset Chord Positions": "Скинути позиції акордів",
+  "Reset all your chosen chord positions? This cannot be undone.": "Скинути всі обрані позиції акордів? Це неможливо скасувати.",
+  "Chord positions reset.": "Позиції акордів скинуто.",
+  "Applies to": "Застосовується до",
+  "Chord": "Акорд",
+  "Standard": "Стандарт",
+  "Chosen": "Обрана",
+  "Reset all chord positions ({{instrument}})? This cannot be undone.": "Скинути всі позиції акордів ({{instrument}})? Це неможливо скасувати.",
+  "chord positions": "позиції акордів"
 }

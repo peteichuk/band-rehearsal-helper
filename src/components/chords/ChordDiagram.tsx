@@ -7,6 +7,7 @@ import {
   type ChordInstrument,
   type FretboardDb,
 } from '@/lib/chords/chordDiagrams';
+import { useChordPosition } from '@/hooks/useChordPositions';
 import { FretboardDiagram } from '@/components/chords/FretboardDiagram';
 import { PianoDiagram } from '@/components/chords/PianoDiagram';
 
@@ -16,13 +17,16 @@ interface ChordDiagramProps {
   instrument: ChordInstrument;
   /** Width in px of a guitar/ukulele diagram — the piano is drawn proportionally wider. */
   width: number;
+  /** Forces a specific fingering (the popover's preview) instead of the saved choice. */
+  positionIndex?: number;
 }
 
 // A keyboard needs more horizontal room than a 4–6 string chord box to stay readable.
 const PIANO_WIDTH_FACTOR = 1.8;
 
-export function ChordDiagram({ chord, instrument, width }: ChordDiagramProps) {
+export function ChordDiagram({ chord, instrument, width, positionIndex }: ChordDiagramProps) {
   const { t } = useTranslation();
+  const saved = useChordPosition(instrument, chord);
   const [db, setDb] = useState<FretboardDb | null>(null);
 
   useEffect(() => {
@@ -51,7 +55,7 @@ export function ChordDiagram({ chord, instrument, width }: ChordDiagramProps) {
   if (!db || db.main.strings !== expectedStrings) {
     return <div style={{ width, height: width * 1.1 }} aria-hidden="true" />;
   }
-  const position = findFretboardPosition(db, chord);
+  const position = findFretboardPosition(db, chord, positionIndex ?? saved.index);
   return position ? (
     <FretboardDiagram
       position={position}

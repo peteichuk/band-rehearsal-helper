@@ -25,7 +25,7 @@ Google Sheets example: [https://docs.google.com/spreadsheets/d/1v3vPgo1TT92YsecQ
 - **Mobile Friendly:** Fully responsive, installable as a PWA.
 - **Metronome:** Built-in Web Audio metronome with per-song presets, accent patterns, custom audio output device, an optional visual beat flash (screen-edge glow), a needle that swings in time with the beat, keeps running when you switch songs (stops if the next one has no BPM), and configurable defaults (click sound, tempo, time signature) for songs without their own.
 - **Play Mode:** A stage view for a song — toolbar tucked away until you tap, big hold-to-confirm prev/next buttons, a big metronome play/pause, and auto-scroll. Songs opened from a setlist are numbered (`№3/12`).
-- **Chord Diagrams:** Tap a chord to see its guitar, ukulele, or piano diagram; optionally list every chord of the song below it, with adjustable size and defaults in Settings.
+- **Chord Diagrams:** Tap a chord to see its guitar, ukulele, or piano diagram; optionally list every chord of the song below it, with adjustable size and defaults in Settings. Alternative fingerings can be saved for all songs or per song.
 - **Works Offline:** Once loaded, keeps working without a signal.
 - **Flexible Layout:** Split lyrics into columns, hide chords/text, adjust font size.
 - **Admin Mode (Google Sign-In):** Add/edit songs directly from the app if you have edit access.

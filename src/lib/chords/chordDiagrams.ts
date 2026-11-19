@@ -113,12 +113,12 @@ const CHROMA_TO_DB_KEYS: Record<number, string[]> = {
   11: ['B'],
 };
 
-/** First fingering in the database for this chord, or null (unknown chord, or not in this instrument's DB). */
-export function findFretboardPosition(db: FretboardDb, symbol: string): FretboardPosition | null {
+/** Every fingering in the database for this chord (empty: unknown chord, or not in this instrument's DB). */
+export function findFretboardPositions(db: FretboardDb, symbol: string): FretboardPosition[] {
   const parsed = parseChordSymbol(symbol);
-  if (!parsed) return null;
+  if (!parsed) return [];
   const dbKey = CHROMA_TO_DB_KEYS[parsed.rootChroma].find(key => key in db.chords);
-  if (!dbKey) return null;
+  if (!dbKey) return [];
   const suffix = QUALITY_TO_SUFFIX[parsed.quality] ?? parsed.quality;
   const entries = db.chords[dbKey];
   const find = (wanted: string) => entries.find(entry => entry.suffix === wanted);
@@ -128,9 +128,20 @@ export function findFretboardPosition(db: FretboardDb, symbol: string): Fretboar
   if (parsed.bassChroma !== null && (suffix === 'major' || suffix === 'minor')) {
     const slash = `${suffix === 'minor' ? 'm' : ''}/${BASS_NAMES[parsed.bassChroma]}`;
     const slashEntry = find(slash);
-    if (slashEntry) return slashEntry.positions[0] ?? null;
+    if (slashEntry?.positions.length) return slashEntry.positions;
   }
-  return find(suffix)?.positions[0] ?? null;
+  return find(suffix)?.positions ?? [];
+}
+
+/** The `index`-th fingering (wraps/clamps to what exists), or null. */
+export function findFretboardPosition(
+  db: FretboardDb,
+  symbol: string,
+  index = 0
+): FretboardPosition | null {
+  const positions = findFretboardPositions(db, symbol);
+  if (positions.length === 0) return null;
+  return positions[index] ?? positions[0];
 }
 
 export interface PianoChord {

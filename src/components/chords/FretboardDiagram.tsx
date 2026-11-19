@@ -37,7 +37,8 @@ export function FretboardDiagram({ position, strings, frets, width }: FretboardD
         y1={TOP}
         y2={TOP}
         stroke="currentColor"
-        strokeWidth={position.baseFret === 1 ? 3 : 1}
+        strokeWidth={position.baseFret === 1 ? 2.5 : 1.25}
+        vectorEffect="non-scaling-stroke"
       />
       {position.baseFret > 1 && (
         <text x={2} y={TOP + FRET_GAP * 0.65} fontSize={9} fill="currentColor">
@@ -52,8 +53,9 @@ export function FretboardDiagram({ position, strings, frets, width }: FretboardD
           y1={TOP + (i + 1) * FRET_GAP}
           y2={TOP + (i + 1) * FRET_GAP}
           stroke="currentColor"
-          strokeWidth={0.8}
-          opacity={0.6}
+          strokeWidth={1.25}
+          opacity={0.75}
+          vectorEffect="non-scaling-stroke"
         />
       ))}
       {Array.from({ length: strings }, (_, i) => (
@@ -64,8 +66,9 @@ export function FretboardDiagram({ position, strings, frets, width }: FretboardD
           y1={TOP}
           y2={TOP + boardHeight}
           stroke="currentColor"
-          strokeWidth={0.8}
-          opacity={0.6}
+          strokeWidth={1.25}
+          opacity={0.75}
+          vectorEffect="non-scaling-stroke"
         />
       ))}
 

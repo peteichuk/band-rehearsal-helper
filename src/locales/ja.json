@@ -364,5 +364,21 @@
   "Metronome stopped: this song has no BPM": "メトロノームを停止しました：この曲にはBPMがありません",
   "Edit which songs": "対象の曲を編集",
   "Search setlists…": "セットリストを検索…",
-  "No setlists found": "セットリストが見つかりません"
+  "No setlists found": "セットリストが見つかりません",
+  "Previous position": "前のポジション",
+  "Next position": "次のポジション",
+  "All songs": "すべての曲",
+  "This song": "この曲",
+  "This song, temporarily": "この曲（一時的）",
+  "Chord positions": "コードのポジション",
+  "Which fingering of a chord diagram you picked — for all songs or for a single song.": "コードダイアグラムで選んだ押さえ方（すべての曲または1曲のみ）。",
+  "Reset Chord Positions": "コードポジションをリセット",
+  "Reset all your chosen chord positions? This cannot be undone.": "選択したコードポジションをすべてリセットしますか？この操作は元に戻せません。",
+  "Chord positions reset.": "コードポジションをリセットしました。",
+  "Applies to": "適用先",
+  "Chord": "コード",
+  "Standard": "標準",
+  "Chosen": "選択",
+  "Reset all chord positions ({{instrument}})? This cannot be undone.": "すべてのコードポジション（{{instrument}}）をリセットしますか？この操作は元に戻せません。",
+  "chord positions": "コードポジション"
 }

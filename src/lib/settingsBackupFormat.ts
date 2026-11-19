@@ -1,6 +1,7 @@
 import type { PinOverrides } from '@/lib/localPins';
 import type { LocalGroups } from '@/lib/localGroups';
 import type { MetronomePreset } from '@/lib/metronomePresets';
+import type { ChordPositionsBackup } from '@/lib/chordPositions';
 import type { SetlistSongEntry } from '@/lib/localSetlists';
 import type { BackupAppPreferences } from '@/lib/appPreferences';
 import type { Orientation, OrientationDisplayConfig } from '@/lib/songDisplayConfig';
@@ -27,4 +28,5 @@ export interface ExportedSettings {
   appearanceDefaults?: AppearanceDefaults;
   appPreferences?: Partial<BackupAppPreferences>;
   metronomePresets?: Record<string, MetronomePreset>;
+  chordPositions?: Partial<ChordPositionsBackup>;
 }

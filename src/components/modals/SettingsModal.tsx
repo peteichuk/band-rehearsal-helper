@@ -9,6 +9,7 @@ import { SettingsSongDisplaySection } from '@/components/modals/SettingsSongDisp
 import { SettingsMetronomeSection } from '@/components/modals/SettingsMetronomeSection';
 import { SettingsAboutSection } from '@/components/modals/SettingsAboutSection';
 import { SettingsChordDiagramsSection } from '@/components/modals/SettingsChordDiagramsSection';
+import { ChordPositionsDialog } from '@/components/modals/ChordPositionsDialog';
 import { CachedSongListModal } from '@/components/modals/CachedSongListModal';
 import { TonalityPresetDialog } from '@/components/modals/TonalityPresetDialog';
 import { LineNotesPresetDialog } from '@/components/modals/LineNotesPresetDialog';
@@ -51,6 +52,14 @@ import {
   subscribeSongTonalityPrefs,
   getSongTonalityPrefsSnapshot,
 } from '@/lib/songKeyPrefs';
+import {
+  countChordPositionOverrides,
+  getChordPositionsBackup,
+  mergeChordPositions,
+  getChordPositionsSnapshot,
+  resetAllChordPositions,
+  subscribeChordPositions,
+} from '@/lib/chordPositions';
 import {
   deleteSongLineNotes,
   mergeSongLineNotes,
@@ -95,7 +104,8 @@ type BackupCategory =
   | 'setlists'
   | 'appearance'
   | 'appPreferences'
-  | 'metronomePresets';
+  | 'metronomePresets'
+  | 'chordPositions';
 
 const BACKUP_CATEGORY_KEYS: BackupCategory[] = [
   'favorites',
@@ -107,6 +117,7 @@ const BACKUP_CATEGORY_KEYS: BackupCategory[] = [
   'appearance',
   'appPreferences',
   'metronomePresets',
+  'chordPositions',
 ];
 
 function selectionOf(value: boolean): Record<BackupCategory, boolean> {
@@ -130,6 +141,7 @@ function presentCategoriesOf(parsed: Partial<ExportedSettings>): Record<BackupCa
     metronomePresets: Boolean(
       parsed.metronomePresets && typeof parsed.metronomePresets === 'object'
     ),
+    chordPositions: Boolean(parsed.chordPositions && typeof parsed.chordPositions === 'object'),
   };
 }
 
@@ -172,6 +184,7 @@ const BACKUP_CATEGORY_LABEL_KEY: Record<BackupCategory, string> = {
   appearance: 'Appearance settings',
   appPreferences: 'App preferences (chord diagrams, metronome, song display)',
   metronomePresets: 'Metronome presets',
+  chordPositions: 'Chord positions',
 };
 
 const SONG_LIST_TITLE_KEY: Record<SongListCategory, string> = {
@@ -188,6 +201,7 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
   const [searchParams] = useSearchParams();
   const songByName = useMemo(() => new Map(allSongs.map(song => [song.Name, song])), [allSongs]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [chordPositionsOpen, setChordPositionsOpen] = useState(false);
   const [listCategory, setListCategory] = useState<SongListCategory | null>(null);
   const [editing, setEditing] = useState<{ category: SongListCategory; songName: string } | null>(
     null
@@ -204,6 +218,8 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
   const tonalityPrefCount = Object.keys(tonalityPrefs).length;
   const lineNotes = useSyncExternalStore(subscribeSongLineNotes, getSongLineNotesSnapshot);
   const lineNotesSongCount = Object.keys(lineNotes).length;
+  useSyncExternalStore(subscribeChordPositions, getChordPositionsSnapshot);
+  const chordPositionsCount = countChordPositionOverrides();
   const metronomePresets = useSyncExternalStore(
     subscribeMetronomePresets,
     getMetronomePresetsSnapshot
@@ -223,7 +239,10 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
   };
 
   const startExport = () =>
-    setBackupStep({ kind: 'export', selection: { ...selectionOf(true), appearance: false } });
+    setBackupStep({
+      kind: 'export',
+      selection: { ...selectionOf(true), appearance: false, chordPositions: false },
+    });
   const cancelBackupStep = () => setBackupStep({ kind: 'idle' });
 
   const confirmExport = () => {
@@ -243,6 +262,7 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
       ...(selection.appearance && { appearanceDefaults: getAllGlobalDefaults() }),
       ...(selection.appPreferences && { appPreferences: getBackupAppPreferences() }),
       ...(selection.metronomePresets && { metronomePresets: getMetronomePresetsSnapshot() }),
+      ...(selection.chordPositions && { chordPositions: getChordPositionsBackup() }),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -264,7 +284,12 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
       }
       // Pre-check only what the file actually has — the rest stay
       // unchecked AND disabled, so there's nothing to accidentally toggle on.
-      setBackupStep({ kind: 'import', parsed, present, selection: { ...present } });
+      setBackupStep({
+        kind: 'import',
+        parsed,
+        present,
+        selection: { ...present, chordPositions: false },
+      });
     } catch (err) {
       showToast(t('Import failed: {{message}}', { message: (err as Error).message }), 'error');
     }
@@ -341,6 +366,11 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
       );
     }
 
+    if (selection.chordPositions && parsed.chordPositions) {
+      mergeChordPositions(parsed.chordPositions);
+      imported.push(t('chord positions'));
+    }
+
     showToast(
       imported.length > 0
         ? t('Imported: {{list}}.', { list: imported.join(', ') })
@@ -386,6 +416,13 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
     ) {
       resetSongLineNotes();
       showToast(t('Line notes cleared.'), 'success');
+    }
+  };
+
+  const handleResetChordPositions = () => {
+    if (window.confirm(t('Reset all your chosen chord positions? This cannot be undone.'))) {
+      resetAllChordPositions();
+      showToast(t('Chord positions reset.'), 'success');
     }
   };
 
@@ -650,6 +687,26 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
               </div>
             </div>
 
+            <div>
+              <h3 className="text-sm font-semibold mb-1">{t('Chord positions')}</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                {t(
+                  'Which fingering of a chord diagram you picked — for all songs or for a single song.'
+                )}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleResetChordPositions}
+                  disabled={chordPositionsCount === 0}
+                >
+                  {t('Reset Chord Positions')}
+                </Button>
+                <EditListButton onClick={() => setChordPositionsOpen(true)} />
+              </div>
+            </div>
+
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
               <h3 className="text-sm font-semibold mb-1">{t('Backup')}</h3>
 
@@ -733,6 +790,11 @@ export function SettingsModal({ open, onOpenChange, allSongs }: SettingsModalPro
           </div>
         </div>
       </DialogContent>
+
+      <ChordPositionsDialog
+        open={chordPositionsOpen}
+        onClose={() => setChordPositionsOpen(false)}
+      />
 
       {listCategory && (
         <CachedSongListModal

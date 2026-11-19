@@ -364,5 +364,21 @@
   "Metronome stopped: this song has no BPM": "मेट्रोनोम रुका: इस गाने में BPM नहीं है",
   "Edit which songs": "कौन से गाने, यह बदलें",
   "Search setlists…": "सेटलिस्ट खोजें…",
-  "No setlists found": "कोई सेटलिस्ट नहीं मिली"
+  "No setlists found": "कोई सेटलिस्ट नहीं मिली",
+  "Previous position": "पिछली पोजीशन",
+  "Next position": "अगली पोजीशन",
+  "All songs": "सभी गाने",
+  "This song": "यह गाना",
+  "This song, temporarily": "यह गाना, अस्थायी रूप से",
+  "Chord positions": "कॉर्ड पोजीशन",
+  "Which fingering of a chord diagram you picked — for all songs or for a single song.": "कॉर्ड डायग्राम की कौन-सी फ़िंगरिंग आपने चुनी — सभी गानों के लिए या किसी एक गाने के लिए।",
+  "Reset Chord Positions": "कॉर्ड पोजीशन रीसेट करें",
+  "Reset all your chosen chord positions? This cannot be undone.": "चुनी गई सभी कॉर्ड पोजीशन रीसेट करें? इसे पूर्ववत नहीं किया जा सकता।",
+  "Chord positions reset.": "कॉर्ड पोजीशन रीसेट हो गईं।",
+  "Applies to": "किस पर लागू",
+  "Chord": "कॉर्ड",
+  "Standard": "मानक",
+  "Chosen": "चुनी गई",
+  "Reset all chord positions ({{instrument}})? This cannot be undone.": "सभी कॉर्ड पोज़िशन ({{instrument}}) रीसेट करें? इसे पूर्ववत नहीं किया जा सकता।",
+  "chord positions": "कॉर्ड पोज़िशन"
 }

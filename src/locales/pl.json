@@ -364,5 +364,21 @@
   "Metronome stopped: this song has no BPM": "Metronom zatrzymany: ten utwór nie ma BPM",
   "Edit which songs": "Zmień, które utwory",
   "Search setlists…": "Szukaj setlist…",
-  "No setlists found": "Nie znaleziono setlist"
+  "No setlists found": "Nie znaleziono setlist",
+  "Previous position": "Poprzednia pozycja",
+  "Next position": "Następna pozycja",
+  "All songs": "Wszystkie piosenki",
+  "This song": "Ta piosenka",
+  "This song, temporarily": "Ta piosenka, tymczasowo",
+  "Chord positions": "Pozycje akordów",
+  "Which fingering of a chord diagram you picked — for all songs or for a single song.": "Który układ palców diagramu akordu wybrano — dla wszystkich piosenek lub jednej.",
+  "Reset Chord Positions": "Zresetuj pozycje akordów",
+  "Reset all your chosen chord positions? This cannot be undone.": "Zresetować wszystkie wybrane pozycje akordów? Tej operacji nie można cofnąć.",
+  "Chord positions reset.": "Pozycje akordów zresetowane.",
+  "Applies to": "Dotyczy",
+  "Chord": "Akord",
+  "Standard": "Standard",
+  "Chosen": "Wybrana",
+  "Reset all chord positions ({{instrument}})? This cannot be undone.": "Zresetować wszystkie pozycje akordów ({{instrument}})? Tej operacji nie można cofnąć.",
+  "chord positions": "pozycje akordów"
 }

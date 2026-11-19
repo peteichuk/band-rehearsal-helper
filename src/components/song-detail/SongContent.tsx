@@ -6,6 +6,7 @@ import { transposeChord, type ChordNotation } from '@/lib/chords/transpose';
 import type { ChordDiagramSetting } from '@/lib/chords/chordDiagrams';
 import { ChordPopover, type OpenChord } from '@/components/chords/ChordPopover';
 import { ChordStrip } from '@/components/chords/ChordStrip';
+import { ChordSongContext } from '@/hooks/useChordPositions';
 import { ChordLine } from '@/components/song-detail/ChordLine';
 import { InlineNote } from '@/components/song-detail/InlineNote';
 import { selectionAwareClick } from '@/lib/selectionAwareClick';
@@ -102,7 +103,7 @@ export function SongContent({
   };
 
   return (
-    <>
+    <ChordSongContext.Provider value={songName}>
       <div
         id="songContent"
         className={cn(
@@ -225,6 +226,6 @@ export function SongContent({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </ChordSongContext.Provider>
   );
 }
