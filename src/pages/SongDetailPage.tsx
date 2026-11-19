@@ -435,7 +435,7 @@ export function SongDetailPage() {
           hideChordLine={hideChordLine && !isPlayMode}
           fontSize={fontSize}
           chordInstrument={chordDiagramInstrument}
-          showChordStrip={chordStripVisible}
+          showChordStrip={chordStripVisible && !isPlayMode}
           inlineChordDiagrams={chordDiagramInline}
           chordDiagramScale={chordDiagramScale}
           chordNotation={chordNotation}
